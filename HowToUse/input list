@@ -1,0 +1,27 @@
+1. 訓練資料夾
+train_data_path = r'D:\DL\chest_xray\train'
+
+    * chest_xray
+        - train
+            - NORMAL
+                - IM-0115-0001.jpg
+            - PNEUMONIA
+                - person1_bacteria_1.jpg
+        - test
+        - val
+
+1-1. 使用pandas 變成以下dataframe格式
+                                                     filepaths      label
+        0       D:\DL\chest_xray\train\NORMAL\IM-0115-0001.jpeg     NORMAL
+        1       D:\DL\chest_xray\train\NORMAL\IM-0117-0001.jpeg     NORMAL
+        2       D:\DL\chest_xray\train\NORMAL\IM-0119-0001.jpeg     NORMAL
+        3       D:\DL\chest_xray\train\NORMAL\IM-0122-0001.jpeg     NORMAL
+        4       D:\DL\chest_xray\train\NORMAL\IM-0125-0001.jpeg     NORMAL
+
+        主要是用flow 去餵
+        train_gen = tr_gen.flow_from_dataframe(train_df , x_col = 'filepaths' , y_col = 'label' , target_size = img_size ,
+                                              class_mode = 'categorical' , color_mode = 'rgb' , shuffle = True , batch_size =batch_size)
+
+2. img_size = (224, 224) 輸入大小
+3. num_class = len(classes) 類別數量
+4. Epochs = 10  訓練次數        * 是否有變化性的訓練?

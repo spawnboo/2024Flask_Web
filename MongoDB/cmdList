@@ -1,0 +1,17 @@
+1. 存在物件find()   { "物件名稱" :{$exists:true}}
+ex: { seq :{$exists:true}}
+
+2. 一串物件排序 sort("KEY":1) {一串東西} pymongo.cursor.Cursor
+KEY為固定特定值 1:升序, -1: 降序
+
+
+
+
+
+
+
+
+
+
+
+目前如果要自動新增排序物件最穩的方法應該是找尋特定物件的排序最尾 然後再instre

@@ -1,0 +1,10 @@
+# 如何docker push 到 google Container Registry
+1. "gcloud auth configure-docker" 下指令 將docker 與 google Container Registry 連結
+2. 如下指令 PUSH　就會直接推送到google Container Registry 上  當然如果出現權限不足的訊息! 記得登入!!
+
+
+
+docker build -t spawnboo_Docker.
+
+# docker tag <where the place u want to put>
+docker tag gcr.io/genuine-grid-415302/flask_web

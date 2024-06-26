@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form - Submit</title>
+</head>
+<body bgcolor="grey">
+    <h2>訓練中心</h2>
+    <form action="/startTrain" method="post">
+        <h2>選擇訓練資料路徑(資料夾):</h2>
+        <!-- base_Model 輸入訓練路徑 -->
+        <p><label>訓練資料的路徑 Train Data Path:</label></p>
+            <p><input type="text" name="trainPath" value="D:\DL\chest_xray\train" /></p>
+        <!-- base_Model 選擇清單 -->
+        <label for="model-select">選擇模型:</label>
+            <select name="model" id="model-select" required>
+              <option value="effB3">EffectNet-B3 </option>
+              <option value="res50">ResNet-50</option>
+            </select>
+        <!-- base_Model 詳細設定值 -->
+        <p><label>訓練影像寬高 Image Size Weight/Hight</label></p>
+            <input type="number" name="Image_SizeW" value="224" min="32" step="8" required/>
+            <input type="number" name="Image_SizeH" value="224" min="32" step="8" required/>
+        <p><label>Epoch:</label></p>
+            <p><input type="number" name="Epoch" value="20" min="1" max="1000" required/></p>
+        <label>Batch Size:</label>
+            <p><input type="number" name="Batch_size" value="16" min="1" max="100" required/></p>
+        <label>Drop Rate:</label>
+            <p><input type="number" name="Drop_rate" value="0.5" step="0.1" max="1" min="0" required/></p>
+        <label for="LR">學習率 LearningRate:</label>
+        <p><input type="number" name="Learning_rate" value="0.0001" step="0.0001" min="0.0001" max="0.1" id="LR" required/></p>
+
+        <!-- Summary -->
+        <p><label>呈現訓練模型組成:</label></p>
+        <div>
+          <input type="radio" id="contactChoice1" name="contact" value="True" required/>
+          <label for="contactChoice1">顯示</label>
+          <input type="radio" id="contactChoice2" name="contact" value="False" />
+          <label for="contactChoice2">不顯示</label>
+        </div>
+
+        <!-- 開始訓練按鈕 -->
+        <p><input type="submit" value="開始訓練" /></p>
+    </form>
+
+</body>
+
+</html>

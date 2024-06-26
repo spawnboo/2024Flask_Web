@@ -1,0 +1,48 @@
+header, section, footer{
+    background-color: #d6ccc2;
+}
+header {
+    position:relative;
+}
+
+header a {
+    text-decoration: none;
+}
+header a:hover {
+    text-decoration: underline;
+}
+header li {
+    display:inline;
+    margin-right:4vw;
+}
+header ul {
+    position:absolute;
+    right:5vw;
+    top:0;
+    line-height:40px;
+}
+
+
+
+.Title {
+    background-color: cadetblue;
+    color: black;
+    height: 85vh;
+    background-image: url("images/backgeound_rock.jpg");
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+.Title h2{
+    font-size: 60px;
+}
+.Title p{
+    color: yellow ;
+    font-size: 36px;
+    margin: 25px 0;
+}
+
+.input{
+    display: inline-block;
+}
