@@ -5,13 +5,34 @@ ex: { seq :{$exists:true}}
 KEY為固定特定值 1:升序, -1: 降序
 
 
+比较操作符
+$eq	    等于	            { age: { $eq: 25 } }
+$ne	    不等于	        { age: { $ne: 25 } }
+$gt	    大于	            { age: { $gt: 25 } }
+$gte	大于等于	        { age: { $gte: 25 } }
+$lt	    小于	            { age: { $lt: 25 } }
+$lte	小于等于	        { age: { $lte: 25 } }
+$in	    在指定的数组中	{ age: { $in: [25, 30, 35] } }
+$nin	不在指定的数组中	{ age: { $nin: [25, 30, 35] } }
 
+逻辑操作符
+操作符	描述	                    示例
+$and	逻辑与，符合所有条件	    { $and: [ { age: { $gt: 25 } }, { city: "New York" } ] }
+$or	    逻辑或，符合任意条件	    { $or: [ { age: { $lt: 25 } }, { city: "New York" } ] }
+$not	取反，不符合条件	        { age: { $not: { $gt: 25 } } }
+$nor	逻辑与非，均不符合条件	    { $nor: [ { age: { $gt: 25 } }, { city: "New York" } ] }
 
+数组操作符
+操作符	    描述	                    示例
+$all	    数组包含所有指定的元素	    { tags: { $all: ["red", "blue"] } }
+$elemMatch	数组中的元素匹配指定条件	{ results: { $elemMatch: { score: { $gt: 80, $lt: 85 } } } }
+$size	    数组的长度等于指定值	    { tags: { $size: 3 } }
 
-
-
-
-
+其他操作符
+操作符	描述	                            示例
+$regex	匹配正则表达式	                { name: { $regex: /^A/ } }
+$text	进行文本搜索	                    { $text: { $search: "coffee" } }
+$where	使用 JavaScript 表达式进行条件过滤	{ $where: "this.age > 25" }
 
 
 目前如果要自動新增排序物件最穩的方法應該是找尋特定物件的排序最尾 然後再instre

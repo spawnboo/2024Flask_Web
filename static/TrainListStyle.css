@@ -1,0 +1,111 @@
+<style>
+.trainning_table {
+    font-family: 'Inter', sans-serif;
+    border-collapse: collapse;
+    font-size: 14px;
+    table-layout: fixed;
+    width:100%;
+    border: 1px solid #ddd;
+    scroll-snap-type: y mandatory;
+}
+
+.trainning_table thead tr {
+  background-color: #009578;
+  color: #ffffff;
+  text-align: center;
+  display:block;
+}
+
+.trainning_table tbody tr:nth-of-type(even) {
+    background-color: #f3f3f3;
+}
+
+.trainning_table tbody {
+  display: block;
+  height: 500px;
+  overflow: auto;
+}
+
+.trainning_table tbody  tr {
+  display:block;
+}
+
+.trainning_table th,
+.trainning_table td {
+    padding: 10px 10px;
+    font-weight: normal;
+    text-align: center;
+    width: 80px;
+}
+
+
+
+
+.button {
+  border-radius: 4px;
+  background-color: #f4511e;
+  border: none;
+  color: #FFFFFF;
+  text-align: center;
+  font-size: 20px;
+  padding: 20px;
+  width: 200px;
+  transition: all 0.5s;
+  cursor: pointer;
+  margin: 5px;
+}
+
+.button span {
+  cursor: pointer;
+  display: inline-block;
+  position: relative;
+  transition: 0.5s;
+}
+
+.button span:after {
+  content: '\00bb';
+  position: absolute;
+  opacity: 0;
+  top: 0;
+  right: -20px;
+  transition: 0.5s;
+}
+
+.button:hover span {
+  padding-right: 25px;
+}
+
+.button:hover span:after {
+  opacity: 1;
+  right: 0;
+}
+
+
+
+.Tool_btn_delete {
+  background-color: gray;
+  border: none;
+  color: white;
+  padding: 6px 8px;
+  font-size: 16px;
+  cursor: pointer;
+}
+.Tool_btn_delete:hover {
+  background-color: red;
+}
+
+.Tool_btn_eye {
+  background-color: gray;
+  border: none;
+  color: white;
+  padding: 6px 8px;
+  font-size: 16px;
+  cursor: pointer;
+}
+.Tool_btn_eye:hover {
+  background-color: RoyalBlue;
+}
+
+
+
+</style>

@@ -21,13 +21,33 @@ class MongoDB_Training(MDB):
         }
         self.MDB_Insert(insert_dixt)
 
+    # 訓練菜單排程
+    def Training_list(self):
+        basic_dict = {}
+        # 輸入前準備
 
+
+        # 選擇Database and Collection 準備存入資料庫!
+        self.ConnDatabase("FlaskWeb")
+        self.Collections("Train_Schedule")
+
+        # 寫入排程資料庫
+        # self.Insert()
+
+    # 訓練菜單紀錄
+
+
+    # 訓練過程狀態
 
 
 if __name__ == "__main__":
-    uri = "mongodb+srv://e01646166:Ee0961006178@spawnboo.dzmdzto.mongodb.net/?retryWrites=true&w=majority&appName=spawnboo"
-    mdb = MongoDB_Training(uri)
-    mdb.MDB_Database('FlaskWeb')
-    mdb.MDB_Collection('coustom')
+    # uri = "mongodb+srv://e01646166:Ee0961006178@spawnboo.dzmdzto.mongodb.net/?retryWrites=true&w=majority&appName=spawnboo"
+    # spawnboo_MDB = MongoDB_Training(uri)
 
-    mdb.create_train_mission()
+    # 两个字典
+    dict1 = {'a': 10, 'b': 8}
+    dict2 = {'b': 6, 'c': 4}
+
+    # 返回  None
+    dict2.update(dict1)
+    print(dict2)

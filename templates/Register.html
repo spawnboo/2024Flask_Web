@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width">
+    <title>鱷魚AI動物園</title>
+    <link rel= "stylesheet" type= "text/css" href="static/LoginStyle.css">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+</head>
+
+<body>
+    <div class="wrapper">
+        <form method="post" action="/register">
+            <h1>Register</h1>
+            <div class="input-box">
+                <input type="text"  name="user_id" placeholder="UserName" required>
+                <i class='bx bxs-user'></i>
+            </div>
+            <div class="input-box">
+                <input type="password"  name="password" placeholder="PassWord" required>
+                <i class='bx bxs-lock-alt'></i>
+            </div>
+            <div class="input-box">
+                <input type="email"  name="email" placeholder="E-Mail" onclick="click=register" required>
+                <i class='bx bxs-envelope'></i>
+            </div>
+
+            <div class="input-box">
+                <h2>{{ note_text }}</h2>
+            </div>
+
+            {% with messages = get_flashed_messages() %}
+            {% if messages %}
+            <ul class="flash">
+                {% for message in messages %}
+                    <li>{{ message }}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+            {% endwith %}
+
+            <button type="submit" name="Register_btn" value="rb" class="btn">Register</button>
+        </form>
+    </div>
+</body>
+</html>
