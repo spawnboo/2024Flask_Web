@@ -4,8 +4,50 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel= "stylesheet" type= "text/css" href="static/MenuLine.css">
     <title>鱷魚AI動物園</title>
+
+    <div class="topnav" id="myTopnav">
+  <div class="dropdownR">
+    <button class="dropbtnR">
+      <i class="fa fa-user-circle" aria-hidden="true"></i>
+    </button>
+    <div class="dropdown-contentR">
+      {% if current_user.is_authenticated %}
+      <a href="#">使者者訊息</a>
+      <a href="logout">登出</a>
+      {% else %}
+      <a href="#">登入</a>
+      {% endif %}
+    </div>
+  </div>
+  <a href="TrainSet">訓練模型</a>
+  <a href="#contact">預測系統</a>
+  <div class="dropdown">
+    <button class="dropbtn">數據管理
+      <i class="fa fa-caret-down"></i>
+    </button>
+    <div class="dropdown-content">
+      <a href="#">數據上傳</a>
+      <a href="#">數據前處理</a>
+    </div>
+  </div>
+
+  <div class="dropdown">
+    <button class="dropbtn">鱷魚相關
+      <i class="fa fa-caret-down"></i>
+    </button>
+    <div class="dropdown-content">
+      <a href="aboutme">關於鱷魚 About Me</a>
+      <a href="#">聯繫鱷魚 Content Me</a>
+      <a href="https://github.com/spawnboo">Visit My GITHUB</a>
+    </div>
+  </div>
+
+</div>
 </head>
+
+
 <body bgcolor="grey">
     <h2>訓練中心</h2>
     <form action="/startTrain" method="post">

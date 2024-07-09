@@ -3,6 +3,11 @@ from datetime import datetime
 
 
 class MongoDB_Training(MDB):
+    # 查詢序列號碼, 並返回最大值+1
+    def serialNUM(self, keyword, inc=1):
+        insert_txt = { str(keyword) : { "$gt": -1 } }
+        Targer = list(self.Find(insert_txt, sort=[(str(keyword),1)], show_id=False))[-1][str(keyword)]
+        return Targer + inc
 
     # 產生訓練任務的紀錄[永久]
     def create_train_mission(self, Mission_Name='', Creater=''):
@@ -41,13 +46,10 @@ class MongoDB_Training(MDB):
 
 
 if __name__ == "__main__":
-    # uri = "mongodb+srv://e01646166:Ee0961006178@spawnboo.dzmdzto.mongodb.net/?retryWrites=true&w=majority&appName=spawnboo"
-    # spawnboo_MDB = MongoDB_Training(uri)
+    uri = "mongodb+srv://e01646166:Ee0961006178@spawnboo.dzmdzto.mongodb.net/?retryWrites=true&w=majority&appName=spawnboo"
+    spawnboo_MDB = MongoDB_Training(uri)
+    spawnboo_MDB.ConnDatabase('FlaskWeb')
+    spawnboo_MDB.ConnCollection('coustom')
 
-    # 两个字典
-    dict1 = {'a': 10, 'b': 8}
-    dict2 = {'b': 6, 'c': 4}
-
-    # 返回  None
-    dict2.update(dict1)
-    print(dict2)
+    a = spawnboo_MDB.serialNUM('Mkey')
+    print(a)

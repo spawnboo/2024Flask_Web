@@ -1,9 +1,9 @@
-import secrets
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from flask import Flask,  render_template, redirect, url_for
 from flask import request, flash, session
 import MongoDB.MongoDB_Client as MDB
-from datetime import datetime
+import secrets
+import datetime
 
 from RegisterEmail import Register_Function
 # from DataFunction.DataProcess import Data_Dataframe_process, scalar
@@ -11,7 +11,30 @@ from RegisterEmail import Register_Function
 # from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
 
+# 臨時 或暫時存取物件
+users = {'Me': {'password': '123'}}
 
+table_sample = [{'Name': 'Zara', 'Age': 7},
+                {'Name': 'Alex', 'Age': 10},
+                {'Name': 'GG', 'Age': 3},
+                {'Name': 'AC', 'Age': 120},
+                {'Name': 'Ben', 'Age': 40},
+                {'Name': 'Am', 'Age': 20},
+                {'Name': 'Ys', 'Age': 19},
+                {'Name': 'QQ', 'Age': 6},
+                {'Name': 'F', 'Age': 70},
+                {'Name': 'Fung', 'Age': 80}]
+
+
+# 是否啟用資料庫模式
+isMDB = False
+# (暫時)登入Mongodb 路徑與方法
+if isMDB:
+    uri = "mongodb+srv://e01646166:Ee0961006178@spawnboo.dzmdzto.mongodb.net/?retryWrites=true&w=majority&appName=spawnboo"
+    MDB = MDB.MDB(uri)
+
+
+# ======================================================================================================================
 # 開始Flask方法
 app = Flask(__name__)  # __name__ 為 python 內建的變數，他會儲存目前程式在哪個模組下執行
 
@@ -23,11 +46,7 @@ login_manager.session_protection = "strong"
 # login_manager.login_view = 'login'
 login_manager.login_message = '登入出現問題,請重新登入!!'
 
-users = {'Me': {'password': '123'}}
 
-table_sample = [{'Name': 'Zara', 'Age': 7},
-                {'Name': 'Alex', 'Age': 10},
-                {'Name': 'Fung', 'Age': 80}]
 
 # 繼承 UserMinin 物件
 class Member(UserMixin):
@@ -149,17 +168,24 @@ def member():
 
 
 # 登入到待訓練列隊頁面
-@app.route("/trainList", methods=['GET'])  # 函式的裝飾 ( Decorator )，以底下函式為基礎，提供附加的功能，這邊 "/" 代表根目錄
+@app.route("/trainList", methods=['GET', 'POST'])  # 函式的裝飾 ( Decorator )，以底下函式為基礎，提供附加的功能，這邊 "/" 代表根目錄
 #@login_required
 def trainList():
     if request.method == 'GET':
         # 資料庫撈取訓練列隊清單
         # cur = MDB.MDB_find()
         # headers = cur[0].keys()
+
         # 範本用
         cur = table_sample
         headers = table_sample[0].keys()
+
         return render_template("TrainList.html", headers=list(headers), data=list(cur))
+
+    if request.method == 'POST':
+        button_clicked = request.form['Tool_btn_D']
+        print(button_clicked)
+
 
     # 轉跳到Home的html頁
     return render_template("TrainList.html")
@@ -168,6 +194,30 @@ def trainList():
 # 設定訓練菜單
 @app.route('/TrainSet', methods=['POST', 'GET'])  # 這邊'/startTrain' 是對照HTML中 <form> action=[要轉跳的地方] </form>
 def trainSet():
+    # 記錄到資料庫
+
+    #A
+    trainList_MKey = ''
+    membername  = member.id
+    trainModel  = ''
+    creatTime   = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    startTraintime = ''
+    endTraintime = ''
+    trained     = 'False'
+
+    #B
+
+    trainList_Mkey = ''
+    trainPath = request.form['trainPath']  # 取得html中 name== 'trainPath' 的文字
+    modelSelect = request.form['model']  # 取得html中 name== 'model' 的文字
+    Image_SizeW = request.form['Image_SizeW']
+    Image_SizeH = request.form['Image_SizeH']
+    Epoch = request.form['Epoch']
+    Batch_size = request.form['Batch_size']
+    Drop_rate = request.form['Drop_rate']
+    Learning_rate = request.form['Learning_rate']
+
+
     return render_template("trainingset.html")
 
 # 按下StartTrain 名子Button 事件

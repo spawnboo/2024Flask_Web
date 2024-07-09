@@ -6,7 +6,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <link rel= "stylesheet" href="/training_style.css">
     <title>鱷魚AI動物園</title>
 
@@ -53,34 +53,38 @@
 <!--    製作一個新的訓練-->
     <a href="TrainSet"><button class="button"><span>製作訓練菜單 </span></button></a>
 <!--    目前訓練清單與進度-->
-    <table class="trainning_table">
-        <thead>
-            <tr>
-                {% for header in headers %}
-                <th>{{  header }}</th>
-                {% endfor %}
+    <form action="/trainList" method="post">
 
-                <th> Tool </th>
-            </tr>
-        </thead>
+        <table class="trainning_table">
+            <thead>
+                <tr>
+                    {% for header in headers %}
+                    <th>{{  header }}</th>
+                    {% endfor %}
 
-
-        <tbody>
-        {% for row in data %}
-            <tr>
-                {% for item in row.values() %}
-                <td>{{ item }}</td>
-                {% endfor %}
-
-                <!--加入按鈕選項-->
-                <td>
-                  <a href="#"><button class="Tool_btn_delete"><i class="fa fa-trash"></i></button></a>
-                  <a href="#"><button class="Tool_btn_eye"><i class="fa fa-eye" aria-hidden="true"></i></button></a>
-                </td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+                    <th> Tool </th>
+                </tr>
+            </thead>
 
 
+            <tbody>
+            {% for row in data %}
+                <tr>
+                    {% for item in row.values() %}
+                    <td>{{ item }}</td>
+                    {% endfor %}
+
+                    <!--加入按鈕選項  + 判斷式這個人是否有權限 -->
+                    {% if row['Age'] >= 10 %}
+                    <td>
+                      <a href="#"><button class="Tool_btn_delete" name="Tool_btn_D" value={{row['Name']}}><i class="fa fa-trash"></i></button></a>
+                      <a href="#"><button class="Tool_btn_eye" name="Tool_btn_L" value={{row['Name']}}><i class="fa fa-eye" aria-hidden="true"></i></button></a>
+                    </td>
+                    {% endif %}
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+    </form>
 </body>

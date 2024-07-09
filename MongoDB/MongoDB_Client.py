@@ -59,7 +59,7 @@ class MDB:
 
     #============================================ CRUD 資料表查詢等功能 ==================================================
     # 查詢的方法
-    def Find(self,conditionDict = {} , show_id = True):
+    def Find(self,conditionDict = {}, sort=[] , show_id = True):
         """
         :param conditionDict: {}  查詢的Dict
         :param show_id: bool    結果是否要帶入"_id"? [預設True]
@@ -71,9 +71,16 @@ class MDB:
             return False
 
         if show_id:
-            result = self.conn[str(self.Database)][str(self.Collections)].find(conditionDict, {})
+            if sort != []:
+                result = self.conn[str(self.Database)][str(self.Collections)].find(conditionDict, {}).sort(sort)
+            else:
+                result = self.conn[str(self.Database)][str(self.Collections)].find(conditionDict, {})
         else:
-            result = self.conn[str(self.Database)][str(self.Collections)].find(conditionDict,{"_id": 0})
+            if sort != []:
+                result = self.conn[str(self.Database)][str(self.Collections)].find(conditionDict, {"_id": 0}).sort(sort)
+            else:
+                result = self.conn[str(self.Database)][str(self.Collections)].find(conditionDict, {"_id": 0})
+
         return result
 
     # 輸入的方法     *統一使用 instrt_many
@@ -131,16 +138,21 @@ if __name__ == "__main__":
     mdb.ConnDatabase('FlaskWeb')
     mdb.ConnCollection('coustom')
 
+
     dict = {'ip':'192.168.1.119'}
-    insert_txt = {"ip":"127.0.0.12"}
+    insert_txt = { "Mkey": { "$gt": "-1" } }
+    insert_txt = { "Mkey": { "$gt": -1 } }
+    sort = [('G',1)]
 
     # 查詢
     rows = mdb.Find(insert_txt, show_id=False)
+
     for row in rows:
         print(row)
 
+
     # # 輸入
-    # Result = mdb.Insert([insert_txt, dict])
+    # Result = mdb.Insert([insert_txt])
     # print(Result)
 
     # # 修改

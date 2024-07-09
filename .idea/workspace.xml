@@ -4,33 +4,14 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="461a22b0-e3d9-4425-b72b-c83a3d920ae8" name="Changes" comment="1">
-      <change afterPath="$PROJECT_DIR$/RegisterEmail.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/LoginStyle.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/MenuLine.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/TrainListStyle.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/images/backgeound_rock.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/images/bg03.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/images/metal_wall.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/images/metal_wall2.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/images/red_metal.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/images/red_metal2.jpg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/AboutMe.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/LoginPage.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/Member.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/Register.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/RegisterCheck.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/TrainList.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/Flask_Web.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Flask_Web.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+    <list default="true" id="461a22b0-e3d9-4425-b72b-c83a3d920ae8" name="Changes" comment="TrainList Page + css Update">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/FlaskWeb.py" beforeDir="false" afterPath="$PROJECT_DIR$/FlaskWeb.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/MongoDB/DL_Savefunction.py" beforeDir="false" afterPath="$PROJECT_DIR$/MongoDB/DL_Savefunction.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/MongoDB/MongoDB_Client.py" beforeDir="false" afterPath="$PROJECT_DIR$/MongoDB/MongoDB_Client.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MongoDB/cmdList" beforeDir="false" afterPath="$PROJECT_DIR$/MongoDB/cmdList" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/Trainsucess.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/Trainsucess.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/data.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/MenuLine.css" beforeDir="false" afterPath="$PROJECT_DIR$/static/MenuLine.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/TrainListStyle.css" beforeDir="false" afterPath="$PROJECT_DIR$/static/TrainListStyle.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/TrainList.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/TrainList.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/templates/trainingset.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/trainingset.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -40,9 +21,6 @@
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
-  </component>
-  <component name="GithubDefaultAccount">
-    <option name="defaultAccountId" value="336b0694-a7e7-4bdc-ae52-932cecfc4576" />
   </component>
   <component name="ProjectId" id="2hmY1aLlS5UYlbGF7b4s6TPJwTi" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
@@ -54,7 +32,7 @@
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$/static" />
-    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
+    <property name="settings.editor.selected.configurable" value="org.jetbrains.plugins.github.ui.GithubSettingsConfigurable" />
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
@@ -63,7 +41,7 @@
       <recent name="D:\PycharmProjects\2024Flask_Web" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.FlaskWeb">
+  <component name="RunManager" selected="Python.MongoDB_Client">
     <configuration name="DL" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Flask_Web" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -77,6 +55,27 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/DL.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="DL_Savefunction" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="Flask_Web" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/MongoDB" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/MongoDB/DL_Savefunction.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -150,8 +149,9 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.FlaskWeb" />
         <item itemvalue="Python.MongoDB_Client" />
+        <item itemvalue="Python.DL_Savefunction" />
+        <item itemvalue="Python.FlaskWeb" />
         <item itemvalue="Python.main" />
         <item itemvalue="Python.DL" />
       </list>
@@ -176,6 +176,14 @@
       <option name="presentableId" value="Default" />
       <updated>1718200506435</updated>
     </task>
+    <task id="LOCAL-00001" summary="TrainList Page + css Update">
+      <created>1720427261802</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1720427261802</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -189,5 +197,9 @@
       </map>
     </option>
     <option name="oldMeFiltersMigrated" value="true" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="TrainList Page + css Update" />
+    <option name="LAST_COMMIT_MESSAGE" value="TrainList Page + css Update" />
   </component>
 </project>
