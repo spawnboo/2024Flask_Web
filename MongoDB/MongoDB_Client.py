@@ -136,17 +136,21 @@ if __name__ == "__main__":
 
     mdb = MDB(uri)
     mdb.ConnDatabase('FlaskWeb')
-    mdb.ConnCollection('coustom')
+    mdb.ConnCollection('Train_List')
 
 
     dict = {'ip':'192.168.1.119'}
-    insert_txt = { "Mkey": { "$gt": "-1" } }
-    insert_txt = { "Mkey": { "$gt": -1 } }
+    insert_txt = { "Mkey": 0 }
+    find_txt = { "Mkey": { "$gt": -1 } }
     sort = [('G',1)]
 
-    # 查詢
-    rows = mdb.Find(insert_txt, show_id=False)
+    find_txt = {"$or":[
+                {"Finish": {"eq": False}},
+                {"Stop": {"eq": True}}]}
 
+    find_txt = { "Finish": { "eq": False } }
+    # 查詢
+    rows = mdb.Find(find_txt, show_id=False)
     for row in rows:
         print(row)
 
@@ -156,7 +160,9 @@ if __name__ == "__main__":
     # print(Result)
 
     # # 修改
-    # Result = mdb.Update(insert_txt, {"ip":"127.0.0.12"})
+    # Update_Con = { "Mkey": { "$gt": -1 } }
+    #
+    # Result = mdb.Update(Update_Con, {"Batch_size":17})
     # print(Result)
 
     # # 刪除

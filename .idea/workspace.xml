@@ -4,13 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="461a22b0-e3d9-4425-b72b-c83a3d920ae8" name="Changes" comment="TrainList Page + css Update">
+    <list default="true" id="461a22b0-e3d9-4425-b72b-c83a3d920ae8" name="Changes" comment="MDB update">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/FlaskWeb.py" beforeDir="false" afterPath="$PROJECT_DIR$/FlaskWeb.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/MongoDB/DL_Savefunction.py" beforeDir="false" afterPath="$PROJECT_DIR$/MongoDB/DL_Savefunction.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/MongoDB/MongoDB_Client.py" beforeDir="false" afterPath="$PROJECT_DIR$/MongoDB/MongoDB_Client.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/MenuLine.css" beforeDir="false" afterPath="$PROJECT_DIR$/static/MenuLine.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/TrainListStyle.css" beforeDir="false" afterPath="$PROJECT_DIR$/static/TrainListStyle.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/templates/TrainList.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/TrainList.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/templates/trainingset.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/trainingset.html" afterDir="false" />
     </list>
@@ -150,8 +148,8 @@
     <recent_temporary>
       <list>
         <item itemvalue="Python.MongoDB_Client" />
-        <item itemvalue="Python.DL_Savefunction" />
         <item itemvalue="Python.FlaskWeb" />
+        <item itemvalue="Python.DL_Savefunction" />
         <item itemvalue="Python.main" />
         <item itemvalue="Python.DL" />
       </list>
@@ -183,7 +181,14 @@
       <option name="project" value="LOCAL" />
       <updated>1720427261802</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="MDB update">
+      <created>1720518135665</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1720518135665</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -200,6 +205,7 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="TrainList Page + css Update" />
-    <option name="LAST_COMMIT_MESSAGE" value="TrainList Page + css Update" />
+    <MESSAGE value="MDB update" />
+    <option name="LAST_COMMIT_MESSAGE" value="MDB update" />
   </component>
 </project>

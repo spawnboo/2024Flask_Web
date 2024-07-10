@@ -1,9 +1,11 @@
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from flask import Flask,  render_template, redirect, url_for
 from flask import request, flash, session
-import MongoDB.MongoDB_Client as MDB
+import MongoDB.DL_Savefunction as MDB
 import secrets
-import datetime
+
+import threading
+import time
 
 from RegisterEmail import Register_Function
 # from DataFunction.DataProcess import Data_Dataframe_process, scalar
@@ -26,12 +28,10 @@ table_sample = [{'Name': 'Zara', 'Age': 7},
                 {'Name': 'Fung', 'Age': 80}]
 
 
-# 是否啟用資料庫模式
-isMDB = False
-# (暫時)登入Mongodb 路徑與方法
-if isMDB:
-    uri = "mongodb+srv://e01646166:Ee0961006178@spawnboo.dzmdzto.mongodb.net/?retryWrites=true&w=majority&appName=spawnboo"
-    MDB = MDB.MDB(uri)
+
+# # (暫時)登入Mongodb 路徑與方法
+# uri = "mongodb+srv://e01646166:Ee0961006178@spawnboo.dzmdzto.mongodb.net/?retryWrites=true&w=majority&appName=spawnboo"
+# MDB = MDB.MDB(uri)
 
 
 # ======================================================================================================================
@@ -52,16 +52,42 @@ login_manager.login_message = '登入出現問題,請重新登入!!'
 class Member(UserMixin):
     pass
 
+
+def Heavy_func():
+    print("ML doing...")
+    time.sleep(30)
+    print("FINISH~~")
+
+# 訓練排程機器
+def TrainQueeueRobot():
+
+    # 在每次 訓練空閒後,重新排一次訓練資料庫的順序
+
+    # 將Train_List中,Finish=False and Stop=True的讀出來  Train_Parameter值讀出來,
+    find_txt = {"$or":[
+                {"Finish": {"eq": False}},
+                {"Stop": {"eq": True}}]}
+
+    MDB.Find(find_txt, show_id=False)
+    # 將最高順位的訓練排程出去
+    return 0
+
+
 # ======================================================================================================================
 @app.route("/")  # 函式的裝飾 ( Decorator )，以底下函式為基礎，提供附加的功能，這邊 "/" 代表根目錄
 def home():
     # # 嘗試連線至MDB
     # MDB.MDB_Insert(insert_dict)
 
-    #  轉跳至 登入畫面  等未來有空再做登入畫面
-    #return redirect(url_for('login'))
+    # 開啟訓練排程機器人
+    # 註記保留, 多線程啟用訓練方法
+    # thread = threading.Thread(target=TrainQueeueRobot)
+    # thread.daemon = True         # Daemonize
+    # thread.start()
 
-    return redirect(url_for('trainList'))
+    #  轉跳至 登入畫面  等未來有空再做登入畫面
+    return redirect(url_for('login'))
+
 
 # 登入使用者 with cookie
 # 檢查是否是正確的使用者與密碼?  與request_loader 一起需要做
@@ -104,7 +130,7 @@ def login():
         member.id = key_id
         login_user(member)
         flash(f'{key_id}！歡迎加入鱷魚的一份子！')
-        return redirect(url_for('member'))
+        return redirect(url_for('trainList'))
     else:
         flash('登入失敗了...')
         return render_template("LoginPage.html")
@@ -192,22 +218,12 @@ def trainList():
 
 
 # 設定訓練菜單
-@app.route('/TrainSet', methods=['POST', 'GET'])  # 這邊'/startTrain' 是對照HTML中 <form> action=[要轉跳的地方] </form>
+@login_required
+@app.route('/trainSet', methods=['POST', 'GET'])  # 這邊'/startTrain' 是對照HTML中 <form> action=[要轉跳的地方] </form>
 def trainSet():
-    # 記錄到資料庫
+    if request.method == 'GET':
+        return render_template("trainingset.html")
 
-    #A
-    trainList_MKey = ''
-    membername  = member.id
-    trainModel  = ''
-    creatTime   = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    startTraintime = ''
-    endTraintime = ''
-    trained     = 'False'
-
-    #B
-
-    trainList_Mkey = ''
     trainPath = request.form['trainPath']  # 取得html中 name== 'trainPath' 的文字
     modelSelect = request.form['model']  # 取得html中 name== 'model' 的文字
     Image_SizeW = request.form['Image_SizeW']
@@ -217,21 +233,33 @@ def trainSet():
     Drop_rate = request.form['Drop_rate']
     Learning_rate = request.form['Learning_rate']
 
+    # 記錄到資料庫
+    # 建立使用者訓練清單排程
+    MDB.ConnDatabase('FlaskWeb')
+    MDB.ConnCollection('Train_List')
+    Mkey = MDB.create_train_MainSQL(Mission_Name='',
+                                    Creater=current_user.id,
+                                    Model=modelSelect,
+                                    serialKey='Mkey')
+    MDB.ConnDatabase('FlaskWeb')
+    MDB.ConnCollection('Train_Parameter')
+    # 建立訓練內容資料庫
+    MDB.create_train_ParameterSQL(Mkey,
+                                  trainPath,
+                                  modelSelect,
+                                  Image_SizeW,
+                                  Image_SizeH,
+                                  Epoch,
+                                  Batch_size,
+                                  Drop_rate,
+                                  Learning_rate,
+                                  serialKey='Pkey')
 
-    return render_template("trainingset.html")
+    return redirect(url_for('startTrain'))
 
 # 按下StartTrain 名子Button 事件
 @app.route('/startTrain', methods=['POST', 'GET'])  # 這邊'/startTrain' 是對照HTML中 <form> action=[要轉跳的地方] </form>
 def startTrain():
-    trainPath = request.form['trainPath']  # 取得html中 name== 'trainPath' 的文字
-    modelSelect = request.form['model']  # 取得html中 name== 'model' 的文字
-    Image_SizeW = request.form['Image_SizeW']
-    Image_SizeH = request.form['Image_SizeH']
-    Epoch = request.form['Epoch']
-    Batch_size = request.form['Batch_size']
-    Drop_rate = request.form['Drop_rate']
-    Learning_rate = request.form['Learning_rate']
-
     # if modelSelect == "effB3":
     #     # 產生訓練的方法
     #     # 接收到的參數值 from flask
@@ -278,8 +306,8 @@ def TrainSucess():
 
 if __name__ == "__main__":  # 如果以主程式運行
     # (暫時)登入Mongodb 路徑與方法
-    # uri = "mongodb+srv://e01646166:Ee0961006178@spawnboo.dzmdzto.mongodb.net/?retryWrites=true&w=majority&appName=spawnboo"
-    # MDB = MDB.MDB(uri)
+    uri = "mongodb+srv://e01646166:Ee0961006178@spawnboo.dzmdzto.mongodb.net/?retryWrites=true&w=majority&appName=spawnboo"
+    MDB = MDB.MongoDB_Training(uri)
 
     app.run(debug=True)  # 啟動伺服器
 
