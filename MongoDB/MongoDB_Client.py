@@ -139,21 +139,21 @@ if __name__ == "__main__":
     mdb.ConnCollection('Train_List')
 
 
-    dict = {'ip':'192.168.1.119'}
-    insert_txt = { "Mkey": 0 }
-    find_txt = { "Mkey": { "$gt": -1 } }
-    sort = [('G',1)]
+    # dict = {'ip':'192.168.1.119'}
+    # insert_txt = { "Mkey": 0 }
+    # find_txt = { "Mkey": { "$gt": -1 } }
+    # sort = [('G',1)]
 
-    find_txt = {"$or":[
-                {"Finish": {"eq": False}},
-                {"Stop": {"eq": True}}]}
+    find_txt = {"$or": [
+        {"Finish": {"$eq": False}},
+        {"Stop": {"$eq": True}}]}
 
-    find_txt = { "Finish": { "eq": False } }
+
     # 查詢
     rows = mdb.Find(find_txt, show_id=False)
     for row in rows:
         print(row)
-
+    # print(rows[0]["Finish"] == F)
 
     # # 輸入
     # Result = mdb.Insert([insert_txt])

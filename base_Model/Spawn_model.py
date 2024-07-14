@@ -52,21 +52,39 @@ class spawnboo_model():
         self.history = {}
 
     # ===================================輸入參數方法===============================================================
-    def EfficientNet_parameter(self, img_sizeW = 224,img_sizeH = 224,batch_size = 16, Epoch = 2, drop_rate = 0.4,learning_rate = 0.001, summary = True):
+    # def EfficientNet_parameter(self, img_sizeW = 224,img_sizeH = 224,batch_size = 16, Epoch = 2, drop_rate = 0.4,learning_rate = 0.001, summary = True):
+    #     if img_sizeW % 8 == 0 and img_sizeH % 8 == 0:
+    #         self.img_size = (img_sizeW, img_sizeH)
+    #
+    #     if batch_size > 0: self.batch_size = batch_size
+    #     if Epoch > 0 :self.Epochs = Epoch
+    #     if drop_rate > 0 and drop_rate < 1 : self.drop_rate = drop_rate
+    #     if learning_rate < 1 : self.learning_rate = learning_rate
+    #     if type(summary) == bool : self.summary = summary
+
+    # 輸入方法但輸入的是Dict
+    def EfficientNet_parameter(self, parameter_dict):
+        img_sizeW = int(parameter_dict['Image_SizeW'])
+        img_sizeH = int(parameter_dict['Image_SizeH'])
+        batch_size = parameter_dict['Batch_size']
+        Epoch = int(parameter_dict['Epoch'])
+        drop_rate = float(parameter_dict['Drop_rate'])
+        learning_rate = float(parameter_dict['Learning_rate'])
+        # summary = parameter_dict['Epoch']
+        # =================================================================================================
         if img_sizeW % 8 == 0 and img_sizeH % 8 == 0:
-            self.img_zie = (img_sizeW, img_sizeH)
+            self.img_size = (img_sizeW, img_sizeH)
 
         if batch_size > 0: self.batch_size = batch_size
         if Epoch > 0 :self.Epochs = Epoch
         if drop_rate > 0 and drop_rate < 1 : self.drop_rate = drop_rate
         if learning_rate < 1 : self.learning_rate = learning_rate
-        if type(summary) == bool : self.summary = summary
+        # if type(summary) == bool : self.summary = summary
 
     # ===================================模型方法===============================================================
     def EfficientNetB3_keras(self):
-        img_size = (224, 224)
+        img_size = self.img_size
         img_shape = (img_size[0], img_size[1], 3)
-        num_class = len(self.classes)
 
         base_model = tf.keras.applications.efficientnet.EfficientNetB3(include_top=False, weights='imagenet',
                                                                        input_shape=img_shape, pooling='max')
@@ -75,25 +93,32 @@ class spawnboo_model():
             BatchNormalization(axis=-1, momentum=0.99, epsilon=0.001),
             Dense(256, kernel_regularizer=regularizers.l2(l=0.016), activity_regularizer=regularizers.l1(0.006),
                   bias_regularizer=regularizers.l1(0.006), activation='relu'),
-            Dropout(rate=0.4, seed=75),
-            Dense(num_class, activation='softmax')
+            Dropout(rate=self.drop_rate, seed=75),
+            Dense(self.classes, activation='softmax')
         ])
-        self.train_model.compile(Adamax(learning_rate=0.0001), loss='categorical_crossentropy', metrics=['accuracy'])
+        self.train_model.compile(Adamax(learning_rate=self.learning_rate), loss='categorical_crossentropy', metrics=['accuracy'])
 
         if self.summary:
             self.train_model.summary()
 
     # ===================================執行方法===============================================================
     def start_train(self, train_gen, Epochs = 0, valid_gen =''):
-        if self.train_model == '': print ("Spawnboo_model() train model not build yet!")    # 防呆 沒有輸入資料!
+        if self.train_model == '':
+            print ("Spawnboo_model() train model not build yet!")    # 防呆 沒有輸入資料!
+            return False
 
         if Epochs == 0: Epochs = self.Epochs
 
         if valid_gen == '':
-            self.history = self.train_model.fit(x= train_gen , epochs = Epochs, verbose = 1,validation_steps = None , shuffle = False, callbacks=[Mycallback()])
+            self.history = self.train_model.fit(x= train_gen , epochs = Epochs, verbose = 1, validation_steps = None , shuffle = False, callbacks=[Mycallback()])
         else:
             self.history = self.train_model.fit(x=train_gen, epochs=Epochs, verbose=1, validation_data=valid_gen,
                                  validation_steps=None, shuffle=False, callbacks=[Mycallback()])
 
         print(self.history)
-        return "traing Finish"
+        print("traing Finish")
+        return True
+
+
+if __name__ == "__main__":  # 如果以主程式運行
+    c=1

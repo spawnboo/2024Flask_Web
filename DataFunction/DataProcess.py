@@ -46,7 +46,7 @@ if __name__ == "__main__":  # 如果以主程式運行
 
 
     train_df = Data_Dataframe_process(train_data_path)
-    #print(train_df)
+    print(train_df)
 
 
     # 產生一個 ImageDataGenerator 後續可以串接 影像前處理方法

@@ -2,15 +2,19 @@ from flask_login import LoginManager, UserMixin, login_user, logout_user, login_
 from flask import Flask,  render_template, redirect, url_for
 from flask import request, flash, session
 import MongoDB.DL_Savefunction as MDB
+import base_Model.Spawn_model  as Spawn_model
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
+from DataFunction.DataProcess import Data_Dataframe_process, scalar
 import secrets
+
+
 
 import threading
 import time
 
 from RegisterEmail import Register_Function
-# from DataFunction.DataProcess import Data_Dataframe_process, scalar
-# from base_Model.Spawn_model import spawnboo_model
-# from tensorflow.keras.preprocessing.image import ImageDataGenerator
+
+
 
 
 # 臨時 或暫時存取物件
@@ -29,9 +33,6 @@ table_sample = [{'Name': 'Zara', 'Age': 7},
 
 
 
-# # (暫時)登入Mongodb 路徑與方法
-# uri = "mongodb+srv://e01646166:Ee0961006178@spawnboo.dzmdzto.mongodb.net/?retryWrites=true&w=majority&appName=spawnboo"
-# MDB = MDB.MDB(uri)
 
 
 # ======================================================================================================================
@@ -64,13 +65,55 @@ def TrainQueeueRobot():
     # 在每次 訓練空閒後,重新排一次訓練資料庫的順序
 
     # 將Train_List中,Finish=False and Stop=True的讀出來  Train_Parameter值讀出來,
+    MDB.ConnDatabase('FlaskWeb')
+    MDB.ConnCollection('Train_List')
     find_txt = {"$or":[
-                {"Finish": {"eq": False}},
-                {"Stop": {"eq": True}}]}
+                {"Finish": {"$eq": False}},
+                {"Stop": {"$eq": True}}]}
+    find_Result = MDB.Find(find_txt, show_id=False)
+    find_Result = list(find_Result)
 
-    MDB.Find(find_txt, show_id=False)
+
     # 將最高順位的訓練排程出去
-    return 0
+    if len(find_Result) > 0:    # 如果有訓練清單待辦
+        # 查找 訓練細節
+        MDB.ConnDatabase('FlaskWeb')
+        MDB.ConnCollection('Train_Parameter')
+        find_txt = { "Mkey": { "$eq": find_Result[0]['serial'] } }
+        parameter_Result = MDB.Find(find_txt, show_id=False)    # 理論上只會找到一組  但要處理可能有兩組的情況
+        parameter_Result = list(parameter_Result)
+
+        if find_Result[0]['Model'] == "effB3":
+            # 訓練資料整理
+            # 從資料夾抓取資料變成DataFrame的方法
+            train_df = Data_Dataframe_process(parameter_Result[0]['trainPath'])
+            # [這邊需要改寫] 產生餵入資料的flow 後面需要變成class 然後 把各種前處理的選項加進去 給flask介面選擇
+            train_Datagen = ImageDataGenerator(preprocessing_function=scalar)
+            train_gen = train_Datagen.flow_from_dataframe(train_df,
+                                                          x_col='filepaths',
+                                                          y_col='label',
+                                                          target_size=(parameter_Result[0]['Image_SizeW'], parameter_Result[0]['Image_SizeH']),
+                                                          class_mode='categorical',
+                                                          color_mode='rgb',
+                                                          shuffle=True,
+                                                          batch_size=parameter_Result[0]['Batch_size'])
+            # [全都要改寫] 產生要訓練的Model, 從flask選擇方法與各種參數後 變成一個model return
+            # [改寫] 需要有callback的選項可以選, 何時停 紀錄甚麼參數?
+            # ====================== 前置參數 ========================
+            classes = len(list(train_gen.class_indices.keys()))
+            # =======================================================
+
+
+            # 載入模型  試算classes 數量
+            train_model = Spawn_model.spawnboo_model(classes=classes)
+            train_model.EfficientNet_parameter(parameter_Result[0])
+            train_model.EfficientNetB3_keras()
+
+
+
+            # 開始訓練
+            train_model.start_train(train_gen)
+
 
 
 # ======================================================================================================================
@@ -81,9 +124,9 @@ def home():
 
     # 開啟訓練排程機器人
     # 註記保留, 多線程啟用訓練方法
-    # thread = threading.Thread(target=TrainQueeueRobot)
-    # thread.daemon = True         # Daemonize
-    # thread.start()
+    thread = threading.Thread(target=TrainQueeueRobot)
+    thread.daemon = True         # Daemonize
+    thread.start()
 
     #  轉跳至 登入畫面  等未來有空再做登入畫面
     return redirect(url_for('login'))
@@ -226,12 +269,12 @@ def trainSet():
 
     trainPath = request.form['trainPath']  # 取得html中 name== 'trainPath' 的文字
     modelSelect = request.form['model']  # 取得html中 name== 'model' 的文字
-    Image_SizeW = request.form['Image_SizeW']
-    Image_SizeH = request.form['Image_SizeH']
-    Epoch = request.form['Epoch']
-    Batch_size = request.form['Batch_size']
-    Drop_rate = request.form['Drop_rate']
-    Learning_rate = request.form['Learning_rate']
+    Image_SizeW = int(request.form['Image_SizeW'])
+    Image_SizeH = int(request.form['Image_SizeH'])
+    Epoch = int(request.form['Epoch'])
+    Batch_size = int(request.form['Batch_size'])
+    Drop_rate = float(request.form['Drop_rate'])
+    Learning_rate = float(request.form['Learning_rate'])
 
     # 記錄到資料庫
     # 建立使用者訓練清單排程
@@ -260,37 +303,7 @@ def trainSet():
 # 按下StartTrain 名子Button 事件
 @app.route('/startTrain', methods=['POST', 'GET'])  # 這邊'/startTrain' 是對照HTML中 <form> action=[要轉跳的地方] </form>
 def startTrain():
-    # if modelSelect == "effB3":
-    #     # 產生訓練的方法
-    #     # 接收到的參數值 from flask
-    #     img_size = (int(Image_SizeW), int(Image_SizeH))
-    #     batch_size = int(Batch_size)
-    #     train_data_path = trainPath
-    #
-    #     # 從資料夾抓取資料變成DataFrame的方法
-    #     train_df = Data_Dataframe_process(train_data_path)
-    #     # [這邊需要改寫] 產生餵入資料的flow 後面需要變成class 然後 把各種前處理的選項加進去 給flask介面選擇
-    #     train_Datagen = ImageDataGenerator(preprocessing_function=scalar)
-    #     train_gen = train_Datagen.flow_from_dataframe(train_df,
-    #                                                   x_col='filepaths',
-    #                                                   y_col='label',
-    #                                                   target_size=img_size,
-    #                                                   class_mode='categorical',
-    #                                                   color_mode='rgb',
-    #                                                   shuffle=True,
-    #                                                   batch_size=batch_size)
-    #     # [全都要改寫] 產生要訓練的Model, 從flask選擇方法與各種參數後 變成一個model return
-    #     # [改寫] 需要有callback的選項可以選, 何時停 紀錄甚麼參數?
-    #     # ====================== 前置參數 ========================
-    #     classes = list(train_gen.class_indices.keys())
-    #     # =======================================================
-    #     model = spawnboo_model(classes)
-    #     model.EfficientNetB3_keras()
-    #
-    #     # 這就是建好訓練模型的model 物件
-    #     model.start_train(train_gen, Epochs=int(Epoch))
-    #
-    #     return redirect(url_for('TrainSucess', modelname=modelSelect))
+
 
     # 跳回訓練排程頁籤, 查看訓練排隊狀況與訓練狀況
     return redirect(url_for('TrainSucess')) #轉址方法 至/TrainSucess
