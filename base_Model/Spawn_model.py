@@ -8,7 +8,7 @@ from tensorflow.keras.callbacks import Callback
 from tqdm.keras import TqdmCallback
 
 gpus = tf.config.experimental.list_physical_devices('GPU')
-tf.config.experimental.set_memory_growth(gpus[0], True)
+# tf.config.experimental.set_memory_growth(gpus[0], True)
 
 # 先不帶入, 會跳出警示!?  但可以用樣子
 class Mycallback(Callback):
@@ -52,15 +52,15 @@ class spawnboo_model():
         self.history = {}
 
     # ===================================輸入參數方法===============================================================
-    # def EfficientNet_parameter(self, img_sizeW = 224,img_sizeH = 224,batch_size = 16, Epoch = 2, drop_rate = 0.4,learning_rate = 0.001, summary = True):
-    #     if img_sizeW % 8 == 0 and img_sizeH % 8 == 0:
-    #         self.img_size = (img_sizeW, img_sizeH)
-    #
-    #     if batch_size > 0: self.batch_size = batch_size
-    #     if Epoch > 0 :self.Epochs = Epoch
-    #     if drop_rate > 0 and drop_rate < 1 : self.drop_rate = drop_rate
-    #     if learning_rate < 1 : self.learning_rate = learning_rate
-    #     if type(summary) == bool : self.summary = summary
+    def EfficientNet_parameter_test(self, img_sizeW = 224,img_sizeH = 224,batch_size = 16, Epoch = 2, drop_rate = 0.4,learning_rate = 0.001, summary = True):
+        if img_sizeW % 8 == 0 and img_sizeH % 8 == 0:
+            self.img_size = (img_sizeW, img_sizeH)
+
+        if batch_size > 0: self.batch_size = batch_size
+        if Epoch > 0 :self.Epochs = Epoch
+        if drop_rate > 0 and drop_rate < 1 : self.drop_rate = drop_rate
+        if learning_rate < 1 : self.learning_rate = learning_rate
+        if type(summary) == bool : self.summary = summary
 
     # 輸入方法但輸入的是Dict
     def EfficientNet_parameter(self, parameter_dict):
@@ -85,7 +85,6 @@ class spawnboo_model():
     def EfficientNetB3_keras(self):
         img_size = self.img_size
         img_shape = (img_size[0], img_size[1], 3)
-
         base_model = tf.keras.applications.efficientnet.EfficientNetB3(include_top=False, weights='imagenet',
                                                                        input_shape=img_shape, pooling='max')
         self.train_model = Sequential([
@@ -119,6 +118,14 @@ class spawnboo_model():
         print("traing Finish")
         return True
 
+    def start_validation(self, validat_gen, model_weight):
+        if self.train_model == '':
+            print ("Spawnboo_model() train model not build yet!")    # 防呆 沒有輸入資料!
+            return False
+
+        self.history = self.train_model.fit(x=validat_gen, epochs=Epochs, verbose=1, validation_steps=None, shuffle=False,
+                                            callbacks=[Mycallback()])
 
 if __name__ == "__main__":  # 如果以主程式運行
     c=1
+    # 預測方法

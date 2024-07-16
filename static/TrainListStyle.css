@@ -27,10 +27,12 @@
   display: block;
   height: 500px;
   overflow: auto;
+  text-align: center;
 }
 
 .trainning_table tbody  tr {
   display:block;
+  text-align: center;
 }
 
 .trainning_table th,

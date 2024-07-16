@@ -138,7 +138,6 @@ if __name__ == "__main__":
     mdb.ConnDatabase('FlaskWeb')
     mdb.ConnCollection('Train_List')
 
-
     # dict = {'ip':'192.168.1.119'}
     # insert_txt = { "Mkey": 0 }
     # find_txt = { "Mkey": { "$gt": -1 } }

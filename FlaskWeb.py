@@ -2,9 +2,7 @@ from flask_login import LoginManager, UserMixin, login_user, logout_user, login_
 from flask import Flask,  render_template, redirect, url_for
 from flask import request, flash, session
 import MongoDB.DL_Savefunction as MDB
-import base_Model.Spawn_model  as Spawn_model
-from tensorflow.keras.preprocessing.image import ImageDataGenerator
-from DataFunction.DataProcess import Data_Dataframe_process, scalar
+
 import secrets
 
 
@@ -54,15 +52,15 @@ class Member(UserMixin):
     pass
 
 
-def Heavy_func():
-    print("ML doing...")
-    time.sleep(30)
-    print("FINISH~~")
-
-# 訓練排程機器
+# 訓練排程機器人
 def TrainQueeueRobot():
 
     # 在每次 訓練空閒後,重新排一次訓練資料庫的順序
+
+    # 把import整理在這邊 不用家載太多
+    import base_Model.Spawn_model  as Spawn_model
+    from tensorflow.keras.preprocessing.image import ImageDataGenerator
+    from DataFunction.DataProcess import Data_Dataframe_process, scalar
 
     # 將Train_List中,Finish=False and Stop=True的讀出來  Train_Parameter值讀出來,
     MDB.ConnDatabase('FlaskWeb')
@@ -103,7 +101,6 @@ def TrainQueeueRobot():
             classes = len(list(train_gen.class_indices.keys()))
             # =======================================================
 
-
             # 載入模型  試算classes 數量
             train_model = Spawn_model.spawnboo_model(classes=classes)
             train_model.EfficientNet_parameter(parameter_Result[0])
@@ -122,11 +119,11 @@ def home():
     # # 嘗試連線至MDB
     # MDB.MDB_Insert(insert_dict)
 
-    # 開啟訓練排程機器人
-    # 註記保留, 多線程啟用訓練方法
-    thread = threading.Thread(target=TrainQueeueRobot)
-    thread.daemon = True         # Daemonize
-    thread.start()
+    # # 開啟訓練排程機器人
+    # # 註記保留, 多線程啟用訓練方法
+    # thread = threading.Thread(target=TrainQueeueRobot)
+    # thread.daemon = True         # Daemonize
+    # thread.start()
 
     #  轉跳至 登入畫面  等未來有空再做登入畫面
     return redirect(url_for('login'))
@@ -242,14 +239,24 @@ def member():
 def trainList():
     if request.method == 'GET':
         # 資料庫撈取訓練列隊清單
-        # cur = MDB.MDB_find()
-        # headers = cur[0].keys()
+        MDB.ConnDatabase('FlaskWeb')
+        MDB.ConnCollection('Train_List')
+        find_txt = {"$or": [
+            {"Finish": {"$eq": False}},
+            {"Stop": {"$eq": True}}]}
+        # 查詢
+        train_List_Result = MDB.Find(find_txt, show_id=False)
+        train_List_Result = list(train_List_Result)
+        # # 範本用
+        # cur = table_sample
+        # headers = table_sample[0].keys()
+        # return render_template("TrainList.html", headers=list(headers), data=list(cur))
 
-        # 範本用
-        cur = table_sample
-        headers = table_sample[0].keys()
-
-        return render_template("TrainList.html", headers=list(headers), data=list(cur))
+        if len(train_List_Result) > 0:
+            headers = train_List_Result[0].keys()
+            cur = train_List_Result
+            return render_template("TrainList.html", headers=list(headers), data=list(cur))
+        return render_template("TrainList.html")
 
     if request.method == 'POST':
         button_clicked = request.form['Tool_btn_D']

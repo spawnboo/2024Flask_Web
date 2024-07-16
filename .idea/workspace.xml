@@ -8,13 +8,12 @@
       <change beforePath="$PROJECT_DIR$/.idea/Flask_Web.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Flask_Web.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DataFunction/DataProcess.py" beforeDir="false" afterPath="$PROJECT_DIR$/DataFunction/DataProcess.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/FlaskWeb.py" beforeDir="false" afterPath="$PROJECT_DIR$/FlaskWeb.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/MongoDB/MongoDB_Client.py" beforeDir="false" afterPath="$PROJECT_DIR$/MongoDB/MongoDB_Client.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/base_Model/Spawn_model.py" beforeDir="false" afterPath="$PROJECT_DIR$/base_Model/Spawn_model.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/Member.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/Member.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/TrainListStyle.css" beforeDir="false" afterPath="$PROJECT_DIR$/static/TrainListStyle.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/templates/TrainList.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/TrainList.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/trainingset.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/trainingset.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -30,15 +29,10 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Python.DataProcess.executor": "Run",
-    "Python.FlaskWeb.executor": "Run",
-    "Python.MongoDB_Client.executor": "Run",
-    "git-widget-placeholder": "main",
-    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable"
-  }
-}]]></component>
+  <component name="PropertiesComponent">
+    <property name="restartRequiresConfirmation" value="false" />
+    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
+  </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="D:\PycharmProjects\2024Flask_Web\static" />
@@ -46,10 +40,9 @@
       <recent name="D:\PycharmProjects\2024Flask_Web" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.FlaskWeb">
+  <component name="RunManager" selected="Python.main">
     <configuration name="DL_Savefunction" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Flask_Web" />
-      <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
@@ -71,7 +64,6 @@
     </configuration>
     <configuration name="DataProcess" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Flask_Web" />
-      <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
@@ -93,7 +85,6 @@
     </configuration>
     <configuration name="FlaskWeb" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Flask_Web" />
-      <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
@@ -115,7 +106,6 @@
     </configuration>
     <configuration name="MongoDB_Client" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Flask_Web" />
-      <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
@@ -137,7 +127,6 @@
     </configuration>
     <configuration name="main" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Flask_Web" />
-      <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
@@ -159,11 +148,11 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.FlaskWeb" />
-        <item itemvalue="Python.DataProcess" />
-        <item itemvalue="Python.MongoDB_Client" />
-        <item itemvalue="Python.DL_Savefunction" />
         <item itemvalue="Python.main" />
+        <item itemvalue="Python.FlaskWeb" />
+        <item itemvalue="Python.MongoDB_Client" />
+        <item itemvalue="Python.DataProcess" />
+        <item itemvalue="Python.DL_Savefunction" />
       </list>
     </recent_temporary>
   </component>
@@ -213,6 +202,7 @@
         </entry>
       </map>
     </option>
+    <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="TrainList Page + css Update" />
