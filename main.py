@@ -30,7 +30,7 @@ import time
 
 
 if __name__ == "__main__":  # 如果以主程式運行
-    train_PATH = r'D:\DL\chest_xray\train'
+    train_PATH = r'D:\DL\chest_xray\val'
 
     # 從資料夾抓取資料變成DataFrame的方法
     train_df = Data_Dataframe_process(train_PATH)
@@ -43,7 +43,7 @@ if __name__ == "__main__":  # 如果以主程式運行
                                                   class_mode='categorical',
                                                   color_mode='rgb',
                                                   shuffle=True,
-                                                  batch_size=16)
+                                                  batch_size=32)
     # [全都要改寫] 產生要訓練的Model, 從flask選擇方法與各種參數後 變成一個model return
     # [改寫] 需要有callback的選項可以選, 何時停 紀錄甚麼參數?
     # ====================== 前置參數 ========================
@@ -56,7 +56,9 @@ if __name__ == "__main__":  # 如果以主程式運行
     train_model.EfficientNet_parameter_test()
     train_model.EfficientNetB3_keras()
 
-    train_model.start_train(train_gen)
+    # train_model.start_train(train_gen)
+    print(train_df)
+    train_model.start_validation(train_gen)
 
 
 

@@ -1,9 +1,11 @@
 import tensorflow as tf
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Conv2D , MaxPooling2D , Flatten , Activation , Dense , Dropout , BatchNormalization
+from tensorflow.keras.layers import Conv2D , MaxPooling2D , Flatten , Activation , Dense , Dropout , BatchNormalization , GlobalAveragePooling2D
 from tensorflow.keras.optimizers import Adam, Adamax
+from tensorflow.keras.losses import BinaryCrossentropy
 from tensorflow.keras import regularizers
 from tensorflow.keras.callbacks import Callback
+from tensorflow.keras.callbacks import ReduceLROnPlateau, ModelCheckpoint, EarlyStopping, LearningRateScheduler
 
 from tqdm.keras import TqdmCallback
 
@@ -47,12 +49,12 @@ class spawnboo_model():
 
         self.img_zie = ()
 
-        self.train_model = ''
+        self.model = ''
 
         self.history = {}
 
     # ===================================輸入參數方法===============================================================
-    def EfficientNet_parameter_test(self, img_sizeW = 224,img_sizeH = 224,batch_size = 16, Epoch = 2, drop_rate = 0.4,learning_rate = 0.001, summary = True):
+    def EfficientNet_parameter_test(self, img_sizeW = 224,img_sizeH = 224,batch_size = 32, Epoch = 2, drop_rate = 0.4,learning_rate = 0.001, summary = True):
         if img_sizeW % 8 == 0 and img_sizeH % 8 == 0:
             self.img_size = (img_sizeW, img_sizeH)
 
@@ -85,9 +87,16 @@ class spawnboo_model():
     def EfficientNetB3_keras(self):
         img_size = self.img_size
         img_shape = (img_size[0], img_size[1], 3)
-        base_model = tf.keras.applications.efficientnet.EfficientNetB3(include_top=False, weights='imagenet',
-                                                                       input_shape=img_shape, pooling='max')
-        self.train_model = Sequential([
+
+        base_model = tf.keras.applications.efficientnet.EfficientNetB0(include_top=False,
+                                                                       weights='imagenet',
+                                                                       input_shape=img_shape,
+                                                                       #pooling='max',
+                                                                       drop_connect_rate=self.drop_rate)
+        base_model.trainable = False    # 凍結上層網路, 加速訓練
+
+        # Old方法
+        self.model = Sequential([
             base_model,
             BatchNormalization(axis=-1, momentum=0.99, epsilon=0.001),
             Dense(256, kernel_regularizer=regularizers.l2(l=0.016), activity_regularizer=regularizers.l1(0.006),
@@ -95,36 +104,74 @@ class spawnboo_model():
             Dropout(rate=self.drop_rate, seed=75),
             Dense(self.classes, activation='softmax')
         ])
-        self.train_model.compile(Adamax(learning_rate=self.learning_rate), loss='categorical_crossentropy', metrics=['accuracy'])
+        self.model.compile(optimizer=Adamax(learning_rate=self.learning_rate),
+                           loss='categorical_crossentropy',
+                           metrics=['accuracy'])
 
+        # self.model = Sequential([
+        #                         base_model,
+        #                         GlobalAveragePooling2D(),
+        #                         BatchNormalization(),
+        #                         Dropout(self.drop_rate),
+        #                         Dense(1),
+        #                         BatchNormalization(),
+        #                         Activation("sigmoid")])
+        # 紀錄訓練的方法, 透過metrics
+
+        metrics = [
+            tf.keras.metrics.BinaryAccuracy(name="binary_acc"),
+            tf.keras.metrics.AUC(name="AUC"),
+            tf.keras.metrics.Precision(name="precision"),
+            tf.keras.metrics.Recall(name="recall"),
+        ]
+        # self.model.compile(optimizer=Adam(learning_rate=self.learning_rate),
+        #                     loss=BinaryCrossentropy())
+
+        # 是否呈現
         if self.summary:
-            self.train_model.summary()
+            self.model.summary()
 
     # ===================================執行方法===============================================================
-    def start_train(self, train_gen, Epochs = 0, valid_gen =''):
-        if self.train_model == '':
+    def start_train(self, train_gen, Epochs = 0, valid_gen ='', load_weight=''):
+        if self.model == '':
             print ("Spawnboo_model() train model not build yet!")    # 防呆 沒有輸入資料!
             return False
 
         if Epochs == 0: Epochs = self.Epochs
 
+        if load_weight != '':
+            self.model.load_weights(r"CNN_save\eff.h5")
+
+        callbacks = [
+            #              ModelCheckpoint("model_at_epoch_{epoch}.h5"),
+            #              ReduceLROnPlateau(monitor='val_loss',
+            #                             patience=2,
+            #                             verbose=1,
+            #                             factor=0.07,
+            #                             min_lr=1e-9),
+            EarlyStopping(monitor='val_loss', patience=3, verbose=1)
+        ]
+
+
         if valid_gen == '':
-            self.history = self.train_model.fit(x= train_gen , epochs = Epochs, verbose = 1, validation_steps = None , shuffle = False, callbacks=[Mycallback()])
+            self.history = self.model.fit(x= train_gen, epochs = Epochs, verbose = 1, validation_steps = None,
+                                          shuffle = False, callbacks=[Mycallback(), callbacks])
         else:
-            self.history = self.train_model.fit(x=train_gen, epochs=Epochs, verbose=1, validation_data=valid_gen,
-                                 validation_steps=None, shuffle=False, callbacks=[Mycallback()])
+            self.history = self.model.fit(x=train_gen, epochs=Epochs, verbose=1, validation_data=valid_gen,
+                                          validation_steps=None, shuffle=False, callbacks=[Mycallback(), callbacks])
 
         print(self.history)
+        self.model.save_weights(r"CNN_save\eff.h5", overwrite=True)
         print("traing Finish")
         return True
 
-    def start_validation(self, validat_gen, model_weight):
-        if self.train_model == '':
+    def start_validation(self, validat_gen):
+        if self.model == '':
             print ("Spawnboo_model() train model not build yet!")    # 防呆 沒有輸入資料!
             return False
 
-        self.history = self.train_model.fit(x=validat_gen, epochs=Epochs, verbose=1, validation_steps=None, shuffle=False,
-                                            callbacks=[Mycallback()])
+        predict = self.model.predict(validat_gen)
+        print(predict)
 
 if __name__ == "__main__":  # 如果以主程式運行
     c=1

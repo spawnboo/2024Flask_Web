@@ -43,25 +43,47 @@ if __name__ == "__main__":  # 如果以主程式運行
     img_shape = (img_size[0], img_size[1], 3)
     batch_size = 16
     train_data_path = r"D:\DL\chest_xray\train"
+    val_data_path = r"D:\DL\chest_xray\val"
+    test_data_path = r"D:\DL\chest_xray\test"
 
-
+    # Train
     train_df = Data_Dataframe_process(train_data_path)
     print(train_df)
-
-
     # 產生一個 ImageDataGenerator 後續可以串接 影像前處理方法
     train_Datagen = ImageDataGenerator(preprocessing_function=scalar)
-
     # Takes the dataframe and the path to a directory + generates batches.
     # The generated batches contain augmented/normalized data.
     # 使用datafraom串接[當然有其他格式串接]  變成directory 和 genertory 形式 (前處理後的)
-    train_gen = train_Datagen.flow_from_dataframe(train_df,
+    train_gen = train_Datagen.flow_from_dataframe(dataframe=train_df,
                                                   x_col='filepaths',
                                                   y_col='label',
+                                                  class_mode='binary',
                                                   target_size=img_size,
-                                                  class_mode='categorical',
-                                                  color_mode='rgb',
-                                                  shuffle=True,
-                                                  batch_size=batch_size)
+                                                  batch_size=batch_size,
+                                                  shuffle=True)
 
+    # Valadation
+    val_df = Data_Dataframe_process(val_data_path)
+    print(val_df)
+    # 產生一個 ImageDataGenerator 後續可以串接 影像前處理方法
+    val_Datagen = ImageDataGenerator(preprocessing_function=scalar)
+    val_gen = val_Datagen.flow_from_dataframe(dataframe=val_df,
+                                              x_col='filepaths',
+                                              y_col='label',
+                                              class_mode='binary',
+                                              target_size=img_size,
+                                              batch_size=batch_size,
+                                              shuffle=False)
 
+    # test
+    test_df = Data_Dataframe_process(test_data_path)
+    print(test_df)
+    # 產生一個 ImageDataGenerator 後續可以串接 影像前處理方法
+    test_Datagen = ImageDataGenerator(preprocessing_function=scalar)
+    test_gen = test_Datagen.flow_from_dataframe(dataframe=test_df,
+                                              x_col='filepaths',
+                                              y_col='label',
+                                              class_mode='binary',
+                                              target_size=img_size,
+                                              batch_size=batch_size,
+                                              shuffle=False)
