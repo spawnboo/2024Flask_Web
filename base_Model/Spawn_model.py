@@ -91,9 +91,8 @@ class spawnboo_model():
         base_model = tf.keras.applications.efficientnet.EfficientNetB0(include_top=False,
                                                                        weights='imagenet',
                                                                        input_shape=img_shape,
-                                                                       #pooling='max',
-                                                                       drop_connect_rate=self.drop_rate)
-        base_model.trainable = False    # 凍結上層網路, 加速訓練
+                                                                       pooling='max')
+        # base_model.trainable = False    # 凍結上層網路, 加速訓練
 
         # Old方法
         self.model = Sequential([
@@ -104,6 +103,7 @@ class spawnboo_model():
             Dropout(rate=self.drop_rate, seed=75),
             Dense(self.classes, activation='softmax')
         ])
+
         self.model.compile(optimizer=Adamax(learning_rate=self.learning_rate),
                            loss='categorical_crossentropy',
                            metrics=['accuracy'])
@@ -118,19 +118,18 @@ class spawnboo_model():
         #                         Activation("sigmoid")])
         # 紀錄訓練的方法, 透過metrics
 
-        metrics = [
-            tf.keras.metrics.BinaryAccuracy(name="binary_acc"),
-            tf.keras.metrics.AUC(name="AUC"),
-            tf.keras.metrics.Precision(name="precision"),
-            tf.keras.metrics.Recall(name="recall"),
-        ]
+        # metrics = [
+        #     tf.keras.metrics.BinaryAccuracy(name="binary_acc"),
+        #     tf.keras.metrics.AUC(name="AUC"),
+        #     tf.keras.metrics.Precision(name="precision"),
+        #     tf.keras.metrics.Recall(name="recall"),
+        # ]
         # self.model.compile(optimizer=Adam(learning_rate=self.learning_rate),
         #                     loss=BinaryCrossentropy())
 
         # 是否呈現
         if self.summary:
             self.model.summary()
-
     # ===================================執行方法===============================================================
     def start_train(self, train_gen, Epochs = 0, valid_gen ='', load_weight=''):
         if self.model == '':
@@ -170,8 +169,8 @@ class spawnboo_model():
             print ("Spawnboo_model() train model not build yet!")    # 防呆 沒有輸入資料!
             return False
 
-        predict = self.model.predict(validat_gen)
-        print(predict)
+        predict = self.model.predict_generator(validat_gen)
+        return predict
 
 if __name__ == "__main__":  # 如果以主程式運行
     c=1

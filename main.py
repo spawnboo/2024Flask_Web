@@ -1,7 +1,10 @@
 import FlaskWeb as FW
 from MongoDB.MongoDB_Client import MDB
 import base_Model.Spawn_model as spm
-
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.metrics import confusion_matrix, classification_report
+import itertools
 import threading
 from DataFunction.DataProcess import Data_Dataframe_process, scalar
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
@@ -56,9 +59,41 @@ if __name__ == "__main__":  # 如果以主程式運行
     train_model.EfficientNet_parameter_test()
     train_model.EfficientNetB3_keras()
 
-    # train_model.start_train(train_gen)
-    print(train_df)
-    train_model.start_validation(train_gen)
+    # train_model.start_train(train_gen,Epochs=1)
+
+
+    predict_Result = train_model.start_validation(train_gen)
+    y_pred = (np.argmax(predict_Result, axis=1))
+
+
+    # 匯出 餛飩矩陣方法
+
+    # g_dict = train_gen.class_indices
+    # classes = list(g_dict.keys())
+    #
+    # # Confusion matrix
+    # cm = confusion_matrix(train_gen.classes, y_pred)
+    #
+    # plt.figure(figsize=(10, 10))
+    # plt.imshow(cm, interpolation='nearest', cmap=plt.cm.Blues)
+    # plt.title('Confusion Matrix')
+    # plt.colorbar()
+    #
+    # tick_marks = np.arange(len(classes))
+    # plt.xticks(tick_marks, classes, rotation=45)
+    # plt.yticks(tick_marks, classes)
+    #
+    # thresh = cm.max() / 2.
+    # for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
+    #     plt.text(j, i, cm[i, j], horizontalalignment='center', color='white' if cm[i, j] > thresh else 'black')
+    #
+    # plt.tight_layout()
+    # plt.ylabel('True Label')
+    # plt.xlabel('Predicted Label')
+    #
+    # plt.show()
+
+
 
 
 
