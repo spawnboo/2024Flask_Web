@@ -164,13 +164,13 @@ class spawnboo_model():
         print("traing Finish")
         return True
 
-    def start_validation(self, validat_gen):
+    def start_predict(self, predict_gen):
         if self.model == '':
             print ("Spawnboo_model() train model not build yet!")    # 防呆 沒有輸入資料!
             return False
 
-        predict = self.model.predict_generator(validat_gen)
-        return predict
+        predictResult = self.model.predict_generator(predict_gen)
+        return predictResult
 
 if __name__ == "__main__":  # 如果以主程式運行
     c=1

@@ -59,15 +59,66 @@ if __name__ == "__main__":  # 如果以主程式運行
     train_model.EfficientNet_parameter_test()
     train_model.EfficientNetB3_keras()
 
-    # train_model.start_train(train_gen,Epochs=1)
+    # train
+    train_model.start_train(train_gen,Epochs=20)
+    history = train_model.history
+
+    # predict
+    # predict_Result = train_model.start_predict(train_gen)
+    # y_pred = (np.argmax(predict_Result, axis=1))
 
 
-    predict_Result = train_model.start_validation(train_gen)
-    y_pred = (np.argmax(predict_Result, axis=1))
 
 
-    # 匯出 餛飩矩陣方法
+    # 匯出 訓練過程
+    # Define needed variables
+    tr_acc = history.history['accuracy']
+    tr_loss = history.history['loss']
+    # val_acc = history.history['val_accuracy']
+    # val_loss = history.history['val_loss']
+    # index_loss = np.argmin(val_loss)
+    # val_lowest = val_loss[index_loss]
+    # index_acc = np.argmax(val_acc)
+    # acc_highest = val_acc[index_acc]
+    Epochs = [i + 1 for i in range(len(tr_acc))]
+    # loss_label = f'best epoch= {str(index_loss + 1)}'
+    # acc_label = f'best epoch= {str(index_acc + 1)}'
 
+    # Plot training history
+    plt.figure(figsize=(20, 8))
+    plt.style.use('fivethirtyeight')
+
+    plt.subplot(1, 2, 1)
+    plt.plot(Epochs, tr_loss, 'r', label='Training loss')
+    # plt.plot(Epochs, val_loss, 'g', label='Validation loss')
+    # plt.scatter(index_loss + 1, val_lowest, s=150, c='blue', label=loss_label)
+    plt.title('Training and Validation Loss')
+    plt.xlabel('Epochs')
+    plt.ylabel('Loss')
+    plt.legend()
+
+    plt.subplot(1, 2, 2)
+    plt.plot(Epochs, tr_acc, 'r', label='Training Accuracy')
+    # plt.plot(Epochs, val_acc, 'g', label='Validation Accuracy')
+    # plt.scatter(index_acc + 1, acc_highest, s=150, c='blue', label=acc_label)
+    plt.title('Training and Validation Accuracy')
+    plt.xlabel('Epochs')
+    plt.ylabel('Accuracy')
+    plt.legend()
+
+    plt.tight_layout
+    plt.show()
+
+
+
+
+
+
+
+
+
+
+    # # 匯出 餛飩矩陣方法
     # g_dict = train_gen.class_indices
     # classes = list(g_dict.keys())
     #
@@ -90,6 +141,10 @@ if __name__ == "__main__":  # 如果以主程式運行
     # plt.tight_layout()
     # plt.ylabel('True Label')
     # plt.xlabel('Predicted Label')
+    #
+    # # 將混沌矩陣儲存
+    # save_img = r'.\CNN_save\CNN_Chartimg.jpg'
+    # plt.savefig(save_img)
     #
     # plt.show()
 
