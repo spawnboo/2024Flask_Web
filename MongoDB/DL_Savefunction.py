@@ -7,26 +7,31 @@ class MongoDB_Training(MDB):
     def serialNUM(self, keyword, inc=1):
         insert_txt = { str(keyword) : { "$gt": -1 } }
         Serach = list(self.Find(insert_txt, sort=[(str(keyword), 1)], show_id=False))
+        print(Serach)
         if len(Serach)==0:  # 當keyword沒有被建立過時, 直接建立0  * 有可能存在keyword 輸入錯誤
             insert_txt = {str(keyword): 0}
             self.Insert([insert_txt])
             return inc
 
         Targer = Serach[-1][str(keyword)]
-        return Targer + inc
+        print("Targer:",Targer)
+        return (Targer + inc)
 
     # 產生訓練任務的紀錄[永久]
-    def create_train_MainSQL(self, Mission_Name='', Creater='', Model='', serialKey='Mkey'):
+    def create_train_MainSQL(self, Mission_Name='', Creater='', Model='', BaseModel = '' , serialKey='Mkey'):
         if Mission_Name == '':                          # 簡易防呆 填值
             Mission_Name = "Training_1"                 # 後面可以查詢任務值增加序列值
         if Creater == '':
             Creater = "Unknow"
         if Model == '':
             Model = "Unknow"
+        if BaseModel == '':
+            BaseModel = "Base"
         # ==================================================================
-        Mkey = self.serialNUM(serialKey)
+        SerialNUM = self.serialNUM(serialKey)    # 自動撈取後生成
+
         insert_dixt = {
-            "serial": Mkey,
+            "serial": SerialNUM,
             "Mission_Name": str(Mission_Name),
             "Creater": Creater,
             "Model":Model,
@@ -35,10 +40,11 @@ class MongoDB_Training(MDB):
             "End_Date":"",
             "Finish":False,
             "Stop":False,
+            "BaseModel":BaseModel,
         }
         self.Insert([insert_dixt])
 
-        return Mkey
+        return SerialNUM
 
     # 訓練參數紀錄
     def create_train_ParameterSQL(self, Mkey, trainPath, model, Image_SizeW, Image_SizeH, Epoch, Batch_size, Drop_rate, Learning_rate,  serialKey='Pkey'):

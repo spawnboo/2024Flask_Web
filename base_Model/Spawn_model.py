@@ -53,6 +53,12 @@ class spawnboo_model():
 
         self.history = {}
 
+        # 外部呼叫停止訓練
+        self.train_stop = False
+
+        # 夾帶參數
+        self.train_name = ''
+
     # ===================================輸入參數方法===============================================================
     def EfficientNet_parameter_test(self, img_sizeW = 224,img_sizeH = 224,batch_size = 32, Epoch = 2, drop_rate = 0.4,learning_rate = 0.001, summary = True):
         if img_sizeW % 8 == 0 and img_sizeH % 8 == 0:
@@ -159,10 +165,17 @@ class spawnboo_model():
             self.history = self.model.fit(x=train_gen, epochs=Epochs, verbose=1, validation_data=valid_gen,
                                           validation_steps=None, shuffle=False, callbacks=[Mycallback(), callbacks])
 
-        print(self.history)
-        self.model.save_weights(r"CNN_save\eff.h5", overwrite=True)
-        print("traing Finish")
-        return True
+        if self.train_stop == False:
+            # 有訓練成功的話, 紀錄Model
+            if self.train_name == '':
+                self.model.save_weights(r"CNN_save\eff.h5", overwrite=True)
+            else:
+                self.model.save_weights(r"CNN_save/" + self.train_name + ".h5" , overwrite=True)
+            print("traing Finish")
+            return True
+        else:
+            self.train_stop = True
+            return False
 
     def start_predict(self, predict_gen):
         if self.model == '':

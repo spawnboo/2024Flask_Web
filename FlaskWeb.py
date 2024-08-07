@@ -106,11 +106,10 @@ def TrainQueeueRobot():
             train_model.EfficientNet_parameter(parameter_Result[0])
             train_model.EfficientNetB3_keras()
 
-
-
             # 開始訓練
-            train_model.start_train(train_gen)
-
+            train_result = train_model.start_train(train_gen)
+            # 如果訓練成功, 標註SQL為已訓練
+            # if train_result:
 
 
 # ======================================================================================================================
@@ -274,8 +273,11 @@ def trainSet():
     if request.method == 'GET':
         return render_template("trainingset.html")
 
+    # 從html上取回內容
+    ProjectName = request.form['ProjectName']
     trainPath = request.form['trainPath']  # 取得html中 name== 'trainPath' 的文字
-    modelSelect = request.form['model']  # 取得html中 name== 'model' 的文字
+    WeightSelect = request.form['weight-select']        # ***尚未實作方法***  選擇歷史模型
+    modelSelect = request.form['model-select']  # 取得html中 name== 'model' 的文字
     Image_SizeW = int(request.form['Image_SizeW'])
     Image_SizeH = int(request.form['Image_SizeH'])
     Epoch = int(request.form['Epoch'])
@@ -287,10 +289,11 @@ def trainSet():
     # 建立使用者訓練清單排程
     MDB.ConnDatabase('FlaskWeb')
     MDB.ConnCollection('Train_List')
-    Mkey = MDB.create_train_MainSQL(Mission_Name='',
+    Mkey = MDB.create_train_MainSQL(Mission_Name=ProjectName,
                                     Creater=current_user.id,
                                     Model=modelSelect,
-                                    serialKey='Mkey')
+                                    serialKey='serial')
+
     MDB.ConnDatabase('FlaskWeb')
     MDB.ConnCollection('Train_Parameter')
     # 建立訓練內容資料庫
@@ -320,6 +323,34 @@ def startTrain():
 def TrainSucess():
     return render_template("Trainsucess.html")  # 轉跳至正在訓練的中心
 
+# ===========================================   預測相關方法   ========================================================
+
+@app.route('/PredictPage', methods=['GET'])  # 進入預測中心頁面
+def PredictPage():
+    if request.method == 'GET':
+        # 資料庫撈取已訓練完成的清單
+        MDB.ConnDatabase('FlaskWeb')
+        MDB.ConnCollection('Train_List')
+        find_txt = {"$or": [
+            {"Finish": {"$eq": True}}]}
+        # 查詢
+        Predict_List_Result = MDB.Find(find_txt, show_id=False)
+        Predict_List_Result = list(Predict_List_Result)
+
+
+        if len(Predict_List_Result) > 0:
+            headers = Predict_List_Result[0].keys()
+            cur = Predict_List_Result
+            return render_template("PredictPage.html", headers=list(headers), data=list(cur))
+        return render_template("PredictPage.html")
+
+    # if request.method == 'POST':
+    #     button_clicked = request.form['Tool_btn_D']
+    #     print(button_clicked)
+
+
+
+    return render_template("PredictPage.html")  # 轉跳至預測中心頁面
 
 # ====================================================  轉址的功能 ====================================================
 

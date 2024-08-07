@@ -29,9 +29,6 @@ import time
 # 紀錄訓練的過程狀態
 
 
-
-
-
 if __name__ == "__main__":  # 如果以主程式運行
     train_PATH = r'D:\DL\chest_xray\val'
 
@@ -67,7 +64,12 @@ if __name__ == "__main__":  # 如果以主程式運行
     # predict_Result = train_model.start_predict(train_gen)
     # y_pred = (np.argmax(predict_Result, axis=1))
 
-
+    # save train History
+    import pandas as pd
+    hist_df = pd.DataFrame(history.history)
+    hist_csv_file = './trainHistoryDict/history.csv'
+    with open(hist_csv_file, mode='w') as f:
+        hist_df.to_csv(f)
 
 
     # 匯出 訓練過程
@@ -107,6 +109,8 @@ if __name__ == "__main__":  # 如果以主程式運行
     plt.legend()
 
     plt.tight_layout
+    plt.savefig(r'./trainHistoryDict/TrainHistory.png', bbox_inches='tight')
+
     plt.show()
 
 
@@ -118,7 +122,7 @@ if __name__ == "__main__":  # 如果以主程式運行
 
 
 
-    # # 匯出 餛飩矩陣方法
+    # # 匯出 混沌矩陣方法
     # g_dict = train_gen.class_indices
     # classes = list(g_dict.keys())
     #

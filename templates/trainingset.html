@@ -5,6 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel= "stylesheet" type= "text/css" href="static/MenuLine.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <title>鱷魚AI動物園</title>
 
     <div class="topnav" id="myTopnav">
@@ -52,12 +53,20 @@
     <h2>訓練中心</h2>
     <form action="trainSet" method="post">
         <h2>選擇訓練資料路徑(資料夾):</h2>
+        <!-- 輸入該訓練的專案名稱 -->
+        <p><label>訓練專案的名稱 Train Project Name (Model Name):</label></p>
+            <p><input type="text" name="ProjectName" value="" /></p>
         <!-- base_Model 輸入訓練路徑 -->
         <p><label>訓練資料的路徑 Train Data Path:</label></p>
             <p><input type="text" name="trainPath" value="D:\DL\chest_xray\train" /></p>
+        <!-- base_Model 選擇歷史模型清單 -->
+        <label for="weight-select">選擇歷史模型 (若選擇此方法,下列參數將不再有效):</label>
+            <select name="weight-select" id="weight-select">
+              <option value="">尚未實作</option>
+            </select>
         <!-- base_Model 選擇清單 -->
         <label for="model-select">選擇模型:</label>
-            <select name="model" id="model-select" required>
+            <select name="model-select" id="model-select" required>
               <option value="effB3">EffectNet-B3 </option>
               <option value="res50">ResNet-50</option>
             </select>
