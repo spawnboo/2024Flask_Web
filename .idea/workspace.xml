@@ -5,16 +5,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="461a22b0-e3d9-4425-b72b-c83a3d920ae8" name="Changes" comment="TrainList List change to Load SQL">
-      <change afterPath="$PROJECT_DIR$/templates/PredictPage.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/Flask_Web.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Flask_Web.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/PredictSet.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/FlaskWeb.py" beforeDir="false" afterPath="$PROJECT_DIR$/FlaskWeb.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MongoDB/DL_Savefunction.py" beforeDir="false" afterPath="$PROJECT_DIR$/MongoDB/DL_Savefunction.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/base_Model/Spawn_model.py" beforeDir="false" afterPath="$PROJECT_DIR$/base_Model/Spawn_model.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MongoDB/MongoDB_Client.py" beforeDir="false" afterPath="$PROJECT_DIR$/MongoDB/MongoDB_Client.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/PredictPage.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/PredictPage.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/templates/TrainList.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/TrainList.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/trainingset.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/trainingset.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/note.txt" beforeDir="false" afterPath="$PROJECT_DIR$/templates/note.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -152,10 +149,10 @@
     <recent_temporary>
       <list>
         <item itemvalue="Python.FlaskWeb" />
+        <item itemvalue="Python.MongoDB_Client" />
         <item itemvalue="Python.main" />
         <item itemvalue="Python.Spawn_model" />
         <item itemvalue="Python.DataProcess" />
-        <item itemvalue="Python.MongoDB_Client" />
       </list>
     </recent_temporary>
   </component>
@@ -207,7 +204,14 @@
       <option name="project" value="LOCAL" />
       <updated>1721579906522</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="20240807">
+      <created>1723023498881</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1723023498881</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -227,6 +231,7 @@
     <MESSAGE value="MDB update" />
     <MESSAGE value="TrainList List change to Load SQL" />
     <MESSAGE value="dayily update" />
-    <option name="LAST_COMMIT_MESSAGE" value="dayily update" />
+    <MESSAGE value="20240807" />
+    <option name="LAST_COMMIT_MESSAGE" value="20240807" />
   </component>
 </project>

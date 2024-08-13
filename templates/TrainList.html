@@ -76,8 +76,9 @@
 
                     <!--加入按鈕選項  + 判斷式這個人是否有權限 -->
                     <td>
-                      <a href="#"><button class="Tool_btn_delete" name="Tool_btn_D" value={{row['Name']}}><i class="fa fa-trash"></i></button></a>
-                      <a href="#"><button class="Tool_btn_eye" name="Tool_btn_L" value={{row['Name']}}><i class="fa fa-eye" aria-hidden="true"></i></button></a>
+                      <a href=#><button class="Tool_btn_delete" name="Tool_btn_D_{{loop.index0}}" value={{row['Name']}}><i class="fa fa-trash"></i></button></a>
+                      <a href=#><button class="Tool_btn_eye" name="Tool_btn_L_{{loop.index0}}" value={{row['Name']}}><i class="fa fa-eye" aria-hidden="true"></i></button></a>
+
                     </td>
 
                 </tr>

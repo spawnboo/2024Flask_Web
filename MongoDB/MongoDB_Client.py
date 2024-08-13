@@ -137,6 +137,7 @@ if __name__ == "__main__":
     mdb = MDB(uri)
     mdb.ConnDatabase('FlaskWeb')
     mdb.ConnCollection('Train_List')
+    mdb.ConnCollection('Train_Parameter')
 
     # dict = {'ip':'192.168.1.119'}
     # insert_txt = { "Mkey": 0 }
@@ -147,11 +148,16 @@ if __name__ == "__main__":
         {"Finish": {"$eq": False}},
         {"Stop": {"$eq": True}}]}
 
+    find_txt = {"Mkey": {"$eq":3}}
+
 
     # 查詢
     rows = mdb.Find(find_txt, show_id=False)
-    for row in rows:
-        print(row)
+    rows = list(rows)
+    print(rows)
+    print(rows[0]['Mkey'])
+    # for row in rows:
+    #     print(row)
     # print(rows[0]["Finish"] == F)
 
     # # 輸入

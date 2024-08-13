@@ -257,13 +257,13 @@ def trainList():
             return render_template("TrainList.html", headers=list(headers), data=list(cur))
         return render_template("TrainList.html")
 
-    if request.method == 'POST':
-        button_clicked = request.form['Tool_btn_D']
-        print(button_clicked)
+    # if request.method == 'POST':
+    #     button_clicked = request.form['Tool_btn_D']
+    #     print(button_clicked)
 
 
-    # 轉跳到Home的html頁
-    return render_template("TrainList.html")
+    # # 轉跳到Home的html頁
+    # return render_template("TrainList.html")
 
 
 # 設定訓練菜單
@@ -325,7 +325,7 @@ def TrainSucess():
 
 # ===========================================   預測相關方法   ========================================================
 
-@app.route('/PredictPage', methods=['GET'])  # 進入預測中心頁面
+@app.route('/PredictPage', methods=['GET', 'POST'])  # 進入預測中心頁面
 def PredictPage():
     if request.method == 'GET':
         # 資料庫撈取已訓練完成的清單
@@ -344,13 +344,89 @@ def PredictPage():
             return render_template("PredictPage.html", headers=list(headers), data=list(cur))
         return render_template("PredictPage.html")
 
-    # if request.method == 'POST':
-    #     button_clicked = request.form['Tool_btn_D']
-    #     print(button_clicked)
+    # 如果他點擊某一 完成訓練的model~則進入準備預測的選單!
+    trainList_serial, btn_function = request.form["Tool_btn"].split("_")    # 分析是哪一個model 與要做哪一件事
+    print("Choose Serial:",trainList_serial)
+    print("Choose Function:", btn_function)
+
+
+    if btn_function == 'Look': # 表示按的是查看
+        c=1
+
+    if btn_function == 'Pred': # 表示按的是預測
+        # 查詢該Serial 對應的值
+        MDB.ConnDatabase('FlaskWeb')
+        MDB.ConnCollection('Train_List')
+        find_txt = {"serial": {"$eq":int(trainList_serial)}}
+        # 查詢
+        train_List_Result = MDB.Find(find_txt, show_id=False)
+        train_List_Result = list(train_List_Result)
+
+
+        MDB.ConnDatabase('FlaskWeb')
+        MDB.ConnCollection('Train_Parameter')
+        find_txt = {"Mkey": {"$eq":int(trainList_serial)}}
+        # 查詢
+        train_parameter_Result = MDB.Find(find_txt, show_id=False)
+        train_parameter_Result = list(train_parameter_Result)
+        print(trainList_serial)
+        print(train_parameter_Result)
+        # 將字元傳遞給PredictSet頁面,準備預測設定
+
+
+        return render_template("PredictSet.html",train_List_Result=train_List_Result ,train_parameter_Result=train_parameter_Result)
+
+    if btn_function == 'Del': # 表示按的是刪除
+        c=1
 
 
 
     return render_template("PredictPage.html")  # 轉跳至預測中心頁面
+
+# 以選擇想使用的模型,進入預測流程
+@app.route('/PredictSet', methods=['GET', 'POST'])  # 進入預測中心頁面
+def PredictSet():
+    if request.method == 'GET':
+        return render_template("PredictSet.html")
+
+    # # 從html上取回內容
+    # ProjectName = request.form['ProjectName']
+    # trainPath = request.form['trainPath']  # 取得html中 name== 'trainPath' 的文字
+    # WeightSelect = request.form['weight-select']  # ***尚未實作方法***  選擇歷史模型
+    # modelSelect = request.form['model-select']  # 取得html中 name== 'model' 的文字
+    # Image_SizeW = int(request.form['Image_SizeW'])
+    # Image_SizeH = int(request.form['Image_SizeH'])
+    # Epoch = int(request.form['Epoch'])
+    # Batch_size = int(request.form['Batch_size'])
+    # Drop_rate = float(request.form['Drop_rate'])
+    # Learning_rate = float(request.form['Learning_rate'])
+    #
+    # # 記錄到資料庫
+    # # 建立使用者訓練清單排程
+    # MDB.ConnDatabase('FlaskWeb')
+    # MDB.ConnCollection('Train_List')
+    # Mkey = MDB.create_train_MainSQL(Mission_Name=ProjectName,
+    #                                 Creater=current_user.id,
+    #                                 Model=modelSelect,
+    #                                 serialKey='serial')
+    #
+    # MDB.ConnDatabase('FlaskWeb')
+    # MDB.ConnCollection('Train_Parameter')
+    # # 建立訓練內容資料庫
+    # MDB.create_train_ParameterSQL(Mkey,
+    #                               trainPath,
+    #                               modelSelect,
+    #                               Image_SizeW,
+    #                               Image_SizeH,
+    #                               Epoch,
+    #                               Batch_size,
+    #                               Drop_rate,
+    #                               Learning_rate,
+    #                               serialKey='Pkey')
+    #
+    #     return redirect(url_for('startTrain'))
+
+    return render_template("PredictPage.html")
 
 # ====================================================  轉址的功能 ====================================================
 
