@@ -2,7 +2,7 @@ from flask_login import LoginManager, UserMixin, login_user, logout_user, login_
 from flask import Flask,  render_template, redirect, url_for
 from flask import request, flash, session
 import MongoDB.DL_Savefunction as MDB
-
+import numpy as np
 import secrets
 
 
@@ -68,20 +68,68 @@ def TrainQueeueRobot():
     find_txt = {"$or":[
                 {"Finish": {"$eq": False}},
                 {"Stop": {"$eq": True}}]}
-    find_Result = MDB.Find(find_txt, show_id=False)
-    find_Result = list(find_Result)
+    Train_find_Result = MDB.Find(find_txt, show_id=False)
+    Train_find_Result = list(Train_find_Result)
 
+    # 將Predict_List中, Finish= False and Stop=True的讀出來
+    MDB.ConnDatabase('FlaskWeb')
+    MDB.ConnCollection('Predict_List')
+    find_txt = {"$or":[
+                {"Finish": {"$eq": False}},
+                {"Stop": {"$eq": True}}]}
+    Pred_find_Result = MDB.Find(find_txt, show_id=False)
+    Pred_find_Result = list(Pred_find_Result)
 
-    # 將最高順位的訓練排程出去
-    if len(find_Result) > 0:    # 如果有訓練清單待辦
+    # 這邊會修改作法只有一個GPU 且未分割使用量! 會優先給Predict_List優先使用~
+
+    # (Pred 預測)將最高順位的排程出去
+    if len(Pred_find_Result) > 0: # 如果有預測清單待辦
         # 查找 訓練細節
         MDB.ConnDatabase('FlaskWeb')
         MDB.ConnCollection('Train_Parameter')
-        find_txt = { "Mkey": { "$eq": find_Result[0]['serial'] } }
+        find_txt = {"Mkey": {"$eq": Train_find_Result[0]['serial']}}
+        parameter_Result = MDB.Find(find_txt, show_id=False)  # 理論上只會找到一組  但要處理可能有兩組的情況
+        parameter_Result = list(parameter_Result)
+
+        if Train_find_Result[0]['Model'] == "effB3":
+            # 從資料夾抓取資料變成DataFrame的方法
+            pred_df = Data_Dataframe_process(Pred_find_Result[0]['predictPath'])
+            # [這邊需要改寫] 產生餵入資料的flow 後面需要變成class 然後 把各種前處理的選項加進去 給flask介面選擇
+            pred_Datagen = ImageDataGenerator(preprocessing_function=scalar)
+            pred_gen = pred_Datagen.flow_from_dataframe(pred_df,
+                                                        x_col='filepaths',
+                                                        y_col='label',
+                                                        target_size=(parameter_Result[0]['Image_SizeW'],
+                                                                     parameter_Result[0]['Image_SizeH']),
+                                                        class_mode='categorical',
+                                                        color_mode='rgb',
+                                                        shuffle=False,
+                                                        batch_size=parameter_Result[0]['Batch_size'])
+            # [全都要改寫] 產生要訓練的Model, 從flask選擇方法與各種參數後 變成一個model return
+            # [改寫] 需要有callback的選項可以選, 何時停 紀錄甚麼參數?
+            # ====================== 前置參數 ========================
+            classes = len(list(pred_gen.class_indices.keys()))
+            # =======================================================
+
+            # 載入模型  試算classes 數量
+            pred_model = Spawn_model.spawnboo_model(classes=classes)
+            pred_model.EfficientNet_parameter_test()
+            pred_model.EfficientNetB3_keras()
+            # 開始預測
+            predict_Result = pred_model.start_predict(pred_gen)
+            # 輸出結果 類別判別!
+            y_pred = (np.argmax(predict_Result, axis=1))
+
+    # (Train 訓練)將最高順位的排程出去
+    if len(Train_find_Result) > 0:    # 如果有訓練清單待辦
+        # 查找 訓練細節
+        MDB.ConnDatabase('FlaskWeb')
+        MDB.ConnCollection('Train_Parameter')
+        find_txt = { "Mkey": { "$eq": Train_find_Result[0]['serial'] } }
         parameter_Result = MDB.Find(find_txt, show_id=False)    # 理論上只會找到一組  但要處理可能有兩組的情況
         parameter_Result = list(parameter_Result)
 
-        if find_Result[0]['Model'] == "effB3":
+        if Train_find_Result[0]['Model'] == "effB3":
             # 訓練資料整理
             # 從資料夾抓取資料變成DataFrame的方法
             train_df = Data_Dataframe_process(parameter_Result[0]['trainPath'])
@@ -327,6 +375,9 @@ def TrainSucess():
 
 @app.route('/PredictPage', methods=['GET', 'POST'])  # 進入預測中心頁面
 def PredictPage():
+    # 清除session暫存特定值
+    session.pop('Mkey', None)
+
     if request.method == 'GET':
         # 資料庫撈取已訓練完成的清單
         MDB.ConnDatabase('FlaskWeb')
@@ -371,8 +422,9 @@ def PredictPage():
         train_parameter_Result = list(train_parameter_Result)
         print(trainList_serial)
         print(train_parameter_Result)
-        # 將字元傳遞給PredictSet頁面,準備預測設定
 
+        # 將MainKey準備在Session中,準備使用
+        session['Mkey'] = trainList_serial
 
         return render_template("PredictSet.html",train_List_Result=train_List_Result ,train_parameter_Result=train_parameter_Result)
 
@@ -389,42 +441,26 @@ def PredictSet():
     if request.method == 'GET':
         return render_template("PredictSet.html")
 
-    # # 從html上取回內容
-    # ProjectName = request.form['ProjectName']
-    # trainPath = request.form['trainPath']  # 取得html中 name== 'trainPath' 的文字
-    # WeightSelect = request.form['weight-select']  # ***尚未實作方法***  選擇歷史模型
-    # modelSelect = request.form['model-select']  # 取得html中 name== 'model' 的文字
-    # Image_SizeW = int(request.form['Image_SizeW'])
-    # Image_SizeH = int(request.form['Image_SizeH'])
-    # Epoch = int(request.form['Epoch'])
-    # Batch_size = int(request.form['Batch_size'])
-    # Drop_rate = float(request.form['Drop_rate'])
-    # Learning_rate = float(request.form['Learning_rate'])
-    #
-    # # 記錄到資料庫
-    # # 建立使用者訓練清單排程
-    # MDB.ConnDatabase('FlaskWeb')
-    # MDB.ConnCollection('Train_List')
-    # Mkey = MDB.create_train_MainSQL(Mission_Name=ProjectName,
-    #                                 Creater=current_user.id,
-    #                                 Model=modelSelect,
-    #                                 serialKey='serial')
-    #
-    # MDB.ConnDatabase('FlaskWeb')
-    # MDB.ConnCollection('Train_Parameter')
-    # # 建立訓練內容資料庫
-    # MDB.create_train_ParameterSQL(Mkey,
-    #                               trainPath,
-    #                               modelSelect,
-    #                               Image_SizeW,
-    #                               Image_SizeH,
-    #                               Epoch,
-    #                               Batch_size,
-    #                               Drop_rate,
-    #                               Learning_rate,
-    #                               serialKey='Pkey')
-    #
-    #     return redirect(url_for('startTrain'))
+    # 取得擷取到的資訊
+    ProjectName = request.form['ProjectName']
+    predictPath = request.form['predictPath']  # 取得html中 name== 'trainPath' 的文字
+    modelName = request.form['model_name']  # 取得html中 name== 'model' 的文字
+    # 從Session取得Mkey值
+    if session.get('Mkey', None) != None:
+        Mkey = session.get('Mkey', None)
+    else: Mkey = None
+
+    # 這邊將要預測的物件建立成資料庫排程
+    # 建立使用者訓練清單排程
+    MDB.ConnDatabase('FlaskWeb')
+    MDB.ConnCollection('Predict_List')
+    PredKey = MDB.create_pred_MainSQL(Mkey,
+                                      predictPath,
+                                      Mission_Name=ProjectName,
+                                      Creater=current_user.id,
+                                      Model=modelName,
+                                      serialKey='Pridkey')
+
 
     return render_template("PredictPage.html")
 

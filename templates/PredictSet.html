@@ -55,31 +55,29 @@
         <h2>選擇預測資料路徑(資料夾):</h2>
         <!-- 輸入該訓練的專案名稱 -->
         <p><label>此次預測的名稱 Predict Project Name (Model Name):</label></p>
-            <p><input type="text" name="ProjectName" value="" /></p>
+            <p><input type="text" name="ProjectName" value="Predict01" /></p>
         <!-- base_Model 輸入訓練路徑 -->
         <p><label>預測資料的路徑 Predict Data Path:</label></p>
-            <p><input type="text" name="trainPath" value="D:\DL\chest_xray\test" /></p>
+            <p><input type="text" name="predictPath" value="D:\DL\chest_xray\test" /></p>
 
         <!-- 以下皆是帶入準備預測模型當初的訓練值~ -->
 
         <!-- base_Model 這個模型清單 -->
         <label >選擇歷史模型 (若選擇此方法,下列參數將不再有效):</label>
-            <p><input type="text" name="weight-select" value={{train_List_Result[0]['Mkey']}} /></p>
-
-
-
+            <p><input type="text" name="model_name" value={{train_List_Result[0]['Model']}} /></p>
         <!-- base_Model 詳細設定值 -->
-        <p><label>訓練影像寬高 Image Size Weight/Hight</label></p>
-            <input type="number" name="Image_SizeW" value="224" min="32" step="8" required/>
-            <input type="number" name="Image_SizeH" value="224" min="32" step="8" required/>
+        <p><label>預測影像寬高 Image Size Weight/Hight</label></p>
+            <p><label>{{train_parameter_Result[0]['Image_SizeW']}}</label></p>
+            <p><label>{{train_parameter_Result[0]['Image_SizeH']}}</label></p>
         <p><label>Epoch:</label></p>
-            <p><input type="number" name="Epoch" value="20" min="1" max="1000" required/></p>
+            <p><label>{{train_parameter_Result[0]['Epoch']}}</label></p>
         <label>Batch Size:</label>
-            <p><input type="number" name="Batch_size" value="16" min="1" max="100" required/></p>
+            <p><label>{{train_parameter_Result[0]['Batch_size']}}</label></p>
         <label>Drop Rate:</label>
-            <p><input type="number" name="Drop_rate" value="0.5" step="0.1" max="1" min="0" required/></p>
-        <label for="LR">學習率 LearningRate:</label>
-        <p><input type="number" name="Learning_rate" value="0.0001" step="0.0001" min="0.0001" max="0.1" id="LR" required/></p>
+            <p><label>{{train_parameter_Result[0]['Drop_rate']}}</label></p>
+        <label>學習率 LearningRate:</label>
+            <p><label>{{train_parameter_Result[0]['Learning_rate']}}</label></p>
+
 
 
         <!-- 開始預測按鈕 -->

@@ -18,7 +18,7 @@ class MongoDB_Training(MDB):
         return (Targer + inc)
 
     # 產生訓練任務的紀錄[永久]
-    def create_train_MainSQL(self, Mission_Name='', Creater='', Model='', BaseModel = '' , serialKey='Mkey'):
+    def create_train_MainSQL(self, Mission_Name='', Creater='', Model='', BaseModel = '' , serialKey='serial'):
         if Mission_Name == '':                          # 簡易防呆 填值
             Mission_Name = "Training_1"                 # 後面可以查詢任務值增加序列值
         if Creater == '':
@@ -62,6 +62,49 @@ class MongoDB_Training(MDB):
             "Batch_size":Batch_size,
             "Drop_rate":Drop_rate,
             "Learning_rate": Learning_rate
+        }
+        self.Insert([insert_dixt])
+
+        return 0
+
+    # 產生預測任務的紀錄
+    def create_pred_MainSQL(self, Mkey, predictPath, Mission_Name='', Creater='', Model='', serialKey='Predkey'):
+        if Mission_Name == '':                          # 簡易防呆 填值
+            Mission_Name = "Predict_1"                 # 後面可以查詢任務值增加序列值
+        if Creater == '':
+            Creater = "Unknow"
+        if Model == '':
+            Model = "Unknow"
+        # ==================================================================
+        Predkey = self.serialNUM(serialKey)    # 自動撈取後生成
+
+        insert_dixt = {
+            "Mkey": Mkey,
+            "Predkey": Predkey,
+            "predictPath":str(predictPath),
+            "Mission_Name": str(Mission_Name),
+            "Creater": Creater,
+            "Model":Model,
+            "Create_Date": datetime.now().strftime("%Y/%m/%d %H:%M:%S"),
+            "Strat_Date":"",
+            "End_Date":"",
+            "Finish":False,
+            "Stop":False,
+        }
+        self.Insert([insert_dixt])
+
+        return Predkey
+
+    # 預測結果紀錄
+    def create_pred_ResultSQL(self, Predkey, trainPath, model, PredNum, ACC,  serialKey='Rkey'):
+        Rkey = self.serialNUM(serialKey)
+        insert_dixt = {
+            "Predkey": Predkey,
+            "Rkey": Rkey,
+            "PredictPath": trainPath,
+            "Model":model,
+            "PredNum": PredNum,
+            "ACC":ACC,
         }
         self.Insert([insert_dixt])
 

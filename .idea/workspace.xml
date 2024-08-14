@@ -5,18 +5,23 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="461a22b0-e3d9-4425-b72b-c83a3d920ae8" name="Changes" comment="TrainList List change to Load SQL">
-      <change afterPath="$PROJECT_DIR$/templates/PredictSet.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/trainHistoryDict/ImagePresentProcess.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/FlaskWeb.py" beforeDir="false" afterPath="$PROJECT_DIR$/FlaskWeb.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MongoDB/MongoDB_Client.py" beforeDir="false" afterPath="$PROJECT_DIR$/MongoDB/MongoDB_Client.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/PredictPage.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/PredictPage.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/TrainList.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/TrainList.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/note.txt" beforeDir="false" afterPath="$PROJECT_DIR$/templates/note.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MongoDB/DL_Savefunction.py" beforeDir="false" afterPath="$PROJECT_DIR$/MongoDB/DL_Savefunction.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/PredictSet.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/PredictSet.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -40,28 +45,7 @@
       <recent name="D:\PycharmProjects\2024Flask_Web\trainHistoryDict" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.FlaskWeb">
-    <configuration name="DataProcess" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="Flask_Web" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/DataFunction" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/DataFunction/DataProcess.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
+  <component name="RunManager" selected="Python.ImagePresentProcess">
     <configuration name="FlaskWeb" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Flask_Web" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -75,6 +59,27 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/FlaskWeb.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="ImagePresentProcess" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="Flask_Web" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/trainHistoryDict" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/trainHistoryDict/ImagePresentProcess.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -148,11 +153,11 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.ImagePresentProcess" />
         <item itemvalue="Python.FlaskWeb" />
         <item itemvalue="Python.MongoDB_Client" />
         <item itemvalue="Python.main" />
         <item itemvalue="Python.Spawn_model" />
-        <item itemvalue="Python.DataProcess" />
       </list>
     </recent_temporary>
   </component>
@@ -211,7 +216,14 @@
       <option name="project" value="LOCAL" />
       <updated>1723023498881</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="PredictPage PredictSet add~">
+      <created>1723541421868</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1723541421868</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -232,6 +244,7 @@
     <MESSAGE value="TrainList List change to Load SQL" />
     <MESSAGE value="dayily update" />
     <MESSAGE value="20240807" />
-    <option name="LAST_COMMIT_MESSAGE" value="20240807" />
+    <MESSAGE value="PredictPage PredictSet add~" />
+    <option name="LAST_COMMIT_MESSAGE" value="PredictPage PredictSet add~" />
   </component>
 </project>
