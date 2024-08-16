@@ -52,6 +52,7 @@ class spawnboo_model():
         self.model = ''
 
         self.history = {}
+        self.predictResult = []
 
         # 外部呼叫停止訓練
         self.train_stop = False
@@ -137,15 +138,15 @@ class spawnboo_model():
         if self.summary:
             self.model.summary()
     # ===================================執行方法===============================================================
-    def start_train(self, train_gen, Epochs = 0, valid_gen ='', load_weight=''):
+    def start_train(self, train_gen, Epochs = 0, valid_gen ='', load_weightPATH=r"CNN_save\Training_1.h5"):
         if self.model == '':
             print ("Spawnboo_model() train model not build yet!")    # 防呆 沒有輸入資料!
             return False
 
         if Epochs == 0: Epochs = self.Epochs
 
-        if load_weight != '':
-            self.model.load_weights(r"CNN_save\eff.h5")
+        if load_weightPATH != '':
+            self.model.load_weights(load_weightPATH)
 
         callbacks = [
             #              ModelCheckpoint("model_at_epoch_{epoch}.h5"),
@@ -177,13 +178,20 @@ class spawnboo_model():
             self.train_stop = True
             return False
 
-    def start_predict(self, predict_gen):
+    def start_predict(self, predict_gen, load_weightPATH = r"CNN_save\Training_1.h5"):
         if self.model == '':
             print ("Spawnboo_model() train model not build yet!")    # 防呆 沒有輸入資料!
             return False
 
-        predictResult = self.model.predict_generator(predict_gen)
-        return predictResult
+        # 讀取權重檔案, 若沒有讀到 是不給預測的!!
+        if load_weightPATH != '':
+            self.model.load_weights(load_weightPATH)
+        else:
+            print("model Predict! 這邊有權重檔案沒有載入! 需要確認一下喔!")
+            return False
+
+        self.predictResult = self.model.predict(predict_gen)
+        return True
 
 if __name__ == "__main__":  # 如果以主程式運行
     c=1

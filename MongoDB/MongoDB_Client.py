@@ -137,7 +137,7 @@ if __name__ == "__main__":
     mdb = MDB(uri)
     mdb.ConnDatabase('FlaskWeb')
     mdb.ConnCollection('Train_List')
-    mdb.ConnCollection('Train_Parameter')
+
 
     # dict = {'ip':'192.168.1.119'}
     # insert_txt = { "Mkey": 0 }
@@ -151,11 +151,10 @@ if __name__ == "__main__":
     find_txt = {"Mkey": {"$eq":3}}
 
 
-    # 查詢
-    rows = mdb.Find(find_txt, show_id=False)
-    rows = list(rows)
-    print(rows)
-    print(rows[0]['Mkey'])
+    # # 查詢
+    # rows = mdb.Find(find_txt, show_id=False)
+    # rows = list(rows)
+
     # for row in rows:
     #     print(row)
     # print(rows[0]["Finish"] == F)
@@ -164,11 +163,14 @@ if __name__ == "__main__":
     # Result = mdb.Insert([insert_txt])
     # print(Result)
 
-    # # 修改
-    # Update_Con = { "Mkey": { "$gt": -1 } }
-    #
-    # Result = mdb.Update(Update_Con, {"Batch_size":17})
-    # print(Result)
+    # 修改
+    mdb.ConnDatabase('FlaskWeb')
+    mdb.ConnCollection('Predict_List')
+
+    Update_Con = { "Predkey": { "$eq": 1 } }
+
+    Result = mdb.Update(Update_Con, {"Finish":True})
+    print(Result)
 
     # # 刪除
     # Result = mdb.Delete(insert_txt)

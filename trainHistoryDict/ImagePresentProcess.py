@@ -6,14 +6,18 @@
         輸出相關報告與圖像
 """
 import matplotlib.pyplot as plt
+import numpy as np
+import itertools
+from sklearn.metrics import confusion_matrix
 
 
 # 將訓練過程 history.csv 變成 圖像
 def Train_history_Present(history):
-    # 匯出 訓練過程
+    #　將CSV轉換成可使用之dict
+
     # Define needed variables
-    tr_acc = history.history['accuracy']
-    tr_loss = history.history['loss']
+    tr_acc = history['accuracy']
+    tr_loss = history['loss']
     # val_acc = history.history['val_accuracy']
     # val_loss = history.history['val_loss']
     # index_loss = np.argmin(val_loss)
@@ -47,16 +51,57 @@ def Train_history_Present(history):
     plt.legend()
 
     plt.tight_layout
-    plt.savefig(r'./trainHistoryDict/TrainHistory.png', bbox_inches='tight')
+    return plt
 
-    plt.show()
+# Predict 後輸出混沌矩陣方法圖片
+def CNN_Predict_Present(predict_Result, data_gen):
+    # predict 結果轉換成 結果
+    y_pred = (np.argmax(predict_Result, axis=1))
 
+    g_dict = data_gen.class_indices
+    classes = list(g_dict.keys())
+
+    # Confusion matrix
+    cm = confusion_matrix(data_gen.classes, y_pred)
+
+    plt.figure(figsize=(10, 10))
+    plt.imshow(cm, interpolation='nearest', cmap=plt.cm.Blues)
+    plt.title('Confusion Matrix')
+    plt.colorbar()
+
+    tick_marks = np.arange(len(classes))
+    plt.xticks(tick_marks, classes, rotation=45)
+    plt.yticks(tick_marks, classes)
+
+    thresh = cm.max() / 2.
+    for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
+        plt.text(j, i, cm[i, j], horizontalalignment='center', color='white' if cm[i, j] > thresh else 'black')
+
+    plt.tight_layout()
+    plt.ylabel('True Label')
+    plt.xlabel('Predicted Label')
+
+    return plt
+
+
+# 將轉換出來的plt 存成特定影像檔案
+def plt_saveIMG(plt, save_name='history', SAVE_TYPE='.png'):
+    plt.savefig(save_name+SAVE_TYPE)
 
 if __name__ == "__main__":  # 如果以主程式運行
     import pandas as pd
 
-    hist_csv_file = './history.csv'
+    # # 這邊是 透過 history.csv 產出做事
+    # hist_csv_file = './history.csv'
+    # historyCSV = pd.read_csv(hist_csv_file)
+    # # print(historyCSV)
+    # # print(historyCSV['loss'])
+    # result_plt = Train_history_Present(historyCSV)
+    # plt_saveIMG(result_plt,
+    #             save_name='history')
 
-    historyCSV = pd.read_csv(hist_csv_file)
+    # =========================  輸入Pred結果做事  =================================
 
-    Train_history_Present(historyCSV)
+
+
+

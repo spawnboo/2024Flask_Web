@@ -2,6 +2,7 @@ from flask_login import LoginManager, UserMixin, login_user, logout_user, login_
 from flask import Flask,  render_template, redirect, url_for
 from flask import request, flash, session
 import MongoDB.DL_Savefunction as MDB
+from  trainHistoryDict.ImagePresentProcess import *
 import numpy as np
 import secrets
 
@@ -116,9 +117,26 @@ def TrainQueeueRobot():
             pred_model.EfficientNet_parameter_test()
             pred_model.EfficientNetB3_keras()
             # 開始預測
-            predict_Result = pred_model.start_predict(pred_gen)
-            # 輸出結果 類別判別!
-            y_pred = (np.argmax(predict_Result, axis=1))
+            predict_Result = pred_model.start_predict(pred_gen,
+                                                      load_weightPATH = r"CNN_save\Training_1.h5")
+
+            if predict_Result:  # 有成功執行Predict
+                print("輸出 預測相關結果圖樣")
+                # 輸出結果 類別判別!
+                cnn_pred_plt = CNN_Predict_Present(pred_model.predictResult, pred_gen)
+                plt_saveIMG(cnn_pred_plt, save_name='cnn_pred_result', SAVE_TYPE='.png')
+
+                # # 並把這個結果記錄到SQL Predict_Result 上
+                # MDB.ConnDatabase('FlaskWeb')
+                # MDB.ConnCollection('Predict_Result')
+                # MDB.create_pred_ResultSQL(Predkey,
+                #                       trainPath,
+                #                       model,
+                #                       PredNum,
+                #                       ACC,
+                #                       serialKey='Rkey')
+
+
 
     # (Train 訓練)將最高順位的排程出去
     if len(Train_find_Result) > 0:    # 如果有訓練清單待辦
@@ -156,9 +174,17 @@ def TrainQueeueRobot():
 
             # 開始訓練
             train_result = train_model.start_train(train_gen)
-            # 如果訓練成功, 標註SQL為已訓練
-            # if train_result:
 
+            # 如果訓練成功, 標註SQL為已訓練
+            if train_result:
+                MDB.ConnDatabase('FlaskWeb')
+                MDB.ConnCollection('Train_List')
+
+                update_con = {"Mkey": {"$eq": Train_find_Result[0]['serial']}}
+                Result = MDB.Update(update_con, {"Finish": True})
+                print(Result)
+                Result = MDB.Update(update_con, {"Stop": False})
+                print(Result)
 
 # ======================================================================================================================
 @app.route("/")  # 函式的裝飾 ( Decorator )，以底下函式為基礎，提供附加的功能，這邊 "/" 代表根目錄
@@ -459,11 +485,16 @@ def PredictSet():
                                       Mission_Name=ProjectName,
                                       Creater=current_user.id,
                                       Model=modelName,
-                                      serialKey='Pridkey')
+                                      serialKey='Predkey')
 
 
     return render_template("PredictPage.html")
 
+# 查看已經完成的Predict結果
+@app.route('/PredictResult', methods=['GET', 'POST'])  # 進入預測中心頁面
+def PredictResult():
+    if request.method == 'GET':
+        return render_template("PredictSet.html")
 # ====================================================  轉址的功能 ====================================================
 
 

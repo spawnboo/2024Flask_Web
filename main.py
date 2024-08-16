@@ -56,101 +56,107 @@ if __name__ == "__main__":  # 如果以主程式運行
     train_model.EfficientNet_parameter_test()
     train_model.EfficientNetB3_keras()
 
-    # train
-    train_model.start_train(train_gen,Epochs=20)
-    history = train_model.history
 
-    # predict
-    # predict_Result = train_model.start_predict(train_gen)
-    # y_pred = (np.argmax(predict_Result, axis=1))
-
-    # save train History
-    import pandas as pd
-    hist_df = pd.DataFrame(history.history)
-    hist_csv_file = './trainHistoryDict/history.csv'
-    with open(hist_csv_file, mode='w') as f:
-        hist_df.to_csv(f)
+    # ###############################################################################################################
 
 
-    # 匯出 訓練過程
-    # Define needed variables
-    tr_acc = history.history['accuracy']
-    tr_loss = history.history['loss']
-    # val_acc = history.history['val_accuracy']
-    # val_loss = history.history['val_loss']
-    # index_loss = np.argmin(val_loss)
-    # val_lowest = val_loss[index_loss]
-    # index_acc = np.argmax(val_acc)
-    # acc_highest = val_acc[index_acc]
-    Epochs = [i + 1 for i in range(len(tr_acc))]
-    # loss_label = f'best epoch= {str(index_loss + 1)}'
-    # acc_label = f'best epoch= {str(index_acc + 1)}'
+    # ===================訓練的方法===================
 
-    # Plot training history
-    plt.figure(figsize=(20, 8))
-    plt.style.use('fivethirtyeight')
+    # # train
+    # train_model.start_train(train_gen,Epochs=20)
+    # history = train_model.history
 
-    plt.subplot(1, 2, 1)
-    plt.plot(Epochs, tr_loss, 'r', label='Training loss')
-    # plt.plot(Epochs, val_loss, 'g', label='Validation loss')
-    # plt.scatter(index_loss + 1, val_lowest, s=150, c='blue', label=loss_label)
-    plt.title('Training and Validation Loss')
-    plt.xlabel('Epochs')
-    plt.ylabel('Loss')
-    plt.legend()
-
-    plt.subplot(1, 2, 2)
-    plt.plot(Epochs, tr_acc, 'r', label='Training Accuracy')
-    # plt.plot(Epochs, val_acc, 'g', label='Validation Accuracy')
-    # plt.scatter(index_acc + 1, acc_highest, s=150, c='blue', label=acc_label)
-    plt.title('Training and Validation Accuracy')
-    plt.xlabel('Epochs')
-    plt.ylabel('Accuracy')
-    plt.legend()
-
-    plt.tight_layout
-    plt.savefig(r'./trainHistoryDict/TrainHistory.png', bbox_inches='tight')
-
-    plt.show()
+    # # save train History
+    # import pandas as pd
+    # hist_df = pd.DataFrame(history.history)
+    # hist_csv_file = './trainHistoryDict/history.csv'
+    # with open(hist_csv_file, mode='w') as f:
+    #     hist_df.to_csv(f)
 
 
-
-
-
-
-
-
-
-
-    # # 匯出 混沌矩陣方法
-    # g_dict = train_gen.class_indices
-    # classes = list(g_dict.keys())
+    # # 匯出 訓練過程
+    # # Define needed variables
+    # tr_acc = history.history['accuracy']
+    # tr_loss = history.history['loss']
+    # # val_acc = history.history['val_accuracy']
+    # # val_loss = history.history['val_loss']
+    # # index_loss = np.argmin(val_loss)
+    # # val_lowest = val_loss[index_loss]
+    # # index_acc = np.argmax(val_acc)
+    # # acc_highest = val_acc[index_acc]
+    # Epochs = [i + 1 for i in range(len(tr_acc))]
+    # # loss_label = f'best epoch= {str(index_loss + 1)}'
+    # # acc_label = f'best epoch= {str(index_acc + 1)}'
     #
-    # # Confusion matrix
-    # cm = confusion_matrix(train_gen.classes, y_pred)
+    # # Plot training history
+    # plt.figure(figsize=(20, 8))
+    # plt.style.use('fivethirtyeight')
     #
-    # plt.figure(figsize=(10, 10))
-    # plt.imshow(cm, interpolation='nearest', cmap=plt.cm.Blues)
-    # plt.title('Confusion Matrix')
-    # plt.colorbar()
+    # plt.subplot(1, 2, 1)
+    # plt.plot(Epochs, tr_loss, 'r', label='Training loss')
+    # # plt.plot(Epochs, val_loss, 'g', label='Validation loss')
+    # # plt.scatter(index_loss + 1, val_lowest, s=150, c='blue', label=loss_label)
+    # plt.title('Training and Validation Loss')
+    # plt.xlabel('Epochs')
+    # plt.ylabel('Loss')
+    # plt.legend()
     #
-    # tick_marks = np.arange(len(classes))
-    # plt.xticks(tick_marks, classes, rotation=45)
-    # plt.yticks(tick_marks, classes)
+    # plt.subplot(1, 2, 2)
+    # plt.plot(Epochs, tr_acc, 'r', label='Training Accuracy')
+    # # plt.plot(Epochs, val_acc, 'g', label='Validation Accuracy')
+    # # plt.scatter(index_acc + 1, acc_highest, s=150, c='blue', label=acc_label)
+    # plt.title('Training and Validation Accuracy')
+    # plt.xlabel('Epochs')
+    # plt.ylabel('Accuracy')
+    # plt.legend()
     #
-    # thresh = cm.max() / 2.
-    # for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
-    #     plt.text(j, i, cm[i, j], horizontalalignment='center', color='white' if cm[i, j] > thresh else 'black')
-    #
-    # plt.tight_layout()
-    # plt.ylabel('True Label')
-    # plt.xlabel('Predicted Label')
-    #
-    # # 將混沌矩陣儲存
-    # save_img = r'.\CNN_save\CNN_Chartimg.jpg'
-    # plt.savefig(save_img)
+    # plt.tight_layout
+    # plt.savefig(r'./trainHistoryDict/TrainHistory.png', bbox_inches='tight')
     #
     # plt.show()
+
+
+
+    # ===================預測的方法===================
+
+    # predict
+    predict_Result = train_model.start_predict(train_gen)
+    print(predict_Result)
+    print(type(predict_Result))
+    y_pred = (np.argmax(predict_Result, axis=1))
+
+
+
+
+    # 匯出 混沌矩陣方法
+    g_dict = train_gen.class_indices
+    classes = list(g_dict.keys())
+
+    # Confusion matrix
+    cm = confusion_matrix(train_gen.classes, y_pred)
+
+    plt.figure(figsize=(10, 10))
+    plt.imshow(cm, interpolation='nearest', cmap=plt.cm.Blues)
+    plt.title('Confusion Matrix')
+    plt.colorbar()
+
+    tick_marks = np.arange(len(classes))
+    plt.xticks(tick_marks, classes, rotation=45)
+    plt.yticks(tick_marks, classes)
+
+    thresh = cm.max() / 2.
+    for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
+        plt.text(j, i, cm[i, j], horizontalalignment='center', color='white' if cm[i, j] > thresh else 'black')
+
+    plt.tight_layout()
+    plt.ylabel('True Label')
+    plt.xlabel('Predicted Label')
+
+    # 將混沌矩陣儲存
+    save_img = r'.\CNN_save\CNN_Chartimg.jpg'
+    plt.savefig(save_img)
+
+    plt.show()
 
 
 

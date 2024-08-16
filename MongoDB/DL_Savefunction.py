@@ -96,12 +96,12 @@ class MongoDB_Training(MDB):
         return Predkey
 
     # 預測結果紀錄
-    def create_pred_ResultSQL(self, Predkey, trainPath, model, PredNum, ACC,  serialKey='Rkey'):
+    def create_pred_ResultSQL(self, Predkey, PredictPath, model, PredNum, ACC,  serialKey='Rkey'):
         Rkey = self.serialNUM(serialKey)
         insert_dixt = {
             "Predkey": Predkey,
             "Rkey": Rkey,
-            "PredictPath": trainPath,
+            "PredictPath": PredictPath,
             "Model":model,
             "PredNum": PredNum,
             "ACC":ACC,
