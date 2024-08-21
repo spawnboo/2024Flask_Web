@@ -135,12 +135,11 @@ if __name__ == "__main__":
     uri = "mongodb+srv://e01646166:Ee0961006178@spawnboo.dzmdzto.mongodb.net/?retryWrites=true&w=majority&appName=spawnboo"
 
     mdb = MDB(uri)
-    mdb.ConnDatabase('FlaskWeb')
-    mdb.ConnCollection('Train_List')
+
 
 
     # dict = {'ip':'192.168.1.119'}
-    # insert_txt = { "Mkey": 0 }
+
     # find_txt = { "Mkey": { "$gt": -1 } }
     # sort = [('G',1)]
 
@@ -151,6 +150,9 @@ if __name__ == "__main__":
     find_txt = {"Mkey": {"$eq":3}}
 
 
+    mdb.ConnDatabase('FlaskWeb')
+    mdb.ConnCollection('Train_List')
+
     # # 查詢
     # rows = mdb.Find(find_txt, show_id=False)
     # rows = list(rows)
@@ -159,18 +161,28 @@ if __name__ == "__main__":
     #     print(row)
     # print(rows[0]["Finish"] == F)
 
-    # # 輸入
-    # Result = mdb.Insert([insert_txt])
+    #******************************************************************************************
+    mdb.ConnDatabase('FlaskWeb')
+    mdb.ConnCollection('Train_History')
+
+    insert_txt = [{ "Mkey": 0 },{"Mkey":1}]
+
+    # 輸入
+    Result = mdb.Insert(insert_txt)
+    print(Result)
+
+    #******************************************************************************************
+
+    # # 修改
+    # mdb.ConnDatabase('FlaskWeb')
+    # mdb.ConnCollection('Predict_List')
+    #
+    # Update_Con = { "Predkey": { "$eq": 2 } }
+    #
+    # Result = mdb.Update(Update_Con, {"Finish":False, "Stop":False})
     # print(Result)
 
-    # 修改
-    mdb.ConnDatabase('FlaskWeb')
-    mdb.ConnCollection('Predict_List')
-
-    Update_Con = { "Predkey": { "$eq": 1 } }
-
-    Result = mdb.Update(Update_Con, {"Finish":True})
-    print(Result)
+    #******************************************************************************************
 
     # # 刪除
     # Result = mdb.Delete(insert_txt)

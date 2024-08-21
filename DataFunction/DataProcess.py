@@ -64,7 +64,7 @@ if __name__ == "__main__":  # 如果以主程式運行
 
     # Valadation
     val_df = Data_Dataframe_process(val_data_path)
-    print(val_df)
+    # print(val_df)
     # 產生一個 ImageDataGenerator 後續可以串接 影像前處理方法
     val_Datagen = ImageDataGenerator(preprocessing_function=scalar)
     val_gen = val_Datagen.flow_from_dataframe(dataframe=val_df,
@@ -77,7 +77,7 @@ if __name__ == "__main__":  # 如果以主程式運行
 
     # test
     test_df = Data_Dataframe_process(test_data_path)
-    print(test_df)
+    # print(test_df)
     # 產生一個 ImageDataGenerator 後續可以串接 影像前處理方法
     test_Datagen = ImageDataGenerator(preprocessing_function=scalar)
     test_gen = test_Datagen.flow_from_dataframe(dataframe=test_df,

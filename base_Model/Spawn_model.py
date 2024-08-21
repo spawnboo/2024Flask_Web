@@ -7,17 +7,17 @@ from tensorflow.keras import regularizers
 from tensorflow.keras.callbacks import Callback
 from tensorflow.keras.callbacks import ReduceLROnPlateau, ModelCheckpoint, EarlyStopping, LearningRateScheduler
 
-from tqdm.keras import TqdmCallback
-
+# 這兩行是,檢索GPU or 指定GPU作業方式! 針對不同狀況下顯卡,會需要切成不同的狀況!
 gpus = tf.config.experimental.list_physical_devices('GPU')
 # tf.config.experimental.set_memory_growth(gpus[0], True)
 
-# 先不帶入, 會跳出警示!?  但可以用樣子
+# 回呼函式, 主要是停止訓練用
+# *******************先不帶入, 會跳出警示!?  但可以用樣子******************************
 class Mycallback(Callback):
     """Callback that terminates training when flag=1 is encountered.
     """
     def on_epoch_begin(self, epoch, logs={}):
-      self.epoch = epoch
+      self.epoch = epoch    # 取得現在epoch作業狀態~ 回傳訓練進程
 
     def on_batch_end(self, batch, logs=None):
         Total_batch = self.params.get('steps')  # 這個是 max batch
@@ -37,6 +37,9 @@ class Mycallback(Callback):
         # 儲存現在model狀態
         c=1
 
+
+# ---------------------------------------------------------------------------------
+# 主要訓練的模型Class
 class spawnboo_model():
     def __init__(self, classes):
         # 預先放入參數的地方
@@ -71,7 +74,7 @@ class spawnboo_model():
         if learning_rate < 1 : self.learning_rate = learning_rate
         if type(summary) == bool : self.summary = summary
 
-    # 輸入方法但輸入的是Dict
+    # 輸入方法但輸入的是Dict [撰寫到SQL辦法]
     def EfficientNet_parameter(self, parameter_dict):
         img_sizeW = int(parameter_dict['Image_SizeW'])
         img_sizeH = int(parameter_dict['Image_SizeH'])
@@ -115,27 +118,7 @@ class spawnboo_model():
                            loss='categorical_crossentropy',
                            metrics=['accuracy'])
 
-        # self.model = Sequential([
-        #                         base_model,
-        #                         GlobalAveragePooling2D(),
-        #                         BatchNormalization(),
-        #                         Dropout(self.drop_rate),
-        #                         Dense(1),
-        #                         BatchNormalization(),
-        #                         Activation("sigmoid")])
-        # 紀錄訓練的方法, 透過metrics
-
-        # metrics = [
-        #     tf.keras.metrics.BinaryAccuracy(name="binary_acc"),
-        #     tf.keras.metrics.AUC(name="AUC"),
-        #     tf.keras.metrics.Precision(name="precision"),
-        #     tf.keras.metrics.Recall(name="recall"),
-        # ]
-        # self.model.compile(optimizer=Adam(learning_rate=self.learning_rate),
-        #                     loss=BinaryCrossentropy())
-
-        # 是否呈現
-        if self.summary:
+        if self.summary:            # 是否呈現模型結構
             self.model.summary()
     # ===================================執行方法===============================================================
     def start_train(self, train_gen, Epochs = 0, valid_gen ='', load_weightPATH=r"CNN_save\Training_1.h5"):
@@ -176,6 +159,7 @@ class spawnboo_model():
             return True
         else:
             self.train_stop = True
+            print("traing call stop!!")
             return False
 
     def start_predict(self, predict_gen, load_weightPATH = r"CNN_save\Training_1.h5"):

@@ -3,9 +3,9 @@ from flask import Flask,  render_template, redirect, url_for
 from flask import request, flash, session
 import MongoDB.DL_Savefunction as MDB
 from  trainHistoryDict.ImagePresentProcess import *
-import numpy as np
 import secrets
-
+import numpy as np
+import pandas as pd
 
 
 import threading
@@ -58,7 +58,7 @@ def TrainQueeueRobot():
 
     # 在每次 訓練空閒後,重新排一次訓練資料庫的順序
 
-    # 把import整理在這邊 不用家載太多
+    # 把import整理在這邊 不用加載太多, 未來確定再移出
     import base_Model.Spawn_model  as Spawn_model
     from tensorflow.keras.preprocessing.image import ImageDataGenerator
     from DataFunction.DataProcess import Data_Dataframe_process, scalar
@@ -135,9 +135,7 @@ def TrainQueeueRobot():
                 #                       PredNum,
                 #                       ACC,
                 #                       serialKey='Rkey')
-
-
-
+    #*********************************************************************************************
     # (Train 訓練)將最高順位的排程出去
     if len(Train_find_Result) > 0:    # 如果有訓練清單待辦
         # 查找 訓練細節
@@ -154,10 +152,10 @@ def TrainQueeueRobot():
             # [這邊需要改寫] 產生餵入資料的flow 後面需要變成class 然後 把各種前處理的選項加進去 給flask介面選擇
             train_Datagen = ImageDataGenerator(preprocessing_function=scalar)
             train_gen = train_Datagen.flow_from_dataframe(train_df,
-                                                          x_col='filepaths',
-                                                          y_col='label',
+                                                          x_col='filepaths',        # 這邊'filepaths'是指抓取dataframe中,抬頭名稱的那一排
+                                                          y_col='label',            # 這邊'filepaths'是指抓取dataframe中,抬頭名稱的那一排
                                                           target_size=(parameter_Result[0]['Image_SizeW'], parameter_Result[0]['Image_SizeH']),
-                                                          class_mode='categorical',
+                                                          class_mode='categorical', # 返回標籤的方式, categorical=> 2D numpy one-hot形式
                                                           color_mode='rgb',
                                                           shuffle=True,
                                                           batch_size=parameter_Result[0]['Batch_size'])
@@ -175,16 +173,31 @@ def TrainQueeueRobot():
             # 開始訓練
             train_result = train_model.start_train(train_gen)
 
-            # 如果訓練成功, 標註SQL為已訓練
-            if train_result:
+            # 如果訓練成功, 標註SQL為已訓練,  並記錄訓練過程(History)
+            if train_result:    # 如果訓練成功[不包含停止訓練]
                 MDB.ConnDatabase('FlaskWeb')
                 MDB.ConnCollection('Train_List')
 
-                update_con = {"Mkey": {"$eq": Train_find_Result[0]['serial']}}
-                Result = MDB.Update(update_con, {"Finish": True})
+                update_con = {"serial": {"$eq": Train_find_Result[0]['serial']}}
+                print("Train_find_Result[0]['serial']:",Train_find_Result[0]['serial'])
+                Result = MDB.Update(update_con, {"Finish": True,"Stop": False})
                 print(Result)
-                Result = MDB.Update(update_con, {"Stop": False})
-                print(Result)
+
+                #***************************  紀錄訓練History  ************************************
+                Train_history = train_model.history.history
+                print(Train_history)
+                if len(Train_history)>0:  # 確保有資料輸入
+                    # 將其轉換成每一個row to dict
+                    pd_history = pd.DataFrame(Train_history)
+                    pd_history = pd_history.to_dict(orient='records')    # 將資料轉成[{'loss': 5.86, 'accuracy': 1.0}, {'loss': 5.83, 'accuracy': 0.9375}]
+                    print(pd_history)
+                    # 放入資料庫
+                    MDB.ConnDatabase('FlaskWeb')
+                    MDB.ConnCollection('Train_List')
+                    # 輸入SQL
+                    Result = MDB.Insert(pd_history)
+                    print(Result)
+
 
 # ======================================================================================================================
 @app.route("/")  # 函式的裝飾 ( Decorator )，以底下函式為基礎，提供附加的功能，這邊 "/" 代表根目錄
@@ -192,11 +205,11 @@ def home():
     # # 嘗試連線至MDB
     # MDB.MDB_Insert(insert_dict)
 
-    # # 開啟訓練排程機器人
-    # # 註記保留, 多線程啟用訓練方法
-    # thread = threading.Thread(target=TrainQueeueRobot)
-    # thread.daemon = True         # Daemonize
-    # thread.start()
+    # 開啟訓練排程機器人
+    # 註記保留, 多線程啟用訓練方法
+    thread = threading.Thread(target=TrainQueeueRobot)
+    thread.daemon = True         # Daemonize
+    thread.start()
 
     #  轉跳至 登入畫面  等未來有空再做登入畫面
     return redirect(url_for('login'))
@@ -299,16 +312,15 @@ def aboutme():
     return render_template("AboutMe.html")
 
 # ========================================   這邊是登入後的方法了   =====================================================
-# 登入的初始畫面
-@app.route("/member", methods=['GET'])
-@login_required
-def member():
-    return render_template("Member.html")
-
+# # 登入的初始畫面
+# @app.route("/member", methods=['GET'])
+# @login_required
+# def member():
+#     return render_template("Member.html")
 
 # 登入到待訓練列隊頁面
 @app.route("/trainList", methods=['GET', 'POST'])  # 函式的裝飾 ( Decorator )，以底下函式為基礎，提供附加的功能，這邊 "/" 代表根目錄
-#@login_required
+@login_required
 def trainList():
     if request.method == 'GET':
         # 資料庫撈取訓練列隊清單
@@ -439,15 +451,12 @@ def PredictPage():
         train_List_Result = MDB.Find(find_txt, show_id=False)
         train_List_Result = list(train_List_Result)
 
-
         MDB.ConnDatabase('FlaskWeb')
         MDB.ConnCollection('Train_Parameter')
         find_txt = {"Mkey": {"$eq":int(trainList_serial)}}
         # 查詢
         train_parameter_Result = MDB.Find(find_txt, show_id=False)
         train_parameter_Result = list(train_parameter_Result)
-        print(trainList_serial)
-        print(train_parameter_Result)
 
         # 將MainKey準備在Session中,準備使用
         session['Mkey'] = trainList_serial
@@ -494,7 +503,20 @@ def PredictSet():
 @app.route('/PredictResult', methods=['GET', 'POST'])  # 進入預測中心頁面
 def PredictResult():
     if request.method == 'GET':
-        return render_template("PredictSet.html")
+        # 讀取SQL 載入已經Predict Finish=True的相關資料
+        MDB.ConnDatabase('FlaskWeb')
+        MDB.ConnCollection('Predict_List')
+        find_txt = {"Finish": {"$eq": True}}
+        # 查詢
+        FinishPredict_List_Result = MDB.Find(find_txt, show_id=False)
+        FinishPredict_List_Result = list(FinishPredict_List_Result)
+
+        if len(FinishPredict_List_Result) > 0:
+            headers = FinishPredict_List_Result[0].keys()
+            cur = FinishPredict_List_Result
+            return render_template("PredictResult.html", headers=list(headers), data=list(cur))
+        return render_template("PredictResult.html")
+
 # ====================================================  轉址的功能 ====================================================
 
 

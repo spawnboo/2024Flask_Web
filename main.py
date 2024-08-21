@@ -62,19 +62,23 @@ if __name__ == "__main__":  # 如果以主程式運行
 
     # ===================訓練的方法===================
 
-    # # train
-    # train_model.start_train(train_gen,Epochs=20)
-    # history = train_model.history
+    # train
+    train_model.start_train(train_gen,Epochs=3)
+    history = train_model.history.history   # history的dict
 
-    # # save train History
-    # import pandas as pd
-    # hist_df = pd.DataFrame(history.history)
-    # hist_csv_file = './trainHistoryDict/history.csv'
-    # with open(hist_csv_file, mode='w') as f:
-    #     hist_df.to_csv(f)
+    # *************************  轉格式的方法  ********************************
+    import pandas as pd
+    # 1.轉成 CSV
+    hist_df = pd.DataFrame(history)
+    hist_csv_file = './trainHistoryDict/history.csv'
+    with open(hist_csv_file, mode='w') as f:
+        hist_df.to_csv(f)
 
+    # 2.轉成每一個row都是dict的list
+    hist_df = pd.DataFrame(history)
+    history_dict_list = hist_df.to_dict(orient='records')
 
-    # # 匯出 訓練過程
+    # *************************  轉圖片的方法  ********************************
     # # Define needed variables
     # tr_acc = history.history['accuracy']
     # tr_loss = history.history['loss']
@@ -118,45 +122,45 @@ if __name__ == "__main__":  # 如果以主程式運行
 
 
     # ===================預測的方法===================
-
-    # predict
-    predict_Result = train_model.start_predict(train_gen)
-    print(predict_Result)
-    print(type(predict_Result))
-    y_pred = (np.argmax(predict_Result, axis=1))
-
-
-
-
-    # 匯出 混沌矩陣方法
-    g_dict = train_gen.class_indices
-    classes = list(g_dict.keys())
-
-    # Confusion matrix
-    cm = confusion_matrix(train_gen.classes, y_pred)
-
-    plt.figure(figsize=(10, 10))
-    plt.imshow(cm, interpolation='nearest', cmap=plt.cm.Blues)
-    plt.title('Confusion Matrix')
-    plt.colorbar()
-
-    tick_marks = np.arange(len(classes))
-    plt.xticks(tick_marks, classes, rotation=45)
-    plt.yticks(tick_marks, classes)
-
-    thresh = cm.max() / 2.
-    for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
-        plt.text(j, i, cm[i, j], horizontalalignment='center', color='white' if cm[i, j] > thresh else 'black')
-
-    plt.tight_layout()
-    plt.ylabel('True Label')
-    plt.xlabel('Predicted Label')
-
-    # 將混沌矩陣儲存
-    save_img = r'.\CNN_save\CNN_Chartimg.jpg'
-    plt.savefig(save_img)
-
-    plt.show()
+    #
+    # # predict
+    # predict_Result = train_model.start_predict(train_gen)
+    # print(predict_Result)
+    # print(type(predict_Result))
+    # y_pred = (np.argmax(predict_Result, axis=1))
+    #
+    #
+    #
+    #
+    # # 匯出 混沌矩陣方法
+    # g_dict = train_gen.class_indices
+    # classes = list(g_dict.keys())
+    #
+    # # Confusion matrix
+    # cm = confusion_matrix(train_gen.classes, y_pred)
+    #
+    # plt.figure(figsize=(10, 10))
+    # plt.imshow(cm, interpolation='nearest', cmap=plt.cm.Blues)
+    # plt.title('Confusion Matrix')
+    # plt.colorbar()
+    #
+    # tick_marks = np.arange(len(classes))
+    # plt.xticks(tick_marks, classes, rotation=45)
+    # plt.yticks(tick_marks, classes)
+    #
+    # thresh = cm.max() / 2.
+    # for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
+    #     plt.text(j, i, cm[i, j], horizontalalignment='center', color='white' if cm[i, j] > thresh else 'black')
+    #
+    # plt.tight_layout()
+    # plt.ylabel('True Label')
+    # plt.xlabel('Predicted Label')
+    #
+    # # # 將混沌矩陣儲存
+    # # save_img = r'.\CNN_save\CNN_Chartimg.jpg'
+    # # plt.savefig(save_img)
+    # #
+    # # plt.show()
 
 
 
