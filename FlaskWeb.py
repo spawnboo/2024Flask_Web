@@ -4,17 +4,13 @@ from flask import request, flash, session
 import MongoDB.DL_Savefunction as MDB
 from  trainHistoryDict.ImagePresentProcess import *
 import secrets
-import numpy as np
-import pandas as pd
 
+import pandas as pd
+import os
 
 import threading
-import time
 
 from RegisterEmail import Register_Function
-
-
-
 
 # 臨時 或暫時存取物件
 users = {'Me': {'password': '123'}}
@@ -33,8 +29,11 @@ table_sample = [{'Name': 'Zara', 'Age': 7},
 
 
 
-
 # ======================================================================================================================
+# 全域函數
+# global target_project_serial    # 目前排程機器人使用的函數或方法
+
+
 # 開始Flask方法
 app = Flask(__name__)  # __name__ 為 python 內建的變數，他會儲存目前程式在哪個模組下執行
 
@@ -53,163 +52,211 @@ class Member(UserMixin):
     pass
 
 
-# 訓練排程機器人
+# 訓練/預測排程機器人
 def TrainQueeueRobot():
-
-    # 在每次 訓練空閒後,重新排一次訓練資料庫的順序
-
     # 把import整理在這邊 不用加載太多, 未來確定再移出
     import base_Model.Spawn_model  as Spawn_model
     from tensorflow.keras.preprocessing.image import ImageDataGenerator
     from DataFunction.DataProcess import Data_Dataframe_process, scalar
 
-    # 將Train_List中,Finish=False and Stop=True的讀出來  Train_Parameter值讀出來,
-    MDB.ConnDatabase('FlaskWeb')
-    MDB.ConnCollection('Train_List')
-    find_txt = {"$or":[
-                {"Finish": {"$eq": False}},
-                {"Stop": {"$eq": True}}]}
-    Train_find_Result = MDB.Find(find_txt, show_id=False)
-    Train_find_Result = list(Train_find_Result)
+    # 不斷重複執行
+    while True:
 
-    # 將Predict_List中, Finish= False and Stop=True的讀出來
-    MDB.ConnDatabase('FlaskWeb')
-    MDB.ConnCollection('Predict_List')
-    find_txt = {"$or":[
-                {"Finish": {"$eq": False}},
-                {"Stop": {"$eq": True}}]}
-    Pred_find_Result = MDB.Find(find_txt, show_id=False)
-    Pred_find_Result = list(Pred_find_Result)
-
-    # 這邊會修改作法只有一個GPU 且未分割使用量! 會優先給Predict_List優先使用~
-
-    # (Pred 預測)將最高順位的排程出去
-    if len(Pred_find_Result) > 0: # 如果有預測清單待辦
-        # 查找 訓練細節
+        # 在每次訓練空閒後,重新排一次訓練資料庫的順序
+        # 將Train_List中,Finish=False and Stop=True的讀出來  Train_Parameter值讀出來,
         MDB.ConnDatabase('FlaskWeb')
-        MDB.ConnCollection('Train_Parameter')
-        find_txt = {"Mkey": {"$eq": Train_find_Result[0]['serial']}}
-        parameter_Result = MDB.Find(find_txt, show_id=False)  # 理論上只會找到一組  但要處理可能有兩組的情況
-        parameter_Result = list(parameter_Result)
+        MDB.ConnCollection('Train_List')
+        find_txt = {"$or":[
+                    {"Finish": {"$eq": False}},
+                    {"Stop": {"$eq": True}}]}
+        train_find_result = list(MDB.Find(find_txt, show_id=False))
 
-        if Train_find_Result[0]['Model'] == "effB3":
-            # 從資料夾抓取資料變成DataFrame的方法
-            pred_df = Data_Dataframe_process(Pred_find_Result[0]['predictPath'])
-            # [這邊需要改寫] 產生餵入資料的flow 後面需要變成class 然後 把各種前處理的選項加進去 給flask介面選擇
-            pred_Datagen = ImageDataGenerator(preprocessing_function=scalar)
-            pred_gen = pred_Datagen.flow_from_dataframe(pred_df,
-                                                        x_col='filepaths',
-                                                        y_col='label',
-                                                        target_size=(parameter_Result[0]['Image_SizeW'],
-                                                                     parameter_Result[0]['Image_SizeH']),
-                                                        class_mode='categorical',
-                                                        color_mode='rgb',
-                                                        shuffle=False,
-                                                        batch_size=parameter_Result[0]['Batch_size'])
-            # [全都要改寫] 產生要訓練的Model, 從flask選擇方法與各種參數後 變成一個model return
-            # [改寫] 需要有callback的選項可以選, 何時停 紀錄甚麼參數?
-            # ====================== 前置參數 ========================
-            classes = len(list(pred_gen.class_indices.keys()))
-            # =======================================================
-
-            # 載入模型  試算classes 數量
-            pred_model = Spawn_model.spawnboo_model(classes=classes)
-            pred_model.EfficientNet_parameter_test()
-            pred_model.EfficientNetB3_keras()
-            # 開始預測
-            predict_Result = pred_model.start_predict(pred_gen,
-                                                      load_weightPATH = r"CNN_save\Training_1.h5")
-
-            if predict_Result:  # 有成功執行Predict
-                print("輸出 預測相關結果圖樣")
-                # 輸出結果 類別判別!
-                cnn_pred_plt = CNN_Predict_Present(pred_model.predictResult, pred_gen)
-                plt_saveIMG(cnn_pred_plt, save_name='cnn_pred_result', SAVE_TYPE='.png')
-
-                # # 並把這個結果記錄到SQL Predict_Result 上
-                # MDB.ConnDatabase('FlaskWeb')
-                # MDB.ConnCollection('Predict_Result')
-                # MDB.create_pred_ResultSQL(Predkey,
-                #                       trainPath,
-                #                       model,
-                #                       PredNum,
-                #                       ACC,
-                #                       serialKey='Rkey')
-    #*********************************************************************************************
-    # (Train 訓練)將最高順位的排程出去
-    if len(Train_find_Result) > 0:    # 如果有訓練清單待辦
-        # 查找 訓練細節
+        # 將Predict_List中, Finish= False and Stop=True的讀出來
         MDB.ConnDatabase('FlaskWeb')
-        MDB.ConnCollection('Train_Parameter')
-        find_txt = { "Mkey": { "$eq": Train_find_Result[0]['serial'] } }
-        parameter_Result = MDB.Find(find_txt, show_id=False)    # 理論上只會找到一組  但要處理可能有兩組的情況
-        parameter_Result = list(parameter_Result)
+        MDB.ConnCollection('Predict_List')
+        find_txt = {"$or":[
+                    {"Finish": {"$eq": False}},
+                    {"Stop": {"$eq": True}}]}
+        pred_find_result = list(MDB.Find(find_txt, show_id=False))
 
-        if Train_find_Result[0]['Model'] == "effB3":
-            # 訓練資料整理
-            # 從資料夾抓取資料變成DataFrame的方法
-            train_df = Data_Dataframe_process(parameter_Result[0]['trainPath'])
-            # [這邊需要改寫] 產生餵入資料的flow 後面需要變成class 然後 把各種前處理的選項加進去 給flask介面選擇
-            train_Datagen = ImageDataGenerator(preprocessing_function=scalar)
-            train_gen = train_Datagen.flow_from_dataframe(train_df,
-                                                          x_col='filepaths',        # 這邊'filepaths'是指抓取dataframe中,抬頭名稱的那一排
-                                                          y_col='label',            # 這邊'filepaths'是指抓取dataframe中,抬頭名稱的那一排
-                                                          target_size=(parameter_Result[0]['Image_SizeW'], parameter_Result[0]['Image_SizeH']),
-                                                          class_mode='categorical', # 返回標籤的方式, categorical=> 2D numpy one-hot形式
-                                                          color_mode='rgb',
-                                                          shuffle=True,
-                                                          batch_size=parameter_Result[0]['Batch_size'])
-            # [全都要改寫] 產生要訓練的Model, 從flask選擇方法與各種參數後 變成一個model return
-            # [改寫] 需要有callback的選項可以選, 何時停 紀錄甚麼參數?
-            # ====================== 前置參數 ========================
-            classes = len(list(train_gen.class_indices.keys()))
-            # =======================================================
+        # 這邊會修改作法只有一個GPU 且未分割使用量! 會優先給Predict_List優先使用~ *未實作,未有第二張顯卡
 
-            # 載入模型  試算classes 數量
-            train_model = Spawn_model.spawnboo_model(classes=classes)
-            train_model.EfficientNet_parameter(parameter_Result[0])
-            train_model.EfficientNetB3_keras()
+        # (Pred 預測)將最高順位的排程出去
+        if len(pred_find_result) > 0: # 如果有預測清單待辦
+            # 查找 訓練細節
+            MDB.ConnDatabase('FlaskWeb')
+            MDB.ConnCollection('Train_Parameter')
+            find_txt = {"Mkey": {"$eq": train_find_result[0]['serial']}}
+            parameter_result = list(MDB.Find(find_txt, show_id=False))  # 理論上只會找到一組  但要處理可能有兩組的情況
 
-            # 開始訓練
-            train_result = train_model.start_train(train_gen)
+            if train_find_result[0]['Model'] == "effB3":
+                # 從資料夾抓取資料變成DataFrame的方法
+                pred_df = Data_Dataframe_process(pred_find_result[0]['predictPath'])
+                # [這邊需要改寫] 產生餵入資料的flow 後面需要變成class 然後 把各種前處理的選項加進去 給flask介面選擇
+                pred_Datagen = ImageDataGenerator(preprocessing_function=scalar)
+                pred_gen = pred_Datagen.flow_from_dataframe(pred_df,
+                                                            x_col='filepaths',  # 這邊'filepaths'是指抓取dataframe中,抬頭名稱的那一排
+                                                            y_col='label',      # 這邊'label'是指抓取dataframe中,抬頭名稱的那一排
+                                                            target_size=(parameter_result[0]['Image_SizeW'],
+                                                                         parameter_result[0]['Image_SizeH']),
+                                                            class_mode='categorical',
+                                                            color_mode='rgb',
+                                                            shuffle=False,
+                                                            batch_size=parameter_result[0]['Batch_size'])
+                # [全都要改寫] 產生要訓練的Model, 從flask選擇方法與各種參數後 變成一個model return
+                # [改寫] 需要有callback的選項可以選, 何時停 紀錄甚麼參數?
+                # ====================== 前置參數 ========================
+                classes = len(list(pred_gen.class_indices.keys()))
+                # =======================================================
 
-            # 如果訓練成功, 標註SQL為已訓練,  並記錄訓練過程(History)
-            if train_result:    # 如果訓練成功[不包含停止訓練]
+                # 載入模型  試算classes 數量
+                pred_model = Spawn_model.spawnboo_model(classes=classes)
+                pred_model.EfficientNet_parameter_test()
+                pred_model.EfficientNetB3_keras()
+                # 開始預測
+                #這邊要找是用哪個model 去預測,所以要撈一下MKey 找model 名稱
                 MDB.ConnDatabase('FlaskWeb')
                 MDB.ConnCollection('Train_List')
+                find_txt = {"Mission_Name": {"$eq": pred_find_result[0]["Mkey"]}}
+                modelname_find_result = list(MDB.Find(find_txt, show_id=False))
 
-                update_con = {"serial": {"$eq": Train_find_Result[0]['serial']}}
-                print("Train_find_Result[0]['serial']:",Train_find_Result[0]['serial'])
-                Result = MDB.Update(update_con, {"Finish": True,"Stop": False})
-                print(Result)
+                # 變更全域函數 訓練中的參數 - 開始
+                globals.predict_project_serial = parameter_result[0]['Mkey']
+                if len(modelname_find_result) > 0:
+                    print("predict function 有成功帶入模型", os.path.join("CNN_save", modelname_find_result[0]["Mission_Name"]+".h5"))
+                    predict_Result = pred_model.start_predict(pred_gen,
+                                                              load_weightPATH= os.path.join("CNN_save", modelname_find_result[0]["Mission_Name"]+".h5") )  # *這邊模型到時候要修改成自動帶入特定位置
+                else:
+                    print("predict function 失敗!!!!")
+                    predict_Result = pred_model.start_predict(pred_gen,
+                                                          load_weightPATH = r"CNN_save\Training_1.h5")  #   *這邊模型到時候要修改成自動帶入特定位置
+                # 變更全域函數 訓練中的參數 - 結束
+                globals.predict_project_serial = ""
 
-                #***************************  紀錄訓練History  ************************************
-                Train_history = train_model.history.history
-                print(Train_history)
-                if len(Train_history)>0:  # 確保有資料輸入
-                    # 將其轉換成每一個row to dict
-                    pd_history = pd.DataFrame(Train_history)
-                    pd_history = pd_history.to_dict(orient='records')    # 將資料轉成[{'loss': 5.86, 'accuracy': 1.0}, {'loss': 5.83, 'accuracy': 0.9375}]
-                    print(pd_history)
-                    # 放入資料庫
+                if predict_Result:  # 有成功執行Predict
+                    print("輸出 預測相關結果圖樣")
+                    # 輸出結果 類別判別!
+                    cnn_pred_plt = CNN_Predict_Present(pred_model.predictResult, pred_gen)
+                    plt_saveIMG(cnn_pred_plt, save_name='cnn_pred_result', SAVE_TYPE='.png')
+
+                    # # 並把這個結果記錄到SQL Predict_Result 上
+                    # MDB.ConnDatabase('FlaskWeb')
+                    # MDB.ConnCollection('Predict_Result')
+                    # MDB.create_pred_ResultSQL(Predkey,
+                    #                       trainPath,
+                    #                       model,
+                    #                       PredNum,
+                    #                       ACC,
+                    #                       serialKey='Rkey')
+        #*********************************************************************************************
+        # (Train 訓練)將最高順位的排程出去
+        if len(train_find_result) > 0:    # 如果有訓練清單待辦
+            # 查找 訓練細節
+            MDB.ConnDatabase('FlaskWeb')
+            MDB.ConnCollection('Train_Parameter')
+            find_txt = { "Mkey": { "$eq": train_find_result[0]['serial'] } }
+            parameter_result = MDB.Find(find_txt, show_id=False)    # 理論上只會找到一組  但要處理可能有兩組的情況
+            parameter_result = list(parameter_result)
+
+            if train_find_result[0]['Model'] == "effB3":
+                # 訓練資料整理
+                # 從資料夾抓取資料變成DataFrame的方法
+                train_df = Data_Dataframe_process(parameter_result[0]['trainPath'])
+                # [這邊需要改寫] 產生餵入資料的flow 後面需要變成class 然後 把各種前處理的選項加進去 給flask介面選擇
+                train_Datagen = ImageDataGenerator(preprocessing_function=scalar)
+                train_gen = train_Datagen.flow_from_dataframe(train_df,
+                                                              x_col='filepaths',        # 這邊'filepaths'是指抓取dataframe中,抬頭名稱的那一排
+                                                              y_col='label',            # 這邊'label'是指抓取dataframe中,抬頭名稱的那一排
+                                                              target_size=(parameter_result[0]['Image_SizeW'], parameter_result[0]['Image_SizeH']),
+                                                              class_mode='categorical', # 返回標籤的方式, categorical=> 2D numpy one-hot形式
+                                                              color_mode='rgb',
+                                                              shuffle=True,
+                                                              batch_size=parameter_result[0]['Batch_size'])
+                # [全都要改寫] 產生要訓練的Model, 從flask選擇方法與各種參數後 變成一個model return
+                # [改寫] 需要有callback的選項可以選, 何時停 紀錄甚麼參數?
+                # ====================== 前置參數 ========================
+                classes = len(list(train_gen.class_indices.keys()))
+                # =======================================================
+                # 載入模型  試算classes 數量
+                train_model = Spawn_model.spawnboo_model(classes=classes)
+                train_model.EfficientNet_parameter(parameter_result[0])
+                train_model.EfficientNetB3_keras()
+
+                # 變更全域函數 訓練中的參數 - 開始
+                globals.train_project_serial = parameter_result[0]['Mkey']
+                # 開始訓練
+                train_result = train_model.start_train(train_gen)
+                # 變更全域函數 訓練中的參數 - 結束
+                globals.train_project_serial = ""
+
+                # 如果訓練成功, 標註SQL為已訓練,  並記錄訓練過程(History)
+                if train_result:    # 如果訓練成功[不包含停止訓練]
                     MDB.ConnDatabase('FlaskWeb')
                     MDB.ConnCollection('Train_List')
-                    # 輸入SQL
-                    Result = MDB.Insert(pd_history)
+
+                    update_con = {"serial": {"$eq": train_find_result[0]['serial']}}
+                    print("Train_find_Result[0]['serial']:",train_find_result[0]['serial'])
+                    Result = MDB.Update(update_con, {"Finish": True,"Stop": False})
                     print(Result)
 
+                    #***************************  紀錄訓練History  ************************************
+                    Train_history = train_model.history.history
+                    print(Train_history)
+                    if len(Train_history)>0:  # 確保有資料輸入
+                        # 將其轉換成每一個row to dict
+                        pd_history = pd.DataFrame(Train_history)
+                        pd_history = pd_history.to_dict(orient='records')    # 將資料轉成[{'loss': 5.86, 'accuracy': 1.0}, {'loss': 5.83, 'accuracy': 0.9375}]
+                        print(pd_history)
+                        # 放入資料庫
+                        MDB.ConnDatabase('FlaskWeb')
+                        MDB.ConnCollection('Train_History')
+                        # 輸入SQL
+                        Result = MDB.Insert(pd_history)
+                        print(Result)
+
+# 監控是否中斷訓練/預測
+def TrainStopListenRobot():
+    """
+    目前使用的方法,並不是最好的!?
+    目前讓此方法去撈資料庫目前狀況,做出同樣的訓練清單列表!
+    竟可能的同步訓練中狀態,如果停止的話,理論上會停到同一個function
+    :return:
+    """
+    # 暫時性加入time的import 後續移出
+    import time
+
+
+
+    while True:
+        MDB.ConnDatabase('FlaskWeb')
+        MDB.ConnCollection('Predict_List')
+        find_txt = {"$or": [
+            {"Finish": {"$eq": False}},
+            {"Stop": {"$eq": True}}]}
+        Pred_find_Result = list(MDB.Find(find_txt, show_id=False))
 
 # ======================================================================================================================
+# =====================================  正常Flask Route 的進入區域 ======================================================
+# ======================================================================================================================
+
 @app.route("/")  # 函式的裝飾 ( Decorator )，以底下函式為基礎，提供附加的功能，這邊 "/" 代表根目錄
 def home():
-    # # 嘗試連線至MDB
-    # MDB.MDB_Insert(insert_dict)
-
-    # 開啟訓練排程機器人
+    """
+        1. 開啟訓練排程機器人
+        2. 轉跳至登入頁面
+    :return: Login Page
+    """
     # 註記保留, 多線程啟用訓練方法
-    thread = threading.Thread(target=TrainQueeueRobot)
-    thread.daemon = True         # Daemonize
-    thread.start()
+    # 線程任務指派
+    QueenRobot_thread = threading.Thread(target=TrainQueeueRobot)
+    # StopReader_thread =
+    # 線程任務狀態設定
+    QueenRobot_thread.daemon = True         # Daemonize
+    # 線程任務開始[含檢查機制,防止開多個]
+    if QueenRobot_thread.is_alive() == False:
+        # 線程任務開始
+        QueenRobot_thread.start()
+
 
     #  轉跳至 登入畫面  等未來有空再做登入畫面
     return redirect(url_for('login'))
@@ -521,6 +568,10 @@ def PredictResult():
 
 
 if __name__ == "__main__":  # 如果以主程式運行
+    # 全域函數宣告與初始化
+    import globals_value as globals
+    globals.global_initialze()
+
     # (暫時)登入Mongodb 路徑與方法
     uri = "mongodb+srv://e01646166:Ee0961006178@spawnboo.dzmdzto.mongodb.net/?retryWrites=true&w=majority&appName=spawnboo"
     MDB = MDB.MongoDB_Training(uri)

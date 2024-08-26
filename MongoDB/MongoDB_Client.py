@@ -1,7 +1,5 @@
 import certifi
 from pymongo import MongoClient
-from datetime import datetime
-
 
 """
 這邊是設計一個Class 進入到一個Database

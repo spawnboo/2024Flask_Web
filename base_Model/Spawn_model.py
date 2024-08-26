@@ -1,17 +1,22 @@
 import tensorflow as tf
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Conv2D , MaxPooling2D , Flatten , Activation , Dense , Dropout , BatchNormalization , GlobalAveragePooling2D
-from tensorflow.keras.optimizers import Adam, Adamax
-from tensorflow.keras.losses import BinaryCrossentropy
+from tensorflow.keras.layers import Dense , Dropout , BatchNormalization
+from tensorflow.keras.optimizers import Adamax
 from tensorflow.keras import regularizers
 from tensorflow.keras.callbacks import Callback
-from tensorflow.keras.callbacks import ReduceLROnPlateau, ModelCheckpoint, EarlyStopping, LearningRateScheduler
+from tensorflow.keras.callbacks import EarlyStopping
+
+import globals_value as globals
 
 # 這兩行是,檢索GPU or 指定GPU作業方式! 針對不同狀況下顯卡,會需要切成不同的狀況!
 gpus = tf.config.experimental.list_physical_devices('GPU')
 # tf.config.experimental.set_memory_growth(gpus[0], True)
 
-# 回呼函式, 主要是停止訓練用
+"""
+    回呼函式, 做以下幾件事情:
+        1. 接收停止函數指令, 停止訓練~
+        2. 回傳目前訓練進度 *尚未準備好往前拋數值的想法和方法
+"""
 # *******************先不帶入, 會跳出警示!?  但可以用樣子******************************
 class Mycallback(Callback):
     """Callback that terminates training when flag=1 is encountered.
@@ -21,6 +26,10 @@ class Mycallback(Callback):
 
     def on_batch_end(self, batch, logs=None):
         Total_batch = self.params.get('steps')  # 這個是 max batch
+
+        # 全域函數 告知停止
+        if globals.model_stop == True:
+            self.model.stop_training = True
 
         # if self.epoch == 2:
         #   print (f"\nStopping at , Batch {batch}")
@@ -56,9 +65,6 @@ class spawnboo_model():
 
         self.history = {}
         self.predictResult = []
-
-        # 外部呼叫停止訓練
-        self.train_stop = False
 
         # 夾帶參數
         self.train_name = ''
@@ -149,7 +155,8 @@ class spawnboo_model():
             self.history = self.model.fit(x=train_gen, epochs=Epochs, verbose=1, validation_data=valid_gen,
                                           validation_steps=None, shuffle=False, callbacks=[Mycallback(), callbacks])
 
-        if self.train_stop == False:
+
+        if globals.model_stop == False: # 抓全域函數
             # 有訓練成功的話, 紀錄Model
             if self.train_name == '':
                 self.model.save_weights(r"CNN_save\eff.h5", overwrite=True)
@@ -158,8 +165,8 @@ class spawnboo_model():
             print("traing Finish")
             return True
         else:
-            self.train_stop = True
-            print("traing call stop!!")
+            globals.model_stop = False
+            print("traing call stop!! and reset global 'model_stop' value to False~ ")
             return False
 
     def start_predict(self, predict_gen, load_weightPATH = r"CNN_save\Training_1.h5"):
