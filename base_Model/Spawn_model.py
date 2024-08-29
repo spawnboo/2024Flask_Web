@@ -160,8 +160,11 @@ class spawnboo_model():
             # 有訓練成功的話, 紀錄Model
             if self.train_name == '':
                 self.model.save_weights(r"CNN_save\eff.h5", overwrite=True)
+                print("hishere1")
             else:
-                self.model.save_weights(r"CNN_save/" + self.train_name + ".h5" , overwrite=True)
+                self.model.save_weights("CNN_save/" + self.train_name + ".h5" , overwrite=True)
+                print(r"CNN_save/" + self.train_name + ".h5")
+                print("hishere2")
             print("traing Finish")
             return True
         else:

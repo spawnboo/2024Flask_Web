@@ -78,17 +78,16 @@
             <tbody>
             {% for row in data %}
                 <tr>
+                    <!--    加入每個選項的內容     -->
                     {% for item in row.values() %}
                     <td>{{ item }}</td>
                     {% endfor %}
 
                     <!--加入按鈕選項  + 判斷式這個人是否有權限 -->
                     <td>
-<!--                      <button class="Tool_btn_delete" name="Tool_btn_D_{{loop.index0}}" value={{row['Name']}}><i class="fa fa-trash"></i></button></a>-->
-<!--                      <button class="Tool_btn_eye" name="Tool_btn_L_{{loop.index0}}" value={{row['Name']}}><i class="fa fa-eye" aria-hidden="true"></i></button></a>-->
-                       <button class="Tool_btn_delete" name="Tool_btn" value="{{ (row.values() | list)[0]}}_Pred"><i type="submit" class="fa fa-caret-square-o-right" aria-hidden="true"></i></button>
-                       <button class="Tool_btn_eye" name="Tool_btn" value="{{ (row.values() | list)[0]}}_Look }}"><i type="submit"  class="fa fa-eye" aria-hidden="true"></i></button>
-                       <button class="Tool_btn_stop" name="Tool_btn" value="{{ (row.values() | list)[0]}}_Stop }}"><i type="submit"  class="fa fa-stop-circle" aria-hidden="true"></i></button>
+                       <button class="Tool_btn_eye" name="Tool_btn" value="{{ (row.values() | list)[0]}}_Look"><i type="submit"  class="fa fa-eye" aria-hidden="true"></i></button>
+                       <button class="Tool_btn_stop" name="Tool_btn" value="{{ (row.values() | list)[0]}}_Stop"><i type="submit"  class="fa fa-stop-circle" aria-hidden="true"></i></button>
+                       <button class="Tool_btn_delete" name="Tool_btn" value="{{ (row.values() | list)[0]}}_Del"  onclick="return confirm('確定刪除?')"><i type="submit" class="fa fa-trash" aria-hidden="true"></i></button>
                     </td>
 
                 </tr>

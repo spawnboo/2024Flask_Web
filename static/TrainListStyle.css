@@ -40,7 +40,7 @@
     padding: 10px 10px;
     font-weight: normal;
     text-align: center;
-    width: 80px;
+    width: 160px;
 }
 
 
@@ -85,13 +85,16 @@
   right: 0;
 }
 
-
+.image-container img {
+  display: inline-block;
+  margin-right: 10px; /* 图片之间的间距 */
+}
 
 .Tool_btn_delete {
   background-color: gray;
   border: none;
   color: white;
-  padding: 6px 8px;
+  padding: 8px 8px;
   font-size: 16px;
   cursor: pointer;
 }
@@ -103,7 +106,7 @@
   background-color: gray;
   border: none;
   color: white;
-  padding: 6px 8px;
+  padding: 8px 8px;
   font-size: 16px;
   cursor: pointer;
 }
@@ -111,6 +114,27 @@
   background-color: RoyalBlue;
 }
 
-
+.Tool_btn_pred {
+  background-color: gray;
+  border: none;
+  color: white;
+  padding: 8px 8px;
+  font-size: 16px;
+  cursor: pointer;
+}
+.Tool_btn_pred:hover {
+  background-color: green;
+}
+.Tool_btn_stop {
+  background-color: gray;
+  border: none;
+  color: white;
+  padding: 8px 8px;
+  font-size: 16px;
+  cursor: pointer;
+}
+.Tool_btn_stop:hover {
+  background-color: darkorange;
+}
 
 </style>

@@ -4,11 +4,13 @@ from flask import request, flash, session
 import MongoDB.DL_Savefunction as MDB
 from  trainHistoryDict.ImagePresentProcess import *
 import secrets
-
+import threading
 import pandas as pd
 import os
+# 暫時性加入time的import 後續移出
+import time
 
-import threading
+
 
 from RegisterEmail import Register_Function
 
@@ -66,17 +68,18 @@ def TrainQueeueRobot():
         # 將Train_List中,Finish=False and Stop=True的讀出來  Train_Parameter值讀出來,
         MDB.ConnDatabase('FlaskWeb')
         MDB.ConnCollection('Train_List')
-        find_txt = {"$or":[
+        find_txt = {"$and":[
                     {"Finish": {"$eq": False}},
-                    {"Stop": {"$eq": True}}]}
+                    {"Stop": {"$eq": False}}]}
         train_find_result = list(MDB.Find(find_txt, show_id=False))
+
 
         # 將Predict_List中, Finish= False and Stop=True的讀出來
         MDB.ConnDatabase('FlaskWeb')
         MDB.ConnCollection('Predict_List')
-        find_txt = {"$or":[
+        find_txt = {"$and":[
                     {"Finish": {"$eq": False}},
-                    {"Stop": {"$eq": True}}]}
+                    {"Stop": {"$eq": False}}]}
         pred_find_result = list(MDB.Find(find_txt, show_id=False))
 
         # 這邊會修改作法只有一個GPU 且未分割使用量! 會優先給Predict_List優先使用~ *未實作,未有第二張顯卡
@@ -86,7 +89,8 @@ def TrainQueeueRobot():
             # 查找 訓練細節
             MDB.ConnDatabase('FlaskWeb')
             MDB.ConnCollection('Train_Parameter')
-            find_txt = {"Mkey": {"$eq": train_find_result[0]['serial']}}
+            serial_Mkey = train_find_result[0]['serial'] # 當前預測的serial or Mkey
+            find_txt = {"Mkey": {"$eq": serial_Mkey}}
             parameter_result = list(MDB.Find(find_txt, show_id=False))  # 理論上只會找到一組  但要處理可能有兩組的情況
 
             if train_find_result[0]['Model'] == "effB3":
@@ -120,8 +124,14 @@ def TrainQueeueRobot():
                 find_txt = {"Mission_Name": {"$eq": pred_find_result[0]["Mkey"]}}
                 modelname_find_result = list(MDB.Find(find_txt, show_id=False))
 
+                # 這邊需要知道, 是哪個一個PredKey 才能夠使用全域函數去中斷訓練
+                MDB.ConnDatabase('FlaskWeb')
+                MDB.ConnCollection('Predict_List')
+                find_txt = {"Mkey": {"$eq": pred_find_result[0]["Mkey"]}}
+                predkey_find_result = list(MDB.Find(find_txt, show_id=False))
+
                 # 變更全域函數 訓練中的參數 - 開始
-                globals.predict_project_serial = parameter_result[0]['Mkey']
+                globals.predict_project_serial = predkey_find_result[0]['Predkey']
                 if len(modelname_find_result) > 0:
                     print("predict function 有成功帶入模型", os.path.join("CNN_save", modelname_find_result[0]["Mission_Name"]+".h5"))
                     predict_Result = pred_model.start_predict(pred_gen,
@@ -154,7 +164,8 @@ def TrainQueeueRobot():
             # 查找 訓練細節
             MDB.ConnDatabase('FlaskWeb')
             MDB.ConnCollection('Train_Parameter')
-            find_txt = { "Mkey": { "$eq": train_find_result[0]['serial'] } }
+            serial_Mkey = train_find_result[0]['serial']
+            find_txt = { "Mkey": { "$eq": serial_Mkey } }
             parameter_result = MDB.Find(find_txt, show_id=False)    # 理論上只會找到一組  但要處理可能有兩組的情況
             parameter_result = list(parameter_result)
 
@@ -181,6 +192,8 @@ def TrainQueeueRobot():
                 train_model = Spawn_model.spawnboo_model(classes=classes)
                 train_model.EfficientNet_parameter(parameter_result[0])
                 train_model.EfficientNetB3_keras()
+                # 這邊確定model存檔名稱
+                train_model.train_name = train_find_result[0]['Mission_Name']
 
                 # 變更全域函數 訓練中的參數 - 開始
                 globals.train_project_serial = parameter_result[0]['Mkey']
@@ -194,8 +207,8 @@ def TrainQueeueRobot():
                     MDB.ConnDatabase('FlaskWeb')
                     MDB.ConnCollection('Train_List')
 
-                    update_con = {"serial": {"$eq": train_find_result[0]['serial']}}
-                    print("Train_find_Result[0]['serial']:",train_find_result[0]['serial'])
+                    update_con = {"serial": {"$eq": serial_Mkey}}
+                    print("serial/Mkey:",serial_Mkey)
                     Result = MDB.Update(update_con, {"Finish": True,"Stop": False})
                     print(Result)
 
@@ -206,13 +219,17 @@ def TrainQueeueRobot():
                         # 將其轉換成每一個row to dict
                         pd_history = pd.DataFrame(Train_history)
                         pd_history = pd_history.to_dict(orient='records')    # 將資料轉成[{'loss': 5.86, 'accuracy': 1.0}, {'loss': 5.83, 'accuracy': 0.9375}]
-                        print(pd_history)
+                        # 並將其加入該次訓練之Mkey
+                        pd_history_withMkey = [dict({'Mkey':serial_Mkey}, **item, ) for item in pd_history]
                         # 放入資料庫
                         MDB.ConnDatabase('FlaskWeb')
                         MDB.ConnCollection('Train_History')
                         # 輸入SQL
-                        Result = MDB.Insert(pd_history)
+                        Result = MDB.Insert(pd_history_withMkey)
                         print(Result)
+        ####################################   While 迴圈尾端  ##########################################
+        print("訓練機器人暫時沒找到要訓練/預測的項目,休息1分鐘~")
+        time.sleep(60)  # 一分鐘後再看有無新的資料
 
 # 監控是否中斷訓練/預測
 def TrainStopListenRobot():
@@ -222,18 +239,30 @@ def TrainStopListenRobot():
     竟可能的同步訓練中狀態,如果停止的話,理論上會停到同一個function
     :return:
     """
-    # 暫時性加入time的import 後續移出
-    import time
-
 
 
     while True:
-        MDB.ConnDatabase('FlaskWeb')
-        MDB.ConnCollection('Predict_List')
-        find_txt = {"$or": [
-            {"Finish": {"$eq": False}},
-            {"Stop": {"$eq": True}}]}
-        Pred_find_Result = list(MDB.Find(find_txt, show_id=False))
+        # 如果要停止的值正在作業中,就呼叫全域變數"model_stop"便成為stop 停止訓練
+        # Trainning
+        if globals.train_project_serial != "":
+            # 查詢是否停止作業
+            MDB.ConnDatabase('FlaskWeb')
+            MDB.ConnCollection('Train_List')
+            find_txt = { "serial": { "$eq": globals.train_project_serial } }
+            train_find_Result = list(MDB.Find(find_txt, show_id=False))
+            if train_find_Result[0]['Stop'] == True:
+                globals.model_stop = True
+        # Predict
+        if globals.predict_project_serial != "":
+            # 查詢是否停止作業
+            MDB.ConnDatabase('FlaskWeb')
+            MDB.ConnCollection('Predict_List')
+            find_txt = { "Predkey": { "$eq": globals.predict_project_serial } }
+            pred_find_Result = list(MDB.Find(find_txt, show_id=False))
+            if pred_find_Result[0]['Stop'] == True:
+                globals.model_stop = True
+        ####################################   While 迴圈尾端  ##########################################
+        time.sleep(5)  # 每5秒檢查一次
 
 # ======================================================================================================================
 # =====================================  正常Flask Route 的進入區域 ======================================================
@@ -249,13 +278,15 @@ def home():
     # 註記保留, 多線程啟用訓練方法
     # 線程任務指派
     QueenRobot_thread = threading.Thread(target=TrainQueeueRobot)
-    # StopReader_thread =
+    StopReader_thread = threading.Thread(target=TrainStopListenRobot)
     # 線程任務狀態設定
     QueenRobot_thread.daemon = True         # Daemonize
+    StopReader_thread.daemon = True
     # 線程任務開始[含檢查機制,防止開多個]
     if QueenRobot_thread.is_alive() == False:
-        # 線程任務開始
         QueenRobot_thread.start()
+    if StopReader_thread.is_alive() == False:
+        StopReader_thread.start()
 
 
     #  轉跳至 登入畫面  等未來有空再做登入畫面
@@ -390,14 +421,25 @@ def trainList():
             return render_template("TrainList.html", headers=list(headers), data=list(cur))
         return render_template("TrainList.html")
 
-    # if request.method == 'POST':
-    #     button_clicked = request.form['Tool_btn_D']
-    #     print(button_clicked)
+    # 如果他點擊任意待訓練"TOOL"選項!
+    trainList_serial, btn_function = request.form["Tool_btn"].split("_")  # 分析是哪一個model 與要做哪一件事
+    print("Choose Serial:", trainList_serial)
+    print("Choose Function:", btn_function)
 
+    if btn_function == 'Look':  # 表示按的是查看目待訓練或正在訓練內容(參數)
+        c = 1
 
-    # # 轉跳到Home的html頁
-    # return render_template("TrainList.html")
+    if btn_function == 'Stop':  # 表示按的是停止這個功能
+        # 修改成Stop:True
+        MDB.Trainning_Call_Stop(trainList_serial)
+        return render_template("TrainList.html")
 
+    if btn_function == 'Del':  # 表示按的是刪除
+        # 先將該筆文件刪除後 移動至刪除區域
+        MDB.TrainList_Del(trainList_serial)
+
+        return render_template("TrainList.html")
+    return render_template("TrainList.html")
 
 # 設定訓練菜單
 @login_required
@@ -509,6 +551,9 @@ def PredictPage():
         session['Mkey'] = trainList_serial
 
         return render_template("PredictSet.html",train_List_Result=train_List_Result ,train_parameter_Result=train_parameter_Result)
+
+    if btn_function == 'Stop': # 表示按的是刪除
+        c=1
 
     if btn_function == 'Del': # 表示按的是刪除
         c=1

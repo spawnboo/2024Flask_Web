@@ -128,6 +128,43 @@ class MongoDB_Training(MDB):
 
     # 訓練過程狀態
 
+    # 將訓練/預測狀態修改成 Stop
+    def Trainning_Call_Stop(self, Train_serial):
+        self.ConnDatabase('FlaskWeb')
+        self.ConnCollection('Train_List')
+
+        Update_Con = { "serial": { "$eq": int(Train_serial) } }
+
+        Result = self.Update(Update_Con, {"Stop":True})
+        print("Trainning_Call_Stop:",Result)
+
+    """
+       *************************************   刪除區域   ****************************************************
+    """
+    # 刪除Trainning 區域的資料, 並移動到刪除紀錄那邊
+    def TrainList_Del(self, Train_serial):
+        #  先砍parameter
+        self.ConnDatabase('FlaskWeb')
+        self.ConnCollection('Train_Parameter')
+
+        del_txt = { "Mkey": { "$eq": int(Train_serial) } }
+
+        Result = self.Delete(del_txt)
+        print("Tranning DELETE -parameter part", Result)
+
+        # 再砍原本train List中的主要值
+        self.ConnDatabase('FlaskWeb')
+        self.ConnCollection('Train_List')
+
+        del_txt = { "serial": { "$eq": int(Train_serial) } }
+
+        Result = self.Delete(del_txt)
+        print("Tranning DELETE -trainning part", Result)
+
+
+
+
+
 
 if __name__ == "__main__":
     uri = "mongodb+srv://e01646166:Ee0961006178@spawnboo.dzmdzto.mongodb.net/?retryWrites=true&w=majority&appName=spawnboo"

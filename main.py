@@ -11,7 +11,6 @@ from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
 import time
 
-
 # 啟動Flask
 # 登入系統 [不急]
 # 開啟CNN訓練視窗[不急]
@@ -30,6 +29,11 @@ import time
 
 
 if __name__ == "__main__":  # 如果以主程式運行
+    import globals_value as globals
+    globals.global_initialze()
+    # 以上202408月新增  需要給訓練系統初始化全域函數
+
+
     train_PATH = r'D:\DL\chest_xray\val'
 
     # 從資料夾抓取資料變成DataFrame的方法
@@ -78,6 +82,7 @@ if __name__ == "__main__":  # 如果以主程式運行
     hist_df = pd.DataFrame(history)
     history_dict_list = hist_df.to_dict(orient='records')
 
+    print(history_dict_list)
     # *************************  轉圖片的方法  ********************************
     # # Define needed variables
     # tr_acc = history.history['accuracy']
