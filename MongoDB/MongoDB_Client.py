@@ -151,23 +151,23 @@ if __name__ == "__main__":
     mdb.ConnDatabase('FlaskWeb')
     mdb.ConnCollection('Train_List')
 
-    # # 查詢
-    # rows = mdb.Find(find_txt, show_id=False)
-    # rows = list(rows)
+    # 查詢
+    rows = mdb.Find(find_txt, show_id=False)
+    rows = list(rows)
 
-    # for row in rows:
-    #     print(row)
-    # print(rows[0]["Finish"] == F)
+    for row in rows:
+        print(row)
+
 
     #******************************************************************************************
-    mdb.ConnDatabase('FlaskWeb')
-    mdb.ConnCollection('Train_History')
-
-    insert_txt = [{ "Mkey": 0 },{"Mkey":1}]
-
-    # 輸入
-    Result = mdb.Insert(insert_txt)
-    print(Result)
+    # mdb.ConnDatabase('FlaskWeb')
+    # mdb.ConnCollection('Train_History')
+    #
+    # insert_txt = [{ "Mkey": 0 },{"Mkey":1}]
+    #
+    # # 輸入
+    # Result = mdb.Insert(insert_txt)
+    # print(Result)
 
     #******************************************************************************************
 

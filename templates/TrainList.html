@@ -1,12 +1,13 @@
 <!DOCTYPE html>
 <html>
-<link rel= "stylesheet" type= "text/css" href="static/MenuLine.css">
-<link rel= "stylesheet" type= "text/css" href="static/TrainListStyle.css">
+<link href="{{ url_for('static', filename='MenuLine.css') }}" rel="stylesheet">
+<link href="{{ url_for('static', filename='TrainListStyle.css') }}" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
 <head>
     <meta charset="UTF-8">
-
+<!--    網頁更新時間-->
+    <meta http-equiv="refresh" content="3">
     <link rel= "stylesheet" href="/training_style.css">
     <title>鱷魚AI動物園</title>
 
@@ -58,6 +59,7 @@
 </head>
 
 <body>
+
 <!--    製作一個新的訓練-->
     <a href="trainSet"><button class="button"><span>製作訓練菜單 </span></button></a>
 <!--    目前訓練清單與進度-->
@@ -79,17 +81,23 @@
             {% for row in data %}
                 <tr>
                     <!--    加入每個選項的內容     -->
-                    {% for item in row.values() %}
-                    <td>{{ item }}</td>
+                    {% for item in row %}
+                    <td>{{ row[item] }}</td>
                     {% endfor %}
 
                     <!--加入按鈕選項  + 判斷式這個人是否有權限 -->
                     <td>
                        <button class="Tool_btn_eye" name="Tool_btn" value="{{ (row.values() | list)[0]}}_Look"><i type="submit"  class="fa fa-eye" aria-hidden="true"></i></button>
-                       <button class="Tool_btn_stop" name="Tool_btn" value="{{ (row.values() | list)[0]}}_Stop"><i type="submit"  class="fa fa-stop-circle" aria-hidden="true"></i></button>
-                       <button class="Tool_btn_delete" name="Tool_btn" value="{{ (row.values() | list)[0]}}_Del"  onclick="return confirm('確定刪除?')"><i type="submit" class="fa fa-trash" aria-hidden="true"></i></button>
-                    </td>
+                        {% if row['Stop'] == False %}
+                            <button class="Tool_btn_stop" name="Tool_btn" value="{{ (row.values() | list)[0]}}_Stop"><i type="submit"  class="fa fa-stop-circle" aria-hidden="true"></i></button>
+                        {% else %}
+                            <button class="Tool_btn_stop" name="Tool_btn" value="{{ (row.values() | list)[0]}}_Start"><i type="submit"  class="fa fa-play-circle" aria-hidden="true"></i></button>
+                        {% endif %}
 
+                        {% if now_run == "" %}
+                            <button class="Tool_btn_delete" name="Tool_btn" value="{{ (row.values() | list)[0]}}_Del"  onclick="return confirm('確定刪除?')"><i type="submit" class="fa fa-trash" aria-hidden="true"></i></button>
+                        {% endif %}
+                    </td>
                 </tr>
             {% endfor %}
             </tbody>

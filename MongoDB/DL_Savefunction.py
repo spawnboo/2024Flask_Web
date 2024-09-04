@@ -138,6 +138,16 @@ class MongoDB_Training(MDB):
         Result = self.Update(Update_Con, {"Stop":True})
         print("Trainning_Call_Stop:",Result)
 
+    # 將訓練/預測狀態修改成 Start
+    def Trainning_Call_Start(self, Train_serial):
+        self.ConnDatabase('FlaskWeb')
+        self.ConnCollection('Train_List')
+
+        Update_Con = { "serial": { "$eq": int(Train_serial) } }
+
+        Result = self.Update(Update_Con, {"Stop":False})
+        print("Trainning_Call_Stop:",Result)
+
     """
        *************************************   刪除區域   ****************************************************
     """
@@ -161,16 +171,32 @@ class MongoDB_Training(MDB):
         Result = self.Delete(del_txt)
         print("Tranning DELETE -trainning part", Result)
 
+    """
+       *************************************   查詢區域   ****************************************************
+    """
+    # 查詢"Train_List"中,特定Serial的值
+    def Find_Train_List_Serial(self, serial):
+        self.ConnDatabase('FlaskWeb')
+        self.ConnCollection('Train_List')
+        find_txt = {"serial": {"$eq": int(serial)}}
+        Result = list(self.Find(find_txt, show_id=False))
+        return Result
 
-
-
+    # 查詢"Train_Parameter"中,特定Mkey(等同serial)的值
+    def Find_Train_Parameter_Mkey(self, Mkey):
+        self.ConnDatabase('FlaskWeb')
+        self.ConnCollection('Train_Parameter')
+        find_txt = {"Mkey": {"$eq": int(Mkey)}}
+        Result = list(self.Find(find_txt, show_id=False))
+        return Result
 
 
 if __name__ == "__main__":
     uri = "mongodb+srv://e01646166:Ee0961006178@spawnboo.dzmdzto.mongodb.net/?retryWrites=true&w=majority&appName=spawnboo"
     spawnboo_MDB = MongoDB_Training(uri)
-    spawnboo_MDB.ConnDatabase('FlaskWeb')
-    spawnboo_MDB.ConnCollection('coustom')
+    rows = spawnboo_MDB.Find_Train_Parameter_Mkey(3)
+    rows = rows[0].keys()
+    for r in rows:
+        print(r)
 
-    a = spawnboo_MDB.serialNUM('Mkey')
-    print(a)
+

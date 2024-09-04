@@ -418,28 +418,37 @@ def trainList():
         if len(train_List_Result) > 0:
             headers = train_List_Result[0].keys()
             cur = train_List_Result
-            return render_template("TrainList.html", headers=list(headers), data=list(cur))
+            # 現在系統正在跑的訓練或檢測(全域函數) train or predict
+            now_run = ""
+            if globals.train_project_serial != "":now_run = globals.train_project_serial
+            if globals.predict_project_serial != "": now_run = globals.predict_project_serial
+            return render_template("TrainList.html", headers=list(headers), data=list(cur), now_run=now_run)
         return render_template("TrainList.html")
 
     # 如果他點擊任意待訓練"TOOL"選項!
     trainList_serial, btn_function = request.form["Tool_btn"].split("_")  # 分析是哪一個model 與要做哪一件事
-    print("Choose Serial:", trainList_serial)
-    print("Choose Function:", btn_function)
+    print("TrainList Choose Serial:", trainList_serial)
+    print("TrainList Choose Function:", btn_function)
 
     if btn_function == 'Look':  # 表示按的是查看目待訓練或正在訓練內容(參數)
-        c = 1
+        return redirect(url_for('LookTrainParameter', serial_num=trainList_serial))
+
 
     if btn_function == 'Stop':  # 表示按的是停止這個功能
         # 修改成Stop:True
         MDB.Trainning_Call_Stop(trainList_serial)
-        return render_template("TrainList.html")
+
+    if btn_function == 'Start':  # 表示按的是重新開始這個功能
+        # 修改成Stop:False
+        MDB.Trainning_Call_Start(trainList_serial)
+
 
     if btn_function == 'Del':  # 表示按的是刪除
         # 先將該筆文件刪除後 移動至刪除區域
         MDB.TrainList_Del(trainList_serial)
 
-        return render_template("TrainList.html")
-    return render_template("TrainList.html")
+
+    return redirect(url_for('trainList'))
 
 # 設定訓練菜單
 @login_required
@@ -483,7 +492,21 @@ def trainSet():
                                   Learning_rate,
                                   serialKey='Pkey')
 
-    return redirect(url_for('startTrain'))
+
+    return redirect(url_for('TrainList'))
+
+# 當按Look的方法的時候, 會將數據傳過來並可以觀看狀態
+@app.route('/LookTrainParameter/<serial_num>', methods=['GET'])  # 這邊'/startTrain' 是對照HTML中 <form> action=[要轉跳的地方] </form>
+def LookTrainParameter(serial_num):
+    # 查找事哪一筆serial in 'Train_List' SQL
+    look_main_result = MDB.Find_Train_List_Serial(int(serial_num))
+    look_other_result = MDB.Find_Train_Parameter_Mkey(int(serial_num))
+
+    main_cur = look_main_result[0]
+    para_cur = look_other_result[0]
+    return render_template("TrainingLook.html", main_cur=main_cur, para_cur=para_cur)
+
+# /////////////////////////////////////// 沒用到空間 /////////////////////////////////////////////////////////////
 
 # 按下StartTrain 名子Button 事件
 @app.route('/startTrain', methods=['POST', 'GET'])  # 這邊'/startTrain' 是對照HTML中 <form> action=[要轉跳的地方] </form>
@@ -557,8 +580,6 @@ def PredictPage():
 
     if btn_function == 'Del': # 表示按的是刪除
         c=1
-
-
 
     return render_template("PredictPage.html")  # 轉跳至預測中心頁面
 

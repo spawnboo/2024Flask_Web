@@ -137,4 +137,38 @@
   background-color: darkorange;
 }
 
+/* 以下是Alert_title 告知新訓練資料使用 */
+.alert_title {
+  padding: 20px;
+  background-color: #f44336;
+  color: white;
+}
+
+.alert_title_closebtn {
+  margin-left: 15px;
+  color: white;
+  font-weight: bold;
+  float: right;
+  font-size: 22px;
+  line-height: 20px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.alert_title_closebtn:hover {
+  color: black;
+}
+
+/* 以下是回上一頁按鈕使用 */
+.previous {
+  text-decoration: none;
+  display: inline-block;
+  padding: 8px 16px;
+  background-color: #f1f1f1;
+  color: black;
+}
+previous:hover {
+  background-color: #ddd;
+  color: black;
+}
 </style>
