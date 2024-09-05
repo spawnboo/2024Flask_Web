@@ -1,11 +1,10 @@
 <!DOCTYPE html>
 <html>
-<link rel= "stylesheet" type= "text/css" href="static/MenuLine.css">
-<link rel= "stylesheet" type= "text/css" href="static/TrainListStyle.css">
+<link href="{{ url_for('static', filename='MenuLine.css') }}" rel="stylesheet">
+<link href="{{ url_for('static', filename='TrainListStyle.css') }}" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <meta charset="UTF-8">
 <title>鱷魚AI動物園</title>
-
 <head>
     <div class="topnav" id="myTopnav">
       <div class="dropdownR">
@@ -55,36 +54,25 @@
 </head>
 
 <body>
-<!--    目前訓練清單與進度-->
-    <form action="PredictPage" method="post">
+    <!--    回到上一頁按鈕-->
+    <a href="{{ url_for('PredictPage') }}"><button class="previous"><span> 回上頁 </span></button></a>
 
-        <table class="trainning_table">
-            <thead>
-                <tr>
-                    {% for header in headers %}
-                    <th>{{  header }}</th>
-                    {% endfor %}
+    <table class="trainning_table">
+        <tbody>
+        {% for main in main_cur %}
+            <tr>
+                <th>{{ main }}</th>
+                <th>{{ main_cur[main] }}</th>
+            </tr>
+        {% endfor %}
 
-                    <th> Tool </th>
-                </tr>
-            </thead>
+        {% for para in para_cur %}
+            <tr>
+                <th>{{ para }}</th>
+                <th>{{ para_cur[para] }}</th>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
 
-            <tbody>
-            {% for row in data %}
-                <tr>
-                    {% for item in row.values() %}
-                    <td>{{ item }}</td>
-                    {% endfor %}
-
-                    <!--加入按鈕選項  + 判斷式這個人是否有權限 -->
-                        <td>
-                          <button class="Tool_btn_delete" name="Tool_btn" value="{{ (row.values() | list)[0]}}_Pred"><i type="submit" class="fa fa-caret-square-o-right" aria-hidden="true"></i></button>
-                          <button class="Tool_btn_eye" name="Tool_btn" value="{{ (row.values() | list)[0]}}_Look }}"><i type="submit"  class="fa fa-eye" aria-hidden="true"></i></button>
-                        </td>
-                </tr>
-            {% endfor %}
-            </tbody>
-
-        </table>
-    </form>
 </body>

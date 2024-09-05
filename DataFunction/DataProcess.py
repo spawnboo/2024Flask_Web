@@ -28,14 +28,13 @@ def Data_Dataframe_process(Image_processPath):
     Fseries = pd.Series(filepaths, name='filepaths')
     Lseries = pd.Series(labels, name='label')
     df = pd.concat([Fseries, Lseries], axis=1)
-
-
     return df
-
 
 # (預留)影像增強,後續給ImageDataGenerator 帶入!
 def scalar(img):
     return img
+
+
 
 
 if __name__ == "__main__":  # 如果以主程式運行

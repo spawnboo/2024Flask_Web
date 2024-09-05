@@ -5,16 +5,19 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="461a22b0-e3d9-4425-b72b-c83a3d920ae8" name="Changes" comment="TrainList List change to Load SQL">
-      <change afterPath="$PROJECT_DIR$/DataFunction/MegaAPI.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/TrainingLook.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/PredLook.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DataFunction/DataProcess.py" beforeDir="false" afterPath="$PROJECT_DIR$/DataFunction/DataProcess.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/FlaskWeb.py" beforeDir="false" afterPath="$PROJECT_DIR$/FlaskWeb.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/MongoDB/DL_Savefunction.py" beforeDir="false" afterPath="$PROJECT_DIR$/MongoDB/DL_Savefunction.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MongoDB/MongoDB_Client.py" beforeDir="false" afterPath="$PROJECT_DIR$/MongoDB/MongoDB_Client.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/TrainListStyle.css" beforeDir="false" afterPath="$PROJECT_DIR$/static/TrainListStyle.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/AboutMe.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/AboutMe.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/Member.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/Member.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/templates/PredictPage.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/PredictPage.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/PredictResult.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/PredictResult.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/templates/PredictSet.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/PredictSet.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/templates/TrainList.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/TrainList.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/TrainingLook.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/TrainingLook.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/templates/trainingset.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/trainingset.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -58,7 +61,7 @@
       <recent name="D:\PycharmProjects\2024Flask_Web\trainHistoryDict" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.FlaskWeb">
+  <component name="RunManager" selected="Python.main">
     <configuration name="DL_Savefunction" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Flask_Web" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -143,7 +146,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="ttt_history" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="main" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Flask_Web" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -155,7 +158,7 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/ttt_history.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/main.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -166,11 +169,11 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.main" />
         <item itemvalue="Python.FlaskWeb" />
         <item itemvalue="Python.DL_Savefunction" />
         <item itemvalue="Python.MongoDB_Client" />
         <item itemvalue="Python.MegaAPI" />
-        <item itemvalue="Python.ttt_history" />
       </list>
     </recent_temporary>
   </component>
@@ -271,7 +274,14 @@
       <option name="project" value="LOCAL" />
       <updated>1724923766881</updated>
     </task>
-    <option name="localTasksCounter" value="12" />
+    <task id="LOCAL-00012" summary="Trainning Stop/Start 實作切換&#10;When Trainning Delete can't do&#10;back prive button">
+      <created>1725442110436</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1725442110436</updated>
+    </task>
+    <option name="localTasksCounter" value="13" />
     <servers />
   </component>
   <component name="UnknownFeatures">
@@ -301,6 +311,7 @@
     <MESSAGE value="新增訓練history上船歷史紀錄 &#10;訓練流程測試及驗證確定_修正BUG" />
     <MESSAGE value="新增全域函數, 後台實作訓練停止的方法 與 監控停止指令" />
     <MESSAGE value="訓練過程History存檔到sql - 增加Mkey對應到哪一筆訓練&#10;globals全域函數stop 實作 - 尚未測試&#10;產生訓練檔案project_name 對應到訓練出來的model檔案名稱" />
-    <option name="LAST_COMMIT_MESSAGE" value="訓練過程History存檔到sql - 增加Mkey對應到哪一筆訓練&#10;globals全域函數stop 實作 - 尚未測試&#10;產生訓練檔案project_name 對應到訓練出來的model檔案名稱" />
+    <MESSAGE value="Trainning Stop/Start 實作切換&#10;When Trainning Delete can't do&#10;back prive button" />
+    <option name="LAST_COMMIT_MESSAGE" value="Trainning Stop/Start 實作切換&#10;When Trainning Delete can't do&#10;back prive button" />
   </component>
 </project>

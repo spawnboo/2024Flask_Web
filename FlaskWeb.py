@@ -63,7 +63,6 @@ def TrainQueeueRobot():
 
     # 不斷重複執行
     while True:
-
         # 在每次訓練空閒後,重新排一次訓練資料庫的順序
         # 將Train_List中,Finish=False and Stop=True的讀出來  Train_Parameter值讀出來,
         MDB.ConnDatabase('FlaskWeb')
@@ -82,16 +81,14 @@ def TrainQueeueRobot():
                     {"Stop": {"$eq": False}}]}
         pred_find_result = list(MDB.Find(find_txt, show_id=False))
 
-        # 這邊會修改作法只有一個GPU 且未分割使用量! 會優先給Predict_List優先使用~ *未實作,未有第二張顯卡
+        # ***這邊會修改作法只有一個GPU 且未分割使用量! 會優先給Predict_List優先使用~ *未實作,未有第二張顯卡***
 
         # (Pred 預測)將最高順位的排程出去
         if len(pred_find_result) > 0: # 如果有預測清單待辦
+            serial_Mkey = train_find_result[0]['serial']            # 當前預測的serial or Mkey
+            MDB.Update_Precict_Time(serial_Mkey, Type_Start=True)   # 紀錄當前開始預測時間
             # 查找 訓練細節
-            MDB.ConnDatabase('FlaskWeb')
-            MDB.ConnCollection('Train_Parameter')
-            serial_Mkey = train_find_result[0]['serial'] # 當前預測的serial or Mkey
-            find_txt = {"Mkey": {"$eq": serial_Mkey}}
-            parameter_result = list(MDB.Find(find_txt, show_id=False))  # 理論上只會找到一組  但要處理可能有兩組的情況
+            parameter_result = MDB.Find_Train_Parameter_Mkey(serial_Mkey)
 
             if train_find_result[0]['Model'] == "effB3":
                 # 從資料夾抓取資料變成DataFrame的方法
@@ -132,6 +129,7 @@ def TrainQueeueRobot():
 
                 # 變更全域函數 訓練中的參數 - 開始
                 globals.predict_project_serial = predkey_find_result[0]['Predkey']
+                # 預測方法開始, 載入預設定模型
                 if len(modelname_find_result) > 0:
                     print("predict function 有成功帶入模型", os.path.join("CNN_save", modelname_find_result[0]["Mission_Name"]+".h5"))
                     predict_Result = pred_model.start_predict(pred_gen,
@@ -144,6 +142,8 @@ def TrainQueeueRobot():
                 globals.predict_project_serial = ""
 
                 if predict_Result:  # 有成功執行Predict
+                    MDB.Update_Precict_Time(serial_Mkey, Type_Start=False)  # 紀錄結束預測時間
+
                     print("輸出 預測相關結果圖樣")
                     # 輸出結果 類別判別!
                     cnn_pred_plt = CNN_Predict_Present(pred_model.predictResult, pred_gen)
@@ -161,16 +161,11 @@ def TrainQueeueRobot():
         #*********************************************************************************************
         # (Train 訓練)將最高順位的排程出去
         if len(train_find_result) > 0:    # 如果有訓練清單待辦
-            # 查找 訓練細節
-            MDB.ConnDatabase('FlaskWeb')
-            MDB.ConnCollection('Train_Parameter')
-            serial_Mkey = train_find_result[0]['serial']
-            find_txt = { "Mkey": { "$eq": serial_Mkey } }
-            parameter_result = MDB.Find(find_txt, show_id=False)    # 理論上只會找到一組  但要處理可能有兩組的情況
-            parameter_result = list(parameter_result)
+            serial_Mkey = train_find_result[0]['serial']    # 主要要訓練的serial編號
+            MDB.Update_Trainning_Time(serial_Mkey, Type_Start=True)              # 更新/紀錄開始訓練時間
 
+            parameter_result = MDB.Find_Train_Parameter_Mkey(serial_Mkey)            # 查找訓練參數Paremater
             if train_find_result[0]['Model'] == "effB3":
-                # 訓練資料整理
                 # 從資料夾抓取資料變成DataFrame的方法
                 train_df = Data_Dataframe_process(parameter_result[0]['trainPath'])
                 # [這邊需要改寫] 產生餵入資料的flow 後面需要變成class 然後 把各種前處理的選項加進去 給flask介面選擇
@@ -204,29 +199,17 @@ def TrainQueeueRobot():
 
                 # 如果訓練成功, 標註SQL為已訓練,  並記錄訓練過程(History)
                 if train_result:    # 如果訓練成功[不包含停止訓練]
-                    MDB.ConnDatabase('FlaskWeb')
-                    MDB.ConnCollection('Train_List')
-
-                    update_con = {"serial": {"$eq": serial_Mkey}}
-                    print("serial/Mkey:",serial_Mkey)
-                    Result = MDB.Update(update_con, {"Finish": True,"Stop": False})
-                    print(Result)
-
+                    MDB.Update_Trainning_Finish(serial_Mkey)    # 訓練狀態(Finish=True)完成, 狀態變更
+                    MDB.Update_Trainning_Time(serial_Mkey, Type_Start=False)  # 紀錄結束訓練時間
                     #***************************  紀錄訓練History  ************************************
-                    Train_history = train_model.history.history
-                    print(Train_history)
+                    Train_history = train_model.history.history # 訓練完成的歷史紀錄
                     if len(Train_history)>0:  # 確保有資料輸入
                         # 將其轉換成每一個row to dict
                         pd_history = pd.DataFrame(Train_history)
                         pd_history = pd_history.to_dict(orient='records')    # 將資料轉成[{'loss': 5.86, 'accuracy': 1.0}, {'loss': 5.83, 'accuracy': 0.9375}]
                         # 並將其加入該次訓練之Mkey
                         pd_history_withMkey = [dict({'Mkey':serial_Mkey}, **item, ) for item in pd_history]
-                        # 放入資料庫
-                        MDB.ConnDatabase('FlaskWeb')
-                        MDB.ConnCollection('Train_History')
-                        # 輸入SQL
-                        Result = MDB.Insert(pd_history_withMkey)
-                        print(Result)
+                        MDB.Insert_Train_History(pd_history_withMkey)   # 將訓練的history  記錄下來
         ####################################   While 迴圈尾端  ##########################################
         print("訓練機器人暫時沒找到要訓練/預測的項目,休息1分鐘~")
         time.sleep(60)  # 一分鐘後再看有無新的資料
@@ -239,8 +222,6 @@ def TrainStopListenRobot():
     竟可能的同步訓練中狀態,如果停止的話,理論上會停到同一個function
     :return:
     """
-
-
     while True:
         # 如果要停止的值正在作業中,就呼叫全域變數"model_stop"便成為stop 停止訓練
         # Trainning
@@ -287,11 +268,8 @@ def home():
         QueenRobot_thread.start()
     if StopReader_thread.is_alive() == False:
         StopReader_thread.start()
-
-
     #  轉跳至 登入畫面  等未來有空再做登入畫面
     return redirect(url_for('login'))
-
 
 # 登入使用者 with cookie
 # 檢查是否是正確的使用者與密碼?  與request_loader 一起需要做
@@ -433,7 +411,6 @@ def trainList():
     if btn_function == 'Look':  # 表示按的是查看目待訓練或正在訓練內容(參數)
         return redirect(url_for('LookTrainParameter', serial_num=trainList_serial))
 
-
     if btn_function == 'Stop':  # 表示按的是停止這個功能
         # 修改成Stop:True
         MDB.Trainning_Call_Stop(trainList_serial)
@@ -442,11 +419,9 @@ def trainList():
         # 修改成Stop:False
         MDB.Trainning_Call_Start(trainList_serial)
 
-
     if btn_function == 'Del':  # 表示按的是刪除
         # 先將該筆文件刪除後 移動至刪除區域
         MDB.TrainList_Del(trainList_serial)
-
 
     return redirect(url_for('trainList'))
 
@@ -504,23 +479,41 @@ def LookTrainParameter(serial_num):
 
     main_cur = look_main_result[0]
     para_cur = look_other_result[0]
+
+    # 查找訓練過程的紀錄(History) 如果已訓練完成 則有訓練參數可以參考
+    if look_main_result[0]['Finish'] == True:
+        history_result = MDB.Find_Train_history(int(serial_num))
+        pd_history = pd.DataFrame(history_result)
+        # 製作圖片的方法, 可做成方法
+        tr_acc = pd_history['accuracy']
+        tr_loss = pd_history['loss']
+        Epochs = [i + 1 for i in range(len(tr_acc))]
+        # Plot training history
+        plt.figure(figsize=(20, 8))
+        plt.style.use('fivethirtyeight')
+
+        plt.subplot(1, 2, 1)
+        plt.plot(Epochs, tr_loss, 'r', label='Training loss')
+        plt.title('Training and Validation Loss')
+        plt.xlabel('Epochs')
+        plt.ylabel('Loss')
+        plt.legend()
+
+        plt.subplot(1, 2, 2)
+        plt.plot(Epochs, tr_acc, 'r', label='Training Accuracy')
+        plt.title('Training and Validation Accuracy')
+        plt.xlabel('Epochs')
+        plt.ylabel('Accuracy')
+        plt.legend()
+
+        plt.tight_layout
+        plt.savefig(r'./trainHistoryDict/TrainHistory.png', bbox_inches='tight')
+        #plt.show()
+
+        # 接下來, 要把佔存圖片秀到呈現去
+
+        return render_template("TrainingLook.html", main_cur=main_cur, para_cur=para_cur)
     return render_template("TrainingLook.html", main_cur=main_cur, para_cur=para_cur)
-
-# /////////////////////////////////////// 沒用到空間 /////////////////////////////////////////////////////////////
-
-# 按下StartTrain 名子Button 事件
-@app.route('/startTrain', methods=['POST', 'GET'])  # 這邊'/startTrain' 是對照HTML中 <form> action=[要轉跳的地方] </form>
-def startTrain():
-
-
-    # 跳回訓練排程頁籤, 查看訓練排隊狀況與訓練狀況
-    return redirect(url_for('TrainSucess')) #轉址方法 至/TrainSucess
-
-# 提示使用者 訓練已經建立並開始, 這邊觸發SQL紀錄 + 轉跳至訓練中心頁籤
-@app.route('/TrainSucess', methods=['GET'])  # 開始成功訓練頁籤
-def TrainSucess():
-    return render_template("Trainsucess.html")  # 轉跳至正在訓練的中心
-
 # ===========================================   預測相關方法   ========================================================
 
 @app.route('/PredictPage', methods=['GET', 'POST'])  # 進入預測中心頁面
@@ -552,7 +545,7 @@ def PredictPage():
 
 
     if btn_function == 'Look': # 表示按的是查看
-        c=1
+        return redirect(url_for('LookTrainParameter', serial_num=trainList_serial))
 
     if btn_function == 'Pred': # 表示按的是預測
         # 查詢該Serial 對應的值
@@ -617,12 +610,7 @@ def PredictSet():
 def PredictResult():
     if request.method == 'GET':
         # 讀取SQL 載入已經Predict Finish=True的相關資料
-        MDB.ConnDatabase('FlaskWeb')
-        MDB.ConnCollection('Predict_List')
-        find_txt = {"Finish": {"$eq": True}}
-        # 查詢
-        FinishPredict_List_Result = MDB.Find(find_txt, show_id=False)
-        FinishPredict_List_Result = list(FinishPredict_List_Result)
+        FinishPredict_List_Result = MDB.Find_Pred_Result_Finish()
 
         if len(FinishPredict_List_Result) > 0:
             headers = FinishPredict_List_Result[0].keys()
@@ -630,8 +618,17 @@ def PredictResult():
             return render_template("PredictResult.html", headers=list(headers), data=list(cur))
         return render_template("PredictResult.html")
 
-# ====================================================  轉址的功能 ====================================================
+# 查詢預測內容的方法
+@app.route('/LookPredParameter/<serial_num>', methods=['GET'])  # 這邊'/startTrain' 是對照HTML中 <form> action=[要轉跳的地方] </form>
+def LookPredParameter(serial_num):
+    # 查找事哪一筆serial in 'Train_List' SQL
+    look_main_result = MDB.Find_Train_List_Serial(int(serial_num))
+    look_other_result = MDB.Find_Pred_List_Serial(int(serial_num))
 
+    main_cur = look_main_result[0]
+    para_cur = look_other_result[0]
+    return render_template("PredLook.html", main_cur=main_cur, para_cur=para_cur)
+# ====================================================  轉址的功能 ====================================================
 
 if __name__ == "__main__":  # 如果以主程式運行
     # 全域函數宣告與初始化

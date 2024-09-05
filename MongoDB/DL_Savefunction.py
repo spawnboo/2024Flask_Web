@@ -79,7 +79,7 @@ class MongoDB_Training(MDB):
         Predkey = self.serialNUM(serialKey)    # 自動撈取後生成
 
         insert_dixt = {
-            "Mkey": Mkey,
+            "Mkey": int(Mkey),
             "Predkey": Predkey,
             "predictPath":str(predictPath),
             "Mission_Name": str(Mission_Name),
@@ -128,25 +128,115 @@ class MongoDB_Training(MDB):
 
     # 訓練過程狀態
 
+    """
+       *************************************   查詢區域   ****************************************************
+    """
+    # 查詢"Train_List"中,特定Serial的值
+    def Find_Train_List_Serial(self, serial):
+        self.ConnDatabase('FlaskWeb')
+        self.ConnCollection('Train_List')
+        find_txt = {"serial": {"$eq": int(serial)}}
+        Result = list(self.Find(find_txt, show_id=False))
+        return Result
+
+    # 查詢"Train_Parameter"中,特定Mkey(等同serial)的值
+    def Find_Train_Parameter_Mkey(self, Mkey):
+        self.ConnDatabase('FlaskWeb')
+        self.ConnCollection('Train_Parameter')
+        find_txt = {"Mkey": {"$eq": int(Mkey)}}
+        Result = list(self.Find(find_txt, show_id=False))
+        return Result
+
+    # 查詢"Train_List"中,特定Serial的值
+    def Find_Pred_List_Serial(self, serial):
+        self.ConnDatabase('FlaskWeb')
+        self.ConnCollection('Predict_List')
+        find_txt = {"Mkey": {"$eq": int(serial)}}
+        Result = list(self.Find(find_txt, show_id=False))
+        return Result
+
+    # 查詢已經Predict完成的案件
+    def Find_Pred_Result_Finish(self):
+        self.ConnDatabase('FlaskWeb')
+        self.ConnCollection('Predict_List')
+        find_txt = {"Finish": {"$eq": True}}
+        Result = list(self.Find(find_txt, show_id=False))
+        return Result
+
+    # 查詢指定Train的history
+    def Find_Train_history(self, Serial_Mkey):
+        self.ConnDatabase('FlaskWeb')
+        self.ConnCollection('Train_History')
+        find_txt = {"Mkey": {"$eq": Serial_Mkey}}
+        Result = list(self.Find(find_txt, show_id=False))
+        return Result
+
+    """
+       *************************************   輸入區域   ****************************************************
+    """
+    # 將訓練結束後History記錄下來至Train_History
+    def Insert_Train_History(self, pb_history_Mkey):
+        self.ConnDatabase('FlaskWeb')
+        self.ConnCollection('Train_History')
+        Result = self.Insert(pb_history_Mkey)
+        print("Insert_Train_History:", Result)
+    """
+       *************************************   更新區域   ****************************************************
+    """
     # 將訓練/預測狀態修改成 Stop
     def Trainning_Call_Stop(self, Train_serial):
         self.ConnDatabase('FlaskWeb')
         self.ConnCollection('Train_List')
 
-        Update_Con = { "serial": { "$eq": int(Train_serial) } }
+        Update_Con = {"serial": {"$eq": int(Train_serial)}}
 
-        Result = self.Update(Update_Con, {"Stop":True})
-        print("Trainning_Call_Stop:",Result)
+        Result = self.Update(Update_Con, {"Stop": True})
+        print("Trainning_Call_Stop:", Result)
 
     # 將訓練/預測狀態修改成 Start
     def Trainning_Call_Start(self, Train_serial):
         self.ConnDatabase('FlaskWeb')
         self.ConnCollection('Train_List')
 
-        Update_Con = { "serial": { "$eq": int(Train_serial) } }
+        Update_Con = {"serial": {"$eq": int(Train_serial)}}
+        Result = self.Update(Update_Con, {"Stop": False})
+        print("Trainning_Call_Stop:", Result)
 
-        Result = self.Update(Update_Con, {"Stop":False})
-        print("Trainning_Call_Stop:",Result)
+    # 登記訓練開始時間
+    def Update_Trainning_Time(self, Train_serial, Type_Start=True):
+        self.ConnDatabase('FlaskWeb')
+        self.ConnCollection('Train_List')
+
+        if Type_Start:
+            Update_Con = {"serial": {"$eq": int(Train_serial)}}
+            Result = self.Update(Update_Con, {"Strat_Date": datetime.now().strftime("%Y/%m/%d %H:%M:%S")})
+            print("Trainning_start_time:", Result)
+        else:
+            Update_Con = {"serial": {"$eq": int(Train_serial)}}
+            Result = self.Update(Update_Con, {"End_Date": datetime.now().strftime("%Y/%m/%d %H:%M:%S")})
+            print("Trainning_start_time:", Result)
+
+    # 登記預測開始時間
+    def Update_Precict_Time(self, Pred_Mkey, Type_Start=True):
+        self.ConnDatabase('FlaskWeb')
+        self.ConnCollection('Predict_List')
+
+        if Type_Start:
+            Update_Con = {"Mkey": {"$eq": int(Pred_Mkey)}}
+            Result = self.Update(Update_Con, {"Strat_Date": datetime.now().strftime("%Y/%m/%d %H:%M:%S")})
+            print("Predict_start_time:", Result)
+        else:
+            Update_Con = {"Mkey": {"$eq": int(Pred_Mkey)}}
+            Result = self.Update(Update_Con, {"End_Date": datetime.now().strftime("%Y/%m/%d %H:%M:%S")})
+            print("Predict_start_time:", Result)
+
+    # 變更訓練結束時的狀態
+    def Update_Trainning_Finish(self, Train_serial):
+        self.ConnDatabase('FlaskWeb')
+        self.ConnCollection('Train_List')
+
+        Update_Con = {"serial": {"$eq": int(Train_serial)}}
+        Result = self.Update(Update_Con, {"Finish": True,"Stop": False})
 
     """
        *************************************   刪除區域   ****************************************************
@@ -171,24 +261,6 @@ class MongoDB_Training(MDB):
         Result = self.Delete(del_txt)
         print("Tranning DELETE -trainning part", Result)
 
-    """
-       *************************************   查詢區域   ****************************************************
-    """
-    # 查詢"Train_List"中,特定Serial的值
-    def Find_Train_List_Serial(self, serial):
-        self.ConnDatabase('FlaskWeb')
-        self.ConnCollection('Train_List')
-        find_txt = {"serial": {"$eq": int(serial)}}
-        Result = list(self.Find(find_txt, show_id=False))
-        return Result
-
-    # 查詢"Train_Parameter"中,特定Mkey(等同serial)的值
-    def Find_Train_Parameter_Mkey(self, Mkey):
-        self.ConnDatabase('FlaskWeb')
-        self.ConnCollection('Train_Parameter')
-        find_txt = {"Mkey": {"$eq": int(Mkey)}}
-        Result = list(self.Find(find_txt, show_id=False))
-        return Result
 
 
 if __name__ == "__main__":
