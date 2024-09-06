@@ -5,20 +5,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="461a22b0-e3d9-4425-b72b-c83a3d920ae8" name="Changes" comment="TrainList List change to Load SQL">
-      <change afterPath="$PROJECT_DIR$/templates/PredLook.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DataFunction/DataProcess.py" beforeDir="false" afterPath="$PROJECT_DIR$/DataFunction/DataProcess.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/FlaskWeb.py" beforeDir="false" afterPath="$PROJECT_DIR$/FlaskWeb.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/MongoDB/DL_Savefunction.py" beforeDir="false" afterPath="$PROJECT_DIR$/MongoDB/DL_Savefunction.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/AboutMe.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/AboutMe.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/Member.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/Member.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/templates/PredictPage.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/PredictPage.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/templates/PredictResult.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/PredictResult.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/PredictSet.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/PredictSet.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/templates/TrainList.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/TrainList.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/templates/TrainingLook.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/TrainingLook.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/trainingset.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/trainingset.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -58,6 +52,7 @@
       <recent name="D:\PycharmProjects\2024Flask_Web" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="D:\PycharmProjects\2024Flask_Web" />
       <recent name="D:\PycharmProjects\2024Flask_Web\trainHistoryDict" />
     </key>
   </component>
@@ -281,7 +276,14 @@
       <option name="project" value="LOCAL" />
       <updated>1725442110436</updated>
     </task>
-    <option name="localTasksCounter" value="13" />
+    <task id="LOCAL-00013" summary="修復MenuLine 連結會疊加問題&#10;查看方法與回上一頁實作&#10;訓練的history figture 從資料庫拉出後實作圖片, 準備放入查看方法中">
+      <created>1725528538197</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1725528538197</updated>
+    </task>
+    <option name="localTasksCounter" value="14" />
     <servers />
   </component>
   <component name="UnknownFeatures">
@@ -312,6 +314,7 @@
     <MESSAGE value="新增全域函數, 後台實作訓練停止的方法 與 監控停止指令" />
     <MESSAGE value="訓練過程History存檔到sql - 增加Mkey對應到哪一筆訓練&#10;globals全域函數stop 實作 - 尚未測試&#10;產生訓練檔案project_name 對應到訓練出來的model檔案名稱" />
     <MESSAGE value="Trainning Stop/Start 實作切換&#10;When Trainning Delete can't do&#10;back prive button" />
-    <option name="LAST_COMMIT_MESSAGE" value="Trainning Stop/Start 實作切換&#10;When Trainning Delete can't do&#10;back prive button" />
+    <MESSAGE value="修復MenuLine 連結會疊加問題&#10;查看方法與回上一頁實作&#10;訓練的history figture 從資料庫拉出後實作圖片, 準備放入查看方法中" />
+    <option name="LAST_COMMIT_MESSAGE" value="修復MenuLine 連結會疊加問題&#10;查看方法與回上一頁實作&#10;訓練的history figture 從資料庫拉出後實作圖片, 準備放入查看方法中" />
   </component>
 </project>

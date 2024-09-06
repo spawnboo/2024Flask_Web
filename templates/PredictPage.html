@@ -81,10 +81,9 @@
                     <!--加入按鈕選項  + 判斷式這個人是否有權限 -->
                         <td>
                             <div class="image-container">
-                              <button class="Tool_btn_pred" name="Tool_btn" value="{{ (row.values() | list)[0]}}_Pred"><i type="submit" class="fa fa-caret-square-o-right" aria-hidden="true"></i></button>
-                              <button class="Tool_btn_eye" name="Tool_btn" value="{{ (row.values() | list)[0]}}_Look"><i type="submit"  class="fa fa-eye" aria-hidden="true"></i></button>
-                              <button class="Tool_btn_stop" name="Tool_btn" value="{{ (row.values() | list)[0]}}_Stop" onclick="return confirm('確定要停止作業?')"><i type="submit"  class="fa fa-stop-circle" aria-hidden="true"></i></button>
-                              <button class="Tool_btn_delete" name="Tool_btn" value="{{ (row.values() | list)[0]}}_Del" onclick="return confirm('確定刪除?')"><i type="submit" class="fa fa-trash" aria-hidden="true"></i></button>
+                                <button class="Tool_btn_pred" name="Tool_btn" value="{{ (row.values() | list)[0]}}_Pred"><i type="submit" class="fa fa-caret-square-o-right" aria-hidden="true"></i></button>
+                                <button class="Tool_btn_eye" name="Tool_btn" value="{{ (row.values() | list)[0]}}_Look"><i type="submit"  class="fa fa-eye" aria-hidden="true"></i></button>
+                                <button class="Tool_btn_delete" name="Tool_btn" value="{{ (row.values() | list)[0]}}_Del"  onclick="return confirm('確定刪除?')"><i type="submit" class="fa fa-trash" aria-hidden="true"></i></button>
                             </div>
                         </td>
                 </tr>

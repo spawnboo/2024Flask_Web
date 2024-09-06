@@ -109,7 +109,6 @@ def TrainQueeueRobot():
                 # ====================== 前置參數 ========================
                 classes = len(list(pred_gen.class_indices.keys()))
                 # =======================================================
-
                 # 載入模型  試算classes 數量
                 pred_model = Spawn_model.spawnboo_model(classes=classes)
                 pred_model.EfficientNet_parameter_test()
@@ -143,7 +142,7 @@ def TrainQueeueRobot():
 
                 if predict_Result:  # 有成功執行Predict
                     MDB.Update_Precict_Time(serial_Mkey, Type_Start=False)  # 紀錄結束預測時間
-
+# TODO: 這邊要改寫成, 把每一個預測結果輸出與對應的clsaa名稱 + 預測的PredKey 記錄到Mongo中"Predict_Result"中, 並且會跑圖有混沌矩陣可以參考
                     print("輸出 預測相關結果圖樣")
                     # 輸出結果 類別判別!
                     cnn_pred_plt = CNN_Predict_Present(pred_model.predictResult, pred_gen)
@@ -413,11 +412,11 @@ def trainList():
 
     if btn_function == 'Stop':  # 表示按的是停止這個功能
         # 修改成Stop:True
-        MDB.Trainning_Call_Stop(trainList_serial)
+        MDB.Trainning_Call_StopStart(trainList_serial, call_STOP_status=True)
 
     if btn_function == 'Start':  # 表示按的是重新開始這個功能
         # 修改成Stop:False
-        MDB.Trainning_Call_Start(trainList_serial)
+        MDB.Trainning_Call_StopStart(trainList_serial, call_STOP_status=False)
 
     if btn_function == 'Del':  # 表示按的是刪除
         # 先將該筆文件刪除後 移動至刪除區域
@@ -484,6 +483,8 @@ def LookTrainParameter(serial_num):
     if look_main_result[0]['Finish'] == True:
         history_result = MDB.Find_Train_history(int(serial_num))
         pd_history = pd.DataFrame(history_result)
+
+        print("pd_history:",pd_history)
         # 製作圖片的方法, 可做成方法
         tr_acc = pd_history['accuracy']
         tr_loss = pd_history['loss']
@@ -507,13 +508,13 @@ def LookTrainParameter(serial_num):
         plt.legend()
 
         plt.tight_layout
-        plt.savefig(r'./trainHistoryDict/TrainHistory.png', bbox_inches='tight')
+        # 必須存到 /static/img裡面 這樣圖片才會有效
+        plt.savefig(r'./static/TrainHistory.png', bbox_inches='tight')
         #plt.show()
-
         # 接下來, 要把佔存圖片秀到呈現去
+        return render_template("TrainingLook.html", main_cur=main_cur, para_cur=para_cur, image_show=True)
 
-        return render_template("TrainingLook.html", main_cur=main_cur, para_cur=para_cur)
-    return render_template("TrainingLook.html", main_cur=main_cur, para_cur=para_cur)
+    return render_template("TrainingLook.html", main_cur=main_cur, para_cur=para_cur, image_show=False)
 # ===========================================   預測相關方法   ========================================================
 
 @app.route('/PredictPage', methods=['GET', 'POST'])  # 進入預測中心頁面
@@ -531,7 +532,6 @@ def PredictPage():
         Predict_List_Result = MDB.Find(find_txt, show_id=False)
         Predict_List_Result = list(Predict_List_Result)
 
-
         if len(Predict_List_Result) > 0:
             headers = Predict_List_Result[0].keys()
             cur = Predict_List_Result
@@ -542,10 +542,6 @@ def PredictPage():
     trainList_serial, btn_function = request.form["Tool_btn"].split("_")    # 分析是哪一個model 與要做哪一件事
     print("Choose Serial:",trainList_serial)
     print("Choose Function:", btn_function)
-
-
-    if btn_function == 'Look': # 表示按的是查看
-        return redirect(url_for('LookTrainParameter', serial_num=trainList_serial))
 
     if btn_function == 'Pred': # 表示按的是預測
         # 查詢該Serial 對應的值
@@ -565,15 +561,17 @@ def PredictPage():
 
         # 將MainKey準備在Session中,準備使用
         session['Mkey'] = trainList_serial
-
         return render_template("PredictSet.html",train_List_Result=train_List_Result ,train_parameter_Result=train_parameter_Result)
 
-    if btn_function == 'Stop': # 表示按的是刪除
-        c=1
+    if btn_function == 'Look': # 表示按的是查看
+        # 由於這邊顯示的是訓練完成可供訓練的模型, 所以轉跳至trainParameter
+        return redirect(url_for('LookTrainParameter', serial_num=trainList_serial))
 
     if btn_function == 'Del': # 表示按的是刪除
-        c=1
-
+        # 先將該筆文件刪除後 移動至刪除區域
+        MDB.TrainList_Del(trainList_serial)
+        # 要多刪除一個 history
+        MDB.TrainList_History_Del(trainList_serial)
     return render_template("PredictPage.html")  # 轉跳至預測中心頁面
 
 # 以選擇想使用的模型,進入預測流程
@@ -610,7 +608,7 @@ def PredictSet():
 def PredictResult():
     if request.method == 'GET':
         # 讀取SQL 載入已經Predict Finish=True的相關資料
-        FinishPredict_List_Result = MDB.Find_Pred_Result_Finish()
+        FinishPredict_List_Result = MDB.Find_Pred_List_Finish()
 
         if len(FinishPredict_List_Result) > 0:
             headers = FinishPredict_List_Result[0].keys()
@@ -618,12 +616,33 @@ def PredictResult():
             return render_template("PredictResult.html", headers=list(headers), data=list(cur))
         return render_template("PredictResult.html")
 
+    # 這邊傳回的是PredKey! 和點集哪一個選項
+    PredKey, btn_function = request.form["Tool_btn"].split("_")  # 分析是哪一個model 與要做哪一件事
+    print("Choose Serial:", PredKey)
+    print("Choose Function:", btn_function)
+
+    if btn_function == 'Look':
+        # 表示按的是查看預測完成的結果, 下方會顯示圖片與混沌矩陣
+        return redirect(url_for('PredictResult', serial_num=PredKey))
+
+    if btn_function == 'Del':  # 表示按的是刪除
+        # 先找出該專案是否預測完成,若是預測完成!則需要多清理預測後的結果資料
+        predlist_result = MDB.Find_Pred_List_Finish(PredKey)
+        if predlist_result[0]['Finish']:
+            # 刪除一個 Predict Result
+            MDB.Pred_Result_Del(PredKey)
+        # 刪除訓練的那個專案
+        MDB.PredList_Del(PredKey)
+
+    return render_template("PredictPage.html")  # 轉跳至預測中心頁面
+
+
 # 查詢預測內容的方法
-@app.route('/LookPredParameter/<serial_num>', methods=['GET'])  # 這邊'/startTrain' 是對照HTML中 <form> action=[要轉跳的地方] </form>
-def LookPredParameter(serial_num):
+@app.route('/LookPredParameter/<PredKey>', methods=['GET'])  # 這邊'/startTrain' 是對照HTML中 <form> action=[要轉跳的地方] </form>
+def LookPredParameter(PredKey):
     # 查找事哪一筆serial in 'Train_List' SQL
-    look_main_result = MDB.Find_Train_List_Serial(int(serial_num))
-    look_other_result = MDB.Find_Pred_List_Serial(int(serial_num))
+    look_main_result = MDB.Find_Train_List_Serial(int(PredKey))
+    look_other_result = MDB.Find_Pred_List_Serial(int(PredKey))
 
     main_cur = look_main_result[0]
     para_cur = look_other_result[0]

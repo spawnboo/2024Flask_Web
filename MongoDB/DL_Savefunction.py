@@ -147,16 +147,16 @@ class MongoDB_Training(MDB):
         Result = list(self.Find(find_txt, show_id=False))
         return Result
 
-    # 查詢"Train_List"中,特定Serial的值
-    def Find_Pred_List_Serial(self, serial):
+    # 查詢"Predict_List"中,特定PredKey的值
+    def Find_Pred_List_Serial(self, PredKey):
         self.ConnDatabase('FlaskWeb')
         self.ConnCollection('Predict_List')
-        find_txt = {"Mkey": {"$eq": int(serial)}}
+        find_txt = {"PredKey": {"$eq": int(PredKey)}}
         Result = list(self.Find(find_txt, show_id=False))
         return Result
 
     # 查詢已經Predict完成的案件
-    def Find_Pred_Result_Finish(self):
+    def Find_Pred_List_Finish(self):
         self.ConnDatabase('FlaskWeb')
         self.ConnCollection('Predict_List')
         find_txt = {"Finish": {"$eq": True}}
@@ -183,24 +183,30 @@ class MongoDB_Training(MDB):
     """
        *************************************   更新區域   ****************************************************
     """
-    # 將訓練/預測狀態修改成 Stop
-    def Trainning_Call_Stop(self, Train_serial):
+    # 將訓練狀態修改成 Stop or Start
+    def Trainning_Call_StopStart(self, Train_serial, call_STOP_status=True):
         self.ConnDatabase('FlaskWeb')
         self.ConnCollection('Train_List')
-
         Update_Con = {"serial": {"$eq": int(Train_serial)}}
+        if call_STOP_status:
+            Result = self.Update(Update_Con, {"Stop": True})
+            print("Trainning_Call_Stop:", Result)
+        else:
+            Result = self.Update(Update_Con, {"Stop": False})
+            print("Trainning_Call_Stop:", Result)
 
-        Result = self.Update(Update_Con, {"Stop": True})
-        print("Trainning_Call_Stop:", Result)
-
-    # 將訓練/預測狀態修改成 Start
-    def Trainning_Call_Start(self, Train_serial):
+    # 將預測狀態修改成 Stop or Start
+    def Predict_Call_StopStart(self, Train_serial, call_STOP_status=True):
         self.ConnDatabase('FlaskWeb')
-        self.ConnCollection('Train_List')
+        self.ConnCollection('Predict_List')
+        Update_Con = {"Mkey": {"$eq": int(Train_serial)}}
 
-        Update_Con = {"serial": {"$eq": int(Train_serial)}}
-        Result = self.Update(Update_Con, {"Stop": False})
-        print("Trainning_Call_Stop:", Result)
+        if call_STOP_status:
+            Result = self.Update(Update_Con, {"Stop": True})
+            print("Predict_Call_Stop:", Result)
+        else:
+            Result = self.Update(Update_Con, {"Stop": False})
+            print("Predict_Call_Stop:", Result)
 
     # 登記訓練開始時間
     def Update_Trainning_Time(self, Train_serial, Type_Start=True):
@@ -246,7 +252,6 @@ class MongoDB_Training(MDB):
         #  先砍parameter
         self.ConnDatabase('FlaskWeb')
         self.ConnCollection('Train_Parameter')
-
         del_txt = { "Mkey": { "$eq": int(Train_serial) } }
 
         Result = self.Delete(del_txt)
@@ -255,12 +260,37 @@ class MongoDB_Training(MDB):
         # 再砍原本train List中的主要值
         self.ConnDatabase('FlaskWeb')
         self.ConnCollection('Train_List')
-
         del_txt = { "serial": { "$eq": int(Train_serial) } }
 
         Result = self.Delete(del_txt)
         print("Tranning DELETE -trainning part", Result)
 
+    def TrainList_History_Del(self, Train_serial):
+        #  刪除掉訓練完成的History
+        self.ConnDatabase('FlaskWeb')
+        self.ConnCollection('Train_History')
+        del_txt = {"Mkey": {"$eq": int(Train_serial)}}
+
+        Result = self.Delete(del_txt)
+        print("Tranning DELETE -History part", Result)
+
+    def PredList_Del(self, Pred_serial):
+        # 直接砍掉Pred那個選項
+        self.ConnDatabase('FlaskWeb')
+        self.ConnCollection('Predict_List')
+        del_txt = {"Predkey": {"$eq": int(Pred_serial)}}
+
+        Result = self.Delete(del_txt)
+        print("Predict DELETE - PredictList part", Result)
+
+    def Pred_Result_Del(self, Pred_serial):
+        # 直接砍掉Pred那個選項
+        self.ConnDatabase('FlaskWeb')
+        self.ConnCollection('Predict_Result')
+        del_txt = {"Predkey": {"$eq": int(Pred_serial)}}
+
+        Result = self.Delete(del_txt)
+        print("Predict DELETE - PredictList part", Result)
 
 
 if __name__ == "__main__":
