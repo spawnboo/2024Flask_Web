@@ -6,13 +6,12 @@
   <component name="ChangeListManager">
     <list default="true" id="461a22b0-e3d9-4425-b72b-c83a3d920ae8" name="Changes" comment="TrainList List change to Load SQL">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DataFunction/DataProcess.py" beforeDir="false" afterPath="$PROJECT_DIR$/DataFunction/DataProcess.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/FlaskWeb.py" beforeDir="false" afterPath="$PROJECT_DIR$/FlaskWeb.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/MongoDB/DL_Savefunction.py" beforeDir="false" afterPath="$PROJECT_DIR$/MongoDB/DL_Savefunction.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MongoDB/MongoDB_Client.py" beforeDir="false" afterPath="$PROJECT_DIR$/MongoDB/MongoDB_Client.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/PredictPage.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/PredictPage.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/PredictResult.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/PredictResult.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/TrainList.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/TrainList.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/TrainingLook.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/TrainingLook.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/trainHistoryDict/ImagePresentProcess.py" beforeDir="false" afterPath="$PROJECT_DIR$/trainHistoryDict/ImagePresentProcess.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -56,7 +55,7 @@
       <recent name="D:\PycharmProjects\2024Flask_Web\trainHistoryDict" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.main">
+  <component name="RunManager" selected="Python.FlaskWeb">
     <configuration name="DL_Savefunction" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Flask_Web" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -78,6 +77,27 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <configuration name="DataProcess" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="Flask_Web" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/DataFunction" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/DataFunction/DataProcess.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="FlaskWeb" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Flask_Web" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -91,27 +111,6 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/FlaskWeb.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-    <configuration name="MegaAPI" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="Flask_Web" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/DataFunction" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/DataFunction/MegaAPI.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -164,11 +163,11 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.main" />
         <item itemvalue="Python.FlaskWeb" />
-        <item itemvalue="Python.DL_Savefunction" />
         <item itemvalue="Python.MongoDB_Client" />
-        <item itemvalue="Python.MegaAPI" />
+        <item itemvalue="Python.DL_Savefunction" />
+        <item itemvalue="Python.main" />
+        <item itemvalue="Python.DataProcess" />
       </list>
     </recent_temporary>
   </component>
@@ -283,7 +282,14 @@
       <option name="project" value="LOCAL" />
       <updated>1725528538197</updated>
     </task>
-    <option name="localTasksCounter" value="14" />
+    <task id="LOCAL-00014" summary="TrainingList PredictPage PredictResult all Tool_button done&#10;修復部分小bug 精簡部分Mongodb重複使用語句">
+      <created>1725614400742</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1725614400742</updated>
+    </task>
+    <option name="localTasksCounter" value="15" />
     <servers />
   </component>
   <component name="UnknownFeatures">
@@ -315,6 +321,7 @@
     <MESSAGE value="訓練過程History存檔到sql - 增加Mkey對應到哪一筆訓練&#10;globals全域函數stop 實作 - 尚未測試&#10;產生訓練檔案project_name 對應到訓練出來的model檔案名稱" />
     <MESSAGE value="Trainning Stop/Start 實作切換&#10;When Trainning Delete can't do&#10;back prive button" />
     <MESSAGE value="修復MenuLine 連結會疊加問題&#10;查看方法與回上一頁實作&#10;訓練的history figture 從資料庫拉出後實作圖片, 準備放入查看方法中" />
-    <option name="LAST_COMMIT_MESSAGE" value="修復MenuLine 連結會疊加問題&#10;查看方法與回上一頁實作&#10;訓練的history figture 從資料庫拉出後實作圖片, 準備放入查看方法中" />
+    <MESSAGE value="TrainingList PredictPage PredictResult all Tool_button done&#10;修復部分小bug 精簡部分Mongodb重複使用語句" />
+    <option name="LAST_COMMIT_MESSAGE" value="TrainingList PredictPage PredictResult all Tool_button done&#10;修復部分小bug 精簡部分Mongodb重複使用語句" />
   </component>
 </project>

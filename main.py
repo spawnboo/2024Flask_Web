@@ -34,7 +34,7 @@ if __name__ == "__main__":  # 如果以主程式運行
     # 以上202408月新增  需要給訓練系統初始化全域函數
 
 
-    train_PATH = r'D:\DL\chest_xray\val'
+    train_PATH = r'D:\DL\chest_xray\test'
 
     # 從資料夾抓取資料變成DataFrame的方法
     train_df = Data_Dataframe_process(train_PATH)
@@ -46,7 +46,7 @@ if __name__ == "__main__":  # 如果以主程式運行
                                                   target_size=(224,224),
                                                   class_mode='categorical',
                                                   color_mode='rgb',
-                                                  shuffle=True,
+                                                  shuffle=False,
                                                   batch_size=32)
     # [全都要改寫] 產生要訓練的Model, 從flask選擇方法與各種參數後 變成一個model return
     # [改寫] 需要有callback的選項可以選, 何時停 紀錄甚麼參數?
@@ -144,18 +144,26 @@ if __name__ == "__main__":  # 如果以主程式運行
 
 
     # ===================預測的方法===================
-    print("train_gen: ", train_gen.samples)
-    print("train_gen.class_indices.keys():",train_gen.class_indices.keys())
+    train_df_list = train_df['label'].tolist()
+    print("train_df:", train_df)
+
+    classes_list = list(train_gen.class_indices.keys())
+    #print("list(train_gen.class_indices.keys()):",classes_list)
+    # 將列表中的文字轉換成 classes 中的次序
     print("*********************************")
 
     # predict
     predict_Result = train_model.start_predict(train_gen)
-    print(train_model.predictResult)
-    print(type(train_model.predictResult))
+    print("train_model.predictResult:", train_model.predictResult)
     y_pred = (np.argmax(train_model.predictResult, axis=1))
+    # print(y_pred)
 
-    print(y_pred)
-
+    x_pred = [classes_list.index(data) for data in train_df_list]
+    ans = [x_pred[i] == y_pred[i] for i in range(len(y_pred))]
+    acc = ans.count(True) / len(ans)
+    print(ans)
+    print(acc)
+    print(round(acc, 2))
 
     # 匯出 混沌矩陣方法
     g_dict = train_gen.class_indices
@@ -181,11 +189,11 @@ if __name__ == "__main__":  # 如果以主程式運行
     plt.ylabel('True Label')
     plt.xlabel('Predicted Label')
 
-    # # 將混沌矩陣儲存
-    # save_img = r'.\CNN_save\CNN_Chartimg.jpg'
-    # plt.savefig(save_img)
+    # 將混沌矩陣儲存
+    save_img = r'./static/images/cnn_pred_result.png'
+    plt.savefig(save_img)
 
-    # plt.show()
+    plt.show()
 
 
 

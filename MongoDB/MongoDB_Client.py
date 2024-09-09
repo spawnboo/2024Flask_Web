@@ -141,27 +141,34 @@ if __name__ == "__main__":
     # find_txt = { "Mkey": { "$gt": -1 } }
     # sort = [('G',1)]
 
-    find_txt = {"$or": [
-        {"Finish": {"$eq": False}},
-        {"Stop": {"$eq": True}}]}
-
-    find_txt = {"Mkey": {"$eq":3}}
-
+    # find_txt = {"$or": [
+    #     {"Finish": {"$eq": False}},
+    #     {"Stop": {"$eq": True}}]}
+    #
+    # find_txt = {"Mkey": {"$eq":3}}
+    #
+    #
+    # mdb.ConnDatabase('FlaskWeb')
+    # mdb.ConnCollection('Train_List')
+    #
+    # # 查詢
+    # rows = mdb.Find(find_txt, show_id=False)
+    # rows = list(rows)
+    #
+    # for row in rows:
+    #     print(row)
 
     mdb.ConnDatabase('FlaskWeb')
-    mdb.ConnCollection('Train_List')
-
-    # 查詢
-    rows = mdb.Find(find_txt, show_id=False)
-    rows = list(rows)
-
-    for row in rows:
-        print(row)
-
+    mdb.ConnCollection('Predict_List')
+    find_txt = {}
+    pred_find_result = list(mdb.Find(find_txt, show_id=False))
+    print("pred_find_result:", pred_find_result)
+    print("pred_find_result[0]", pred_find_result[0])
+    print("pred_find_result[0][0]", pred_find_result[0][0])
 
     #******************************************************************************************
     # mdb.ConnDatabase('FlaskWeb')
-    # mdb.ConnCollection('Train_History')
+    # mdb.ConnCollection('Predict_Result')
     #
     # insert_txt = [{ "Mkey": 0 },{"Mkey":1}]
     #

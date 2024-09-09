@@ -73,6 +73,7 @@ def TrainQueeueRobot():
         train_find_result = list(MDB.Find(find_txt, show_id=False))
 
 
+
         # 將Predict_List中, Finish= False and Stop=True的讀出來
         MDB.ConnDatabase('FlaskWeb')
         MDB.ConnCollection('Predict_List')
@@ -80,17 +81,20 @@ def TrainQueeueRobot():
                     {"Finish": {"$eq": False}},
                     {"Stop": {"$eq": False}}]}
         pred_find_result = list(MDB.Find(find_txt, show_id=False))
+        print("pred_find_result:", pred_find_result)
+
 
         # ***這邊會修改作法只有一個GPU 且未分割使用量! 會優先給Predict_List優先使用~ *未實作,未有第二張顯卡***
 
         # (Pred 預測)將最高順位的排程出去
         if len(pred_find_result) > 0: # 如果有預測清單待辦
-            serial_Mkey = train_find_result[0]['serial']            # 當前預測的serial or Mkey
-            MDB.Update_Precict_Time(serial_Mkey, Type_Start=True)   # 紀錄當前開始預測時間
+            serial_Mkey = pred_find_result[0]['Mkey']
+            PredKey = pred_find_result[0]['Predkey']            # 當前預測的serial or Mkey
+            MDB.Update_Precict_Time(PredKey, Type_Start=True)   # 紀錄當前開始預測時間
             # 查找 訓練細節
             parameter_result = MDB.Find_Train_Parameter_Mkey(serial_Mkey)
 
-            if train_find_result[0]['Model'] == "effB3":
+            if pred_find_result[0]['Model'] == "effB3":
                 # 從資料夾抓取資料變成DataFrame的方法
                 pred_df = Data_Dataframe_process(pred_find_result[0]['predictPath'])
                 # [這邊需要改寫] 產生餵入資料的flow 後面需要變成class 然後 把各種前處理的選項加進去 給flask介面選擇
@@ -102,7 +106,7 @@ def TrainQueeueRobot():
                                                                          parameter_result[0]['Image_SizeH']),
                                                             class_mode='categorical',
                                                             color_mode='rgb',
-                                                            shuffle=False,
+                                                            shuffle=False,      # 預測時一定不要重新排列! 會影響後續資料合併正確性
                                                             batch_size=parameter_result[0]['Batch_size'])
                 # [全都要改寫] 產生要訓練的Model, 從flask選擇方法與各種參數後 變成一個model return
                 # [改寫] 需要有callback的選項可以選, 何時停 紀錄甚麼參數?
@@ -117,46 +121,43 @@ def TrainQueeueRobot():
                 #這邊要找是用哪個model 去預測,所以要撈一下MKey 找model 名稱
                 MDB.ConnDatabase('FlaskWeb')
                 MDB.ConnCollection('Train_List')
-                find_txt = {"Mission_Name": {"$eq": pred_find_result[0]["Mkey"]}}
+                print("pred_find_result:", pred_find_result)
+                find_txt = {"serial": {"$eq": pred_find_result[0]["Mkey"]}}
                 modelname_find_result = list(MDB.Find(find_txt, show_id=False))
 
-                # 這邊需要知道, 是哪個一個PredKey 才能夠使用全域函數去中斷訓練
-                MDB.ConnDatabase('FlaskWeb')
-                MDB.ConnCollection('Predict_List')
-                find_txt = {"Mkey": {"$eq": pred_find_result[0]["Mkey"]}}
-                predkey_find_result = list(MDB.Find(find_txt, show_id=False))
-
                 # 變更全域函數 訓練中的參數 - 開始
-                globals.predict_project_serial = predkey_find_result[0]['Predkey']
+                globals.predict_project_serial = PredKey
                 # 預測方法開始, 載入預設定模型
                 if len(modelname_find_result) > 0:
                     print("predict function 有成功帶入模型", os.path.join("CNN_save", modelname_find_result[0]["Mission_Name"]+".h5"))
-                    predict_Result = pred_model.start_predict(pred_gen,
+                    predict_Result_Status = pred_model.start_predict(pred_gen,
                                                               load_weightPATH= os.path.join("CNN_save", modelname_find_result[0]["Mission_Name"]+".h5") )  # *這邊模型到時候要修改成自動帶入特定位置
                 else:
                     print("predict function 失敗!!!!")
-                    predict_Result = pred_model.start_predict(pred_gen,
+                    predict_Result_Status = pred_model.start_predict(pred_gen,
                                                           load_weightPATH = r"CNN_save\Training_1.h5")  #   *這邊模型到時候要修改成自動帶入特定位置
                 # 變更全域函數 訓練中的參數 - 結束
                 globals.predict_project_serial = ""
 
-                if predict_Result:  # 有成功執行Predict
-                    MDB.Update_Precict_Time(serial_Mkey, Type_Start=False)  # 紀錄結束預測時間
+                if predict_Result_Status:  # Predict是否成功跑完
+                    MDB.Update_Precict_Time(PredKey, Type_Start=False)  # 紀錄結束的預測時間
+                    MDB.Update_Predict_Finish(PredKey)
 # TODO: 這邊要改寫成, 把每一個預測結果輸出與對應的clsaa名稱 + 預測的PredKey 記錄到Mongo中"Predict_Result"中, 並且會跑圖有混沌矩陣可以參考
-                    print("輸出 預測相關結果圖樣")
-                    # 輸出結果 類別判別!
-                    cnn_pred_plt = CNN_Predict_Present(pred_model.predictResult, pred_gen)
-                    plt_saveIMG(cnn_pred_plt, save_name='cnn_pred_result', SAVE_TYPE='.png')
+                    print("=========輸出預測結果與相關結果圖樣==============")
+                    pred_label_list = pred_df['label'].tolist()                                        # 預測清單中,clsses
+                    classes_list = list(pred_gen.class_indices.keys())                              # 此次訓練的類別清單 *注意若有缺少類別則會錯誤
+                    x_pred = [classes_list.index(cls) for cls in pred_label_list]                      # 將原始答案輸出變成矩陣1D list, EX: [1, 1, 0, 1, 0]
+                    y_pred = (np.argmax(pred_model.predictResult, axis=1))                          # 將預測輸出矩陣變成1D ndarry, EX: [1 1 0 1 0]
 
-                    # # 並把這個結果記錄到SQL Predict_Result 上
-                    # MDB.ConnDatabase('FlaskWeb')
-                    # MDB.ConnCollection('Predict_Result')
-                    # MDB.create_pred_ResultSQL(Predkey,
-                    #                       trainPath,
-                    #                       model,
-                    #                       PredNum,
-                    #                       ACC,
-                    #                       serialKey='Rkey')
+                    # 計算該次CNN Predict 比對正確率
+                    pred_ans = [x_pred[i] == y_pred[i] for i in range(len(y_pred))]
+                    acc = pred_ans.count(True) / len(pred_ans)                                      # 精確度acc
+                    # 將此次預測結果存到Mongo資料庫中, 與更新預測列表中的精確度數值
+                    MDB.Insert_Pred_Result(PredKey=PredKey, X_df=pred_df, Y=y_pred, classes_List=classes_list)
+                    MDB.Update_Predict_acc(PredKey, acc)
+                    # 輸出圖片
+                    cnn_pred_plt = CNN_Predict_Present(pred_model.predictResult, pred_gen)          # 輸出混沌矩陣圖片,至 /static/images/pred_confusion_result.png
+                    plt_saveIMG(cnn_pred_plt, save_name='./static/images/cnn_pred_result', SAVE_TYPE='.png')
         #*********************************************************************************************
         # (Train 訓練)將最高順位的排程出去
         if len(train_find_result) > 0:    # 如果有訓練清單待辦
@@ -373,28 +374,17 @@ def aboutme():
 # def member():
 #     return render_template("Member.html")
 
-# 登入到待訓練列隊頁面
+# 登入到待訓練列隊頁面, 包含訓練及預測
 @app.route("/trainList", methods=['GET', 'POST'])  # 函式的裝飾 ( Decorator )，以底下函式為基礎，提供附加的功能，這邊 "/" 代表根目錄
 @login_required
 def trainList():
     if request.method == 'GET':
         # 資料庫撈取訓練列隊清單
-        MDB.ConnDatabase('FlaskWeb')
-        MDB.ConnCollection('Train_List')
-        find_txt = {"$or": [
-            {"Finish": {"$eq": False}},
-            {"Stop": {"$eq": True}}]}
-        # 查詢
-        train_List_Result = MDB.Find(find_txt, show_id=False)
-        train_List_Result = list(train_List_Result)
-        # # 範本用
-        # cur = table_sample
-        # headers = table_sample[0].keys()
-        # return render_template("TrainList.html", headers=list(headers), data=list(cur))
+        waiting_result = MDB.Find_Train_List_WaitTrain()
 
-        if len(train_List_Result) > 0:
-            headers = train_List_Result[0].keys()
-            cur = train_List_Result
+        if len(waiting_result) > 0:
+            headers = waiting_result[0].keys()
+            cur = waiting_result
             # 現在系統正在跑的訓練或檢測(全域函數) train or predict
             now_run = ""
             if globals.train_project_serial != "":now_run = globals.train_project_serial
@@ -601,7 +591,7 @@ def PredictSet():
                                       serialKey='Predkey')
 
 
-    return render_template("PredictPage.html")
+    redirect(url_for('PredictPage'))
 
 # 查看已經完成的Predict結果
 @app.route('/PredictResult', methods=['GET', 'POST'])  # 進入預測中心頁面

@@ -38,6 +38,8 @@ def scalar(img):
 
 
 if __name__ == "__main__":  # 如果以主程式運行
+    import numpy as np
+
     img_size = (224, 224)
     img_shape = (img_size[0], img_size[1], 3)
     batch_size = 16
@@ -60,6 +62,16 @@ if __name__ == "__main__":  # 如果以主程式運行
                                                   target_size=img_size,
                                                   batch_size=batch_size,
                                                   shuffle=True)
+    data_list = []
+    batch_index = 0
+    while batch_index <= train_gen.batch_index:
+        data = train_gen.next()
+        # print("data:",data)
+        data_list.append(data[0])
+        batch_index = batch_index + 1
+    data_array = np.asarray(data_list)
+    print("data_array:", data_array)
+
 
     # Valadation
     val_df = Data_Dataframe_process(val_data_path)

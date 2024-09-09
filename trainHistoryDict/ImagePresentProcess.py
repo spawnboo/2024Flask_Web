@@ -87,6 +87,7 @@ def CNN_Predict_Present(predict_Result, data_gen):
 # 將轉換出來的plt 存成特定影像檔案
 def plt_saveIMG(plt, save_name='history', SAVE_TYPE='.png'):
     plt.savefig(save_name+SAVE_TYPE)
+    print("Save IMG in: ", save_name+SAVE_TYPE)
 
 if __name__ == "__main__":  # 如果以主程式運行
     import pandas as pd

@@ -88,6 +88,9 @@ class MongoDB_Training(MDB):
             "Create_Date": datetime.now().strftime("%Y/%m/%d %H:%M:%S"),
             "Strat_Date":"",
             "End_Date":"",
+            "accuracy":0.0,
+            "AP":0.0,
+            "MAP":0.0,
             "Finish":False,
             "Stop":False,
         }
@@ -131,6 +134,22 @@ class MongoDB_Training(MDB):
     """
        *************************************   查詢區域   ****************************************************
     """
+    # 查詢"Train_list"中,尚未訓練完成的值
+    def Find_Train_List_WaitTrain(self):
+        # # Predict
+        # self.ConnDatabase('FlaskWeb')
+        # self.ConnCollection('Predict_List')
+        # find_txt = {"Finish": {"$eq": False}}
+        # pred_Result = list(self.Find(find_txt, show_id=False))
+        # Train
+        self.ConnDatabase('FlaskWeb')
+        self.ConnCollection('Train_List')
+        find_txt = {"Finish": {"$eq": False}}
+        train_Result = list(self.Find(find_txt, show_id=False))
+        # wait_Result = pred_Result + train_Result
+        return train_Result
+
+
     # 查詢"Train_List"中,特定Serial的值
     def Find_Train_List_Serial(self, serial):
         self.ConnDatabase('FlaskWeb')
@@ -180,6 +199,30 @@ class MongoDB_Training(MDB):
         self.ConnCollection('Train_History')
         Result = self.Insert(pb_history_Mkey)
         print("Insert_Train_History:", Result)
+
+    # 將預測結束後的結果記錄下來至Predict_Result
+    def Insert_Pred_Result(self, PredKey, X_df, Y, classes_List):
+        self.ConnDatabase('FlaskWeb')
+        self.ConnCollection('Predict_Result')
+        # 將答案與預測結果和PredKey 轉換成一筆筆dict
+        print("合併預測之X與Y + PredKey 準備存到資料庫中...")
+        insert_txt = []
+        x_label_name = X_df['label'].tolist()       # EX: [NORMAL, NORMAL, PNEUMONIA]
+        x_path_name = X_df['filepaths'].tolist()    # EX: [D:\DL\chest_xray\test\NORMAL\IM-0007-0001.jpeg, ...]
+        for i in range(len(x_label_name)):
+            d = {"PredKey":int(PredKey),
+                 "filepaths":x_path_name[i],
+                 "classes_name":x_label_name[i],
+                 "classes_index":int(classes_List.index(x_label_name[i])),
+                 "predict_name":classes_List[int(Y[i])],
+                 "predict_index":int(Y[i])
+            }
+            insert_txt.append(d)
+        print("insert_txt:", insert_txt)
+        Result = self.Insert(insert_txt)
+        print(Result)
+
+
     """
        *************************************   更新區域   ****************************************************
     """
@@ -199,7 +242,7 @@ class MongoDB_Training(MDB):
     def Predict_Call_StopStart(self, Train_serial, call_STOP_status=True):
         self.ConnDatabase('FlaskWeb')
         self.ConnCollection('Predict_List')
-        Update_Con = {"Mkey": {"$eq": int(Train_serial)}}
+        Update_Con = {"Predkey": {"$eq": int(Train_serial)}}
 
         if call_STOP_status:
             Result = self.Update(Update_Con, {"Stop": True})
@@ -223,16 +266,16 @@ class MongoDB_Training(MDB):
             print("Trainning_start_time:", Result)
 
     # 登記預測開始時間
-    def Update_Precict_Time(self, Pred_Mkey, Type_Start=True):
+    def Update_Precict_Time(self, PredKey, Type_Start=True):
         self.ConnDatabase('FlaskWeb')
         self.ConnCollection('Predict_List')
 
         if Type_Start:
-            Update_Con = {"Mkey": {"$eq": int(Pred_Mkey)}}
+            Update_Con = {"Predkey": {"$eq": int(PredKey)}}
             Result = self.Update(Update_Con, {"Strat_Date": datetime.now().strftime("%Y/%m/%d %H:%M:%S")})
             print("Predict_start_time:", Result)
         else:
-            Update_Con = {"Mkey": {"$eq": int(Pred_Mkey)}}
+            Update_Con = {"Predkey": {"$eq": int(PredKey)}}
             Result = self.Update(Update_Con, {"End_Date": datetime.now().strftime("%Y/%m/%d %H:%M:%S")})
             print("Predict_start_time:", Result)
 
@@ -240,9 +283,22 @@ class MongoDB_Training(MDB):
     def Update_Trainning_Finish(self, Train_serial):
         self.ConnDatabase('FlaskWeb')
         self.ConnCollection('Train_List')
-
         Update_Con = {"serial": {"$eq": int(Train_serial)}}
         Result = self.Update(Update_Con, {"Finish": True,"Stop": False})
+
+    # 變更預測結束時的狀態
+    def Update_Predict_Finish(self, PredKey):
+        self.ConnDatabase('FlaskWeb')
+        self.ConnCollection('Predict_List')
+        Update_Con = {"Predkey": {"$eq": int(PredKey)}}
+        Result = self.Update(Update_Con, {"Finish": True,"Stop": False})
+
+    # 變更預測完成後,的accuracy分數
+    def Update_Predict_acc(self, PredKey, accuracy):
+        self.ConnDatabase('FlaskWeb')
+        self.ConnCollection('Train_List')
+        Update_Con = {"PredKey": {"$eq": int(PredKey)}}
+        Result = self.Update(Update_Con, {"accuracy":float(accuracy)})
 
     """
        *************************************   刪除區域   ****************************************************
@@ -296,9 +352,8 @@ class MongoDB_Training(MDB):
 if __name__ == "__main__":
     uri = "mongodb+srv://e01646166:Ee0961006178@spawnboo.dzmdzto.mongodb.net/?retryWrites=true&w=majority&appName=spawnboo"
     spawnboo_MDB = MongoDB_Training(uri)
-    rows = spawnboo_MDB.Find_Train_Parameter_Mkey(3)
-    rows = rows[0].keys()
-    for r in rows:
-        print(r)
+    rows = spawnboo_MDB.Find_Train_List_WaitTrain()
+    print(rows+rows)
+
 
 
