@@ -59,21 +59,55 @@
     <a href="trainSet"><button class="button"><span>製作訓練菜單 </span></button></a>
 <!--    目前訓練清單與進度-->
     <form action="/trainList" method="post">
-
+        <!-- Predict Table-->
         <table class="trainning_table">
             <thead>
                 <tr>
-                    {% for header in headers %}
+                    {% for header in pred_header %}
                     <th>{{  header }}</th>
                     {% endfor %}
 
                     <th> Tool </th>
                 </tr>
             </thead>
-
-
             <tbody>
-            {% for row in data %}
+            {% for row in pred_wait_list %}
+                <tr>
+                    <!--    加入每個選項的內容     -->
+                    {% for head in row %}
+                    <td>{{ row[head] }}</td>
+                    {% endfor %}
+
+                    <!--加入按鈕選項  + 判斷式這個人是否有權限 -->
+                    <td>
+                       <button class="Tool_btn_eye" name="Tool_btn" value="{{ (row[head] | list)[0]}}_Look"><i type="submit"  class="fa fa-eye" aria-hidden="true"></i></button>
+                        {% if row['Stop'] == False %}
+                            <button class="Tool_btn_stop" name="Tool_btn" value="{{ (row[head] | list)[0]}}_Stop" onclick="return confirm('確定要停止作業?')"><i type="submit"  class="fa fa-stop-circle" aria-hidden="true"></i></button>
+                        {% else %}
+                            <button class="Tool_btn_stop" name="Tool_btn" value="{{ (row[head] | list)[0]}}_Start"><i type="submit"  class="fa fa-play-circle" aria-hidden="true"></i></button>
+                        {% endif %}
+
+                        {% if now_run == "" %}
+                            <button class="Tool_btn_delete" name="Tool_btn" value="{{ (row[head] | list)[0]}}_Del"  onclick="return confirm('確定刪除?')"><i type="submit" class="fa fa-trash" aria-hidden="true"></i></button>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <!-- Train Table-->
+        <table class="trainning_table">
+            <thead>
+                <tr>
+                    {% for header in train_header %}
+                    <th>{{  header }}</th>
+                    {% endfor %}
+
+                    <th> Tool </th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for row in train_wait_list %}
                 <tr>
                     <!--    加入每個選項的內容     -->
                     {% for item in row %}

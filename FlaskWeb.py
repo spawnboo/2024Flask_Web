@@ -379,17 +379,25 @@ def aboutme():
 @login_required
 def trainList():
     if request.method == 'GET':
+        # 資料庫取得抬頭名稱
+        train_List_heder = MDB.Find_Train_List_Header()
+        train_Parameter_heder = MDB.Find_Train_Train_Parameter_Header()
         # 資料庫撈取訓練列隊清單
-        waiting_result = MDB.Find_Train_List_WaitTrain()
+        train_waiting_result = MDB.Find_Train_List_WaitTrain()
+        Pred_waiting_result = MDB.Find_Predict_List_WaitTrain()
+        print("train_waiting_result:",train_waiting_result)
+        print("Pred_waiting_result:", Pred_waiting_result)
+        if len(train_waiting_result) > 0 or len(Pred_waiting_result)>0:
+            if len(train_waiting_result) > 0: train_waiting_result = train_waiting_result
+            if len(Pred_waiting_result) > 0: Pred_waiting_result = Pred_waiting_result
 
-        if len(waiting_result) > 0:
-            headers = waiting_result[0].keys()
-            cur = waiting_result
             # 現在系統正在跑的訓練或檢測(全域函數) train or predict
             now_run = ""
             if globals.train_project_serial != "":now_run = globals.train_project_serial
             if globals.predict_project_serial != "": now_run = globals.predict_project_serial
-            return render_template("TrainList.html", headers=list(headers), data=list(cur), now_run=now_run)
+            return render_template("TrainList.html", train_header=train_List_heder, train_wait_list=train_waiting_result,
+                                   pred_header = train_Parameter_heder, pred_wait_list=Pred_waiting_result,
+                                   now_run=now_run)
         return render_template("TrainList.html")
 
     # 如果他點擊任意待訓練"TOOL"選項!
@@ -457,7 +465,7 @@ def trainSet():
                                   serialKey='Pkey')
 
 
-    return redirect(url_for('TrainList'))
+    return redirect(url_for('trainList'))
 
 # 當按Look的方法的時候, 會將數據傳過來並可以觀看狀態
 @app.route('/LookTrainParameter/<serial_num>', methods=['GET'])  # 這邊'/startTrain' 是對照HTML中 <form> action=[要轉跳的地方] </form>

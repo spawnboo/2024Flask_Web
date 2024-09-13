@@ -57,7 +57,7 @@ class MDB:
 
     #============================================ CRUD 資料表查詢等功能 ==================================================
     # 查詢的方法
-    def Find(self,conditionDict = {}, sort=[] , show_id = True):
+    def Find(self,conditionDict = {}, sort=[], tag_show={}, show_id = True):
         """
         :param conditionDict: {}  查詢的Dict
         :param show_id: bool    結果是否要帶入"_id"? [預設True]
@@ -70,14 +70,15 @@ class MDB:
 
         if show_id:
             if sort != []:
-                result = self.conn[str(self.Database)][str(self.Collections)].find(conditionDict, {}).sort(sort)
+                result = self.conn[str(self.Database)][str(self.Collections)].find(conditionDict, tag_show).sort(sort)
             else:
-                result = self.conn[str(self.Database)][str(self.Collections)].find(conditionDict, {})
+                result = self.conn[str(self.Database)][str(self.Collections)].find(conditionDict, tag_show)
         else:
+            tag_show.update({"_id": 0})
             if sort != []:
-                result = self.conn[str(self.Database)][str(self.Collections)].find(conditionDict, {"_id": 0}).sort(sort)
+                result = self.conn[str(self.Database)][str(self.Collections)].find(conditionDict, tag_show).sort(sort)
             else:
-                result = self.conn[str(self.Database)][str(self.Collections)].find(conditionDict, {"_id": 0})
+                result = self.conn[str(self.Database)][str(self.Collections)].find(conditionDict, tag_show)
 
         return result
 
@@ -134,6 +135,10 @@ if __name__ == "__main__":
 
     mdb = MDB(uri)
 
+    a = {"a":1}
+    a.update({"_id": 0})
+
+    print(a)
 
 
     # dict = {'ip':'192.168.1.119'}
@@ -151,7 +156,7 @@ if __name__ == "__main__":
     # mdb.ConnDatabase('FlaskWeb')
     # mdb.ConnCollection('Train_List')
     #
-    # # 查詢
+    # 查詢
     # rows = mdb.Find(find_txt, show_id=False)
     # rows = list(rows)
     #
@@ -159,16 +164,15 @@ if __name__ == "__main__":
     #     print(row)
 
     mdb.ConnDatabase('FlaskWeb')
-    mdb.ConnCollection('Predict_List')
+    mdb.ConnCollection('Header_List')
     find_txt = {}
-    pred_find_result = list(mdb.Find(find_txt, show_id=False))
-    print("pred_find_result:", pred_find_result)
-    print("pred_find_result[0]", pred_find_result[0])
-    print("pred_find_result[0][0]", pred_find_result[0][0])
+    pred_find_result = list(mdb.Find(find_txt, show_id=False, tag_show={"Header":0}))
+
+    print(pred_find_result)
 
     #******************************************************************************************
     # mdb.ConnDatabase('FlaskWeb')
-    # mdb.ConnCollection('Predict_Result')
+    # mdb.ConnCollection('Header_List')
     #
     # insert_txt = [{ "Mkey": 0 },{"Mkey":1}]
     #

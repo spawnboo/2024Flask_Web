@@ -134,20 +134,36 @@ class MongoDB_Training(MDB):
     """
        *************************************   查詢區域   ****************************************************
     """
+    # 取得固定抬頭名稱  ***避免空值時取不到參數***
+    def Find_Train_List_Header(self):
+        self.ConnDatabase('FlaskWeb')
+        self.ConnCollection('Header_List')
+        find_txt = {"Header": {"$eq": 'Train_List'}}
+        find_Result = list(self.Find(find_txt, show_id=False, tag_show={"Header":0}))
+        return find_Result[0]
+
+    def Find_Train_Train_Parameter_Header(self):
+        self.ConnDatabase('FlaskWeb')
+        self.ConnCollection('Header_List')
+        find_txt = {"Header": {"$eq": 'Train_Parameter'}}
+        find_Result = list(self.Find(find_txt, show_id=False, tag_show={"Header":0}))
+        return find_Result[0]
+
     # 查詢"Train_list"中,尚未訓練完成的值
     def Find_Train_List_WaitTrain(self):
-        # # Predict
-        # self.ConnDatabase('FlaskWeb')
-        # self.ConnCollection('Predict_List')
-        # find_txt = {"Finish": {"$eq": False}}
-        # pred_Result = list(self.Find(find_txt, show_id=False))
-        # Train
         self.ConnDatabase('FlaskWeb')
         self.ConnCollection('Train_List')
         find_txt = {"Finish": {"$eq": False}}
         train_Result = list(self.Find(find_txt, show_id=False))
-        # wait_Result = pred_Result + train_Result
         return train_Result
+
+    # 查詢"Train_list"中,尚未訓練完成的值
+    def Find_Predict_List_WaitTrain(self):
+        self.ConnDatabase('FlaskWeb')
+        self.ConnCollection('Predict_List')
+        find_txt = {"Finish": {"$eq": False}}
+        pred_Result = list(self.Find(find_txt, show_id=False))
+        return pred_Result
 
 
     # 查詢"Train_List"中,特定Serial的值
@@ -353,7 +369,12 @@ if __name__ == "__main__":
     uri = "mongodb+srv://e01646166:Ee0961006178@spawnboo.dzmdzto.mongodb.net/?retryWrites=true&w=majority&appName=spawnboo"
     spawnboo_MDB = MongoDB_Training(uri)
     rows = spawnboo_MDB.Find_Train_List_WaitTrain()
-    print(rows+rows)
+    print(rows)
+    print("rows:", rows[0])
+
+    rows2 = spawnboo_MDB.Find_Predict_List_WaitTrain()
+    print(rows2)
+    print(rows2[0].keys())
 
 
 

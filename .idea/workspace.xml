@@ -6,12 +6,10 @@
   <component name="ChangeListManager">
     <list default="true" id="461a22b0-e3d9-4425-b72b-c83a3d920ae8" name="Changes" comment="TrainList List change to Load SQL">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DataFunction/DataProcess.py" beforeDir="false" afterPath="$PROJECT_DIR$/DataFunction/DataProcess.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/FlaskWeb.py" beforeDir="false" afterPath="$PROJECT_DIR$/FlaskWeb.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/MongoDB/DL_Savefunction.py" beforeDir="false" afterPath="$PROJECT_DIR$/MongoDB/DL_Savefunction.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/MongoDB/MongoDB_Client.py" beforeDir="false" afterPath="$PROJECT_DIR$/MongoDB/MongoDB_Client.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/trainHistoryDict/ImagePresentProcess.py" beforeDir="false" afterPath="$PROJECT_DIR$/trainHistoryDict/ImagePresentProcess.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/TrainList.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/TrainList.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -289,7 +287,14 @@
       <option name="project" value="LOCAL" />
       <updated>1725614400742</updated>
     </task>
-    <option name="localTasksCounter" value="15" />
+    <task id="LOCAL-00015" summary="Finish Predict function and testing &#10;now the Predict Result can upload to MongoDB&#10;Fix some of bug">
+      <created>1725873250827</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1725873250827</updated>
+    </task>
+    <option name="localTasksCounter" value="16" />
     <servers />
   </component>
   <component name="UnknownFeatures">
@@ -322,6 +327,7 @@
     <MESSAGE value="Trainning Stop/Start 實作切換&#10;When Trainning Delete can't do&#10;back prive button" />
     <MESSAGE value="修復MenuLine 連結會疊加問題&#10;查看方法與回上一頁實作&#10;訓練的history figture 從資料庫拉出後實作圖片, 準備放入查看方法中" />
     <MESSAGE value="TrainingList PredictPage PredictResult all Tool_button done&#10;修復部分小bug 精簡部分Mongodb重複使用語句" />
-    <option name="LAST_COMMIT_MESSAGE" value="TrainingList PredictPage PredictResult all Tool_button done&#10;修復部分小bug 精簡部分Mongodb重複使用語句" />
+    <MESSAGE value="Finish Predict function and testing &#10;now the Predict Result can upload to MongoDB&#10;Fix some of bug" />
+    <option name="LAST_COMMIT_MESSAGE" value="Finish Predict function and testing &#10;now the Predict Result can upload to MongoDB&#10;Fix some of bug" />
   </component>
 </project>
