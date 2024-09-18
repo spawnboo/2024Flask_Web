@@ -163,12 +163,13 @@ if __name__ == "__main__":
     # for row in rows:
     #     print(row)
 
-    mdb.ConnDatabase('FlaskWeb')
-    mdb.ConnCollection('Header_List')
-    find_txt = {}
-    pred_find_result = list(mdb.Find(find_txt, show_id=False, tag_show={"Header":0}))
+    # mdb.ConnDatabase('FlaskWeb')
+    # mdb.ConnCollection('Train_List')
+    # find_txt = {"$and": [
+    #     {"Finish": {"$eq": False}}]}
+    # train_find_result = list(mdb.Find(find_txt, show_id=False))
+    # print(train_find_result[0])
 
-    print(pred_find_result)
 
     #******************************************************************************************
     # mdb.ConnDatabase('FlaskWeb')

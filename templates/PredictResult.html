@@ -56,7 +56,7 @@
 
 <body>
 <!--    目前訓練清單與進度-->
-    <form action="PredictPage" method="post">
+    <form action="PredictResult" method="post">
 
         <table class="trainning_table">
             <thead>
@@ -78,8 +78,8 @@
 
                     <!--加入按鈕選項  + 判斷式這個人是否有權限 -->
                         <td>
-                            <button class="Tool_btn_eye" name="Tool_btn" value="{{ (row.values() | list)[1]}}_Look }}"><i type="submit"  class="fa fa-eye" aria-hidden="true"></i></button>
-                            <button class="Tool_btn_delete" name="Tool_btn" value="{{ (row.values() | list)[1]}}_Pred" onclick="return confirm('確定要停止作業?')"><i type="submit" class="fa fa-trash" aria-hidden="true"></i></button>
+                            <button class="Tool_btn_eye" name="Tool_btn" value="{{row['PredKey']}}_Look"><i type="submit"  class="fa fa-eye" aria-hidden="true"></i></button>
+                            <button class="Tool_btn_delete" name="Tool_btn" value="{{row['PredKey']}}_Del" onclick="return confirm('確定要停止作業?')"><i type="submit" class="fa fa-trash" aria-hidden="true"></i></button>
                         </td>
                 </tr>
             {% endfor %}

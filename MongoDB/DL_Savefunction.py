@@ -76,11 +76,11 @@ class MongoDB_Training(MDB):
         if Model == '':
             Model = "Unknow"
         # ==================================================================
-        Predkey = self.serialNUM(serialKey)    # 自動撈取後生成
+        PredKey = self.serialNUM(serialKey)    # 自動撈取後生成
 
         insert_dixt = {
             "Mkey": int(Mkey),
-            "Predkey": Predkey,
+            "PredKey": PredKey,
             "predictPath":str(predictPath),
             "Mission_Name": str(Mission_Name),
             "Creater": Creater,
@@ -96,13 +96,13 @@ class MongoDB_Training(MDB):
         }
         self.Insert([insert_dixt])
 
-        return Predkey
+        return PredKey
 
     # 預測結果紀錄
     def create_pred_ResultSQL(self, Predkey, PredictPath, model, PredNum, ACC,  serialKey='Rkey'):
         Rkey = self.serialNUM(serialKey)
         insert_dixt = {
-            "Predkey": Predkey,
+            "PredKey": Predkey,
             "Rkey": Rkey,
             "PredictPath": PredictPath,
             "Model":model,
@@ -157,7 +157,7 @@ class MongoDB_Training(MDB):
         train_Result = list(self.Find(find_txt, show_id=False))
         return train_Result
 
-    # 查詢"Train_list"中,尚未訓練完成的值
+    # 查詢"Predoct_list"中,尚未訓練完成的值
     def Find_Predict_List_WaitTrain(self):
         self.ConnDatabase('FlaskWeb')
         self.ConnCollection('Predict_List')
@@ -165,8 +165,25 @@ class MongoDB_Training(MDB):
         pred_Result = list(self.Find(find_txt, show_id=False))
         return pred_Result
 
+    # 查詢"Train_list"中,尚未訓練完成的值
+    def Find_Train_List_WaitTrain_NoStop(self):
+        self.ConnDatabase('FlaskWeb')
+        self.ConnCollection('Train_List')
+        find_txt = {"$and": [{"Finish": {"$eq": False}},
+                             {"Stop": {"$eq": False}}]}
+        train_Result = list(self.Find(find_txt, show_id=False))
+        return train_Result
 
-    # 查詢"Train_List"中,特定Serial的值
+    # 查詢"Predoct_list"中,尚未訓練完成的值
+    def Find_Predict_List_WaitTrain_NoStop(self):
+        self.ConnDatabase('FlaskWeb')
+        self.ConnCollection('Predict_List')
+        find_txt = {"$and": [{"Finish": {"$eq": False}},
+                             {"Stop": {"$eq": False}}]}
+        pred_Result = list(self.Find(find_txt, show_id=False))
+        return pred_Result
+
+    # (序列查詢)    查詢"Train_List"中,Serial的值
     def Find_Train_List_Serial(self, serial):
         self.ConnDatabase('FlaskWeb')
         self.ConnCollection('Train_List')
@@ -174,7 +191,7 @@ class MongoDB_Training(MDB):
         Result = list(self.Find(find_txt, show_id=False))
         return Result
 
-    # 查詢"Train_Parameter"中,特定Mkey(等同serial)的值
+    # (序列查詢)    查詢"Train_Parameter"中,特定Mkey(等同serial)的值
     def Find_Train_Parameter_Mkey(self, Mkey):
         self.ConnDatabase('FlaskWeb')
         self.ConnCollection('Train_Parameter')
@@ -182,11 +199,19 @@ class MongoDB_Training(MDB):
         Result = list(self.Find(find_txt, show_id=False))
         return Result
 
-    # 查詢"Predict_List"中,特定PredKey的值
+    # (序列查詢)    查詢"Predict_List"中,特定PredKey的值
     def Find_Pred_List_Serial(self, PredKey):
         self.ConnDatabase('FlaskWeb')
         self.ConnCollection('Predict_List')
         find_txt = {"PredKey": {"$eq": int(PredKey)}}
+        Result = list(self.Find(find_txt, show_id=False))
+        return Result
+
+    # 查詢已經Predict完成的案件
+    def Find_Train_List_Finish(self):
+        self.ConnDatabase('FlaskWeb')
+        self.ConnCollection('Train_List')
+        find_txt = {"Finish": {"$eq": True}}
         Result = list(self.Find(find_txt, show_id=False))
         return Result
 
@@ -353,7 +378,7 @@ class MongoDB_Training(MDB):
         del_txt = {"Predkey": {"$eq": int(Pred_serial)}}
 
         Result = self.Delete(del_txt)
-        print("Predict DELETE - PredictList part", Result)
+        print("Predict DELETE - Predict_List part", Result)
 
     def Pred_Result_Del(self, Pred_serial):
         # 直接砍掉Pred那個選項
@@ -362,7 +387,7 @@ class MongoDB_Training(MDB):
         del_txt = {"Predkey": {"$eq": int(Pred_serial)}}
 
         Result = self.Delete(del_txt)
-        print("Predict DELETE - PredictList part", Result)
+        print("Predict DELETE - Predict_Result part", Result)
 
 
 if __name__ == "__main__":

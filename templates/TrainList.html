@@ -5,6 +5,8 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <meta charset="UTF-8">
 <title>鱷魚AI動物園</title>
+<meta http-equiv="refresh" content="3">
+
 <head>
     <div class="topnav" id="myTopnav">
       <div class="dropdownR">
@@ -87,7 +89,7 @@
                             <button class="Tool_btn_stop" name="Tool_btn" value="{{ (row[head] | list)[0]}}_Start"><i type="submit"  class="fa fa-play-circle" aria-hidden="true"></i></button>
                         {% endif %}
 
-                        {% if now_run == "" %}
+                        {% if now_run != row['serial'] %}
                             <button class="Tool_btn_delete" name="Tool_btn" value="{{ (row[head] | list)[0]}}_Del"  onclick="return confirm('確定刪除?')"><i type="submit" class="fa fa-trash" aria-hidden="true"></i></button>
                         {% endif %}
                     </td>
@@ -123,7 +125,7 @@
                             <button class="Tool_btn_stop" name="Tool_btn" value="{{ (row.values() | list)[0]}}_Start"><i type="submit"  class="fa fa-play-circle" aria-hidden="true"></i></button>
                         {% endif %}
 
-                        {% if now_run == "" %}
+                        {% if now_run != row['serial'] %}
                             <button class="Tool_btn_delete" name="Tool_btn" value="{{ (row.values() | list)[0]}}_Del"  onclick="return confirm('確定刪除?')"><i type="submit" class="fa fa-trash" aria-hidden="true"></i></button>
                         {% endif %}
                     </td>
