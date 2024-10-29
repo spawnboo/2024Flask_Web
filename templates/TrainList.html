@@ -86,7 +86,7 @@
                         {% if row['Stop'] == False %}
                             <button class="Tool_btn_stop" name="Tool_btn" value="{{ (row[head] | list)[0]}}_Stop" onclick="return confirm('確定要停止作業?')"><i type="submit"  class="fa fa-stop-circle" aria-hidden="true"></i></button>
                         {% else %}
-                            <button class="Tool_btn_stop" name="Tool_btn" value="{{ (row[head] | list)[0]}}_Start"><i type="submit"  class="fa fa-play-circle" aria-hidden="true"></i></button>
+                            <button class="Tool_btn_run" name="Tool_btn" value="{{ (row[head] | list)[0]}}_Start"><i type="submit"  class="fa fa-play-circle" aria-hidden="true"></i></button>
                         {% endif %}
 
                         {% if now_run != row['serial'] %}
@@ -122,7 +122,7 @@
                         {% if row['Stop'] == False %}
                             <button class="Tool_btn_stop" name="Tool_btn" value="{{ (row.values() | list)[0]}}_Stop" onclick="return confirm('確定要停止作業?')"><i type="submit"  class="fa fa-stop-circle" aria-hidden="true"></i></button>
                         {% else %}
-                            <button class="Tool_btn_stop" name="Tool_btn" value="{{ (row.values() | list)[0]}}_Start"><i type="submit"  class="fa fa-play-circle" aria-hidden="true"></i></button>
+                            <button class="Tool_btn_run" name="Tool_btn" value="{{ (row.values() | list)[0]}}_Start"><i type="submit"  class="fa fa-play-circle" aria-hidden="true"></i></button>
                         {% endif %}
 
                         {% if now_run != row['serial'] %}

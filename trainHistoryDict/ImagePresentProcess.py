@@ -83,6 +83,34 @@ def CNN_Predict_Present(predict_Result, data_gen):
 
     return plt
 
+# 使用查詢後的DataFrame,輸出混沌矩陣方法圖片
+def SerachResult_Predict_Present(x_true, y_pred, classes_name_list):
+
+
+    # Confusion matrix
+    cm = confusion_matrix(x_true, y_pred)
+
+    plt.figure(figsize=(10, 10))
+    plt.imshow(cm, interpolation='nearest', cmap=plt.cm.Blues)
+    plt.title('Confusion Matrix')
+    plt.colorbar()
+
+    tick_marks = np.arange(len(classes_name_list))
+    plt.xticks(tick_marks, classes_name_list, rotation=45)
+    plt.yticks(tick_marks, classes_name_list)
+
+    thresh = cm.max() / 2.
+    for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
+        plt.text(j, i, cm[i, j], horizontalalignment='center', color='white' if cm[i, j] > thresh else 'black')
+
+    plt.tight_layout()
+    plt.ylabel('True Label')
+    plt.xlabel('Predicted Label')
+
+
+    return plt
+
+
 
 # 將轉換出來的plt 存成特定影像檔案
 def plt_saveIMG(plt, save_name='history', SAVE_TYPE='.png'):

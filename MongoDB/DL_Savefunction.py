@@ -231,6 +231,15 @@ class MongoDB_Training(MDB):
         Result = list(self.Find(find_txt, show_id=False))
         return Result
 
+    # ------------------------------------------------------------------------------------------------------
+    # 查詢指定PredKey的Result
+    def Find_Pred_Result_PredKey(self, PredKey):
+        self.ConnDatabase('FlaskWeb')
+        self.ConnCollection('Predict_Result')
+        find_txt = {"PredKey": {"$eq": int(PredKey)}}
+        Result = list(self.Find(find_txt, show_id=False))
+        return Result
+
     """
        *************************************   輸入區域   ****************************************************
     """

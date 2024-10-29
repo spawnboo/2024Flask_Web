@@ -57,22 +57,37 @@
     <!--    回到上一頁按鈕-->
     <a href="{{ url_for('PredictResult') }}"><button class="previous"><span> 回上頁 </span></button></a>
 
+
+
     <table class="trainning_table">
         <tbody>
-        {% for main in main_cur %}
-            <tr>
-                <th>{{ main }}</th>
-                <th>{{ main_cur[main] }}</th>
-            </tr>
-        {% endfor %}
+        <!--    正確率    -->
+        <tr>
+            <th>ACCuracy</th><th>{{ACC}} %</th>
+        </tr>
 
-        {% for para in para_cur %}
             <tr>
-                <th>{{ para }}</th>
-                <th>{{ para_cur[para] }}</th>
+                <th>Correct</th>
+                <th>Predkey</th>
+                <th>filepaths</th>
+                <th>classes_name</th>
+                <th>classes_index</th>
+                <th>predict_name</th>
+                <th>predict_index</th>
+            </tr>
+
+        {% for data in Data %}
+            <tr>
+                <td>{{ Pred_check[loop.index0] }}</td>
+                {% for item in data %}
+                <td>{{ item }}</td>
+                {% endfor %}
             </tr>
         {% endfor %}
         </tbody>
     </table>
+
+    <!--   呈現預測結果圖片-->
+    <img src="/static/images/cnn_pred_result.png">
 
 </body>

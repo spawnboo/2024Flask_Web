@@ -20,7 +20,6 @@ from sklearn.metrics import confusion_matrix, classification_report
 
 import tensorflow as tf
 from tensorflow import keras
-from tqdm.keras import TqdmCallback
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Conv2D , MaxPooling2D , Flatten , Activation , Dense , Dropout , BatchNormalization
 

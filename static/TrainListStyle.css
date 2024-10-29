@@ -126,7 +126,7 @@
   background-color: green;
 }
 .Tool_btn_stop {
-  background-color: gray;
+  background-color: red;
   border: none;
   color: white;
   padding: 8px 8px;
@@ -134,6 +134,18 @@
   cursor: pointer;
 }
 .Tool_btn_stop:hover {
+  background-color: darkorange;
+}
+
+.Tool_btn_run {
+  background-color: green;
+  border: none;
+  color: white;
+  padding: 8px 8px;
+  font-size: 16px;
+  cursor: pointer;
+}
+.Tool_btn_run:hover {
   background-color: darkorange;
 }
 

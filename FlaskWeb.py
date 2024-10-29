@@ -240,19 +240,19 @@ def home():
         2. 轉跳至登入頁面
     :return: Login Page
     """
-    # # 註記保留, 多線程啟用訓練方法
-    # # 線程任務指派
-    # QueenRobot_thread = threading.Thread(target=TrainQueeueRobot)
-    # StopReader_thread = threading.Thread(target=TrainStopListenRobot)
-    # # 線程任務狀態設定
-    # QueenRobot_thread.daemon = True         # Daemonize
-    # StopReader_thread.daemon = True
-    # # 線程任務開始[含檢查機制,防止開多個]
-    # if QueenRobot_thread.is_alive() == False:
-    #     QueenRobot_thread.start()
-    # if StopReader_thread.is_alive() == False:
-    #     StopReader_thread.start()
-    # #  轉跳至 登入畫面  等未來有空再做登入畫面
+    # 註記保留, 多線程啟用訓練方法
+    # 線程任務指派
+    QueenRobot_thread = threading.Thread(target=TrainQueeueRobot)
+    StopReader_thread = threading.Thread(target=TrainStopListenRobot)
+    # 線程任務狀態設定
+    QueenRobot_thread.daemon = True         # Daemonize
+    StopReader_thread.daemon = True
+    # 線程任務開始[含檢查機制,防止開多個]
+    if QueenRobot_thread.is_alive() == False:
+        QueenRobot_thread.start()
+    if StopReader_thread.is_alive() == False:
+        StopReader_thread.start()
+    #  轉跳至 登入畫面  等未來有空再做登入畫面
     return redirect(url_for('login'))
 
 # 登入使用者 with cookie
@@ -613,11 +613,37 @@ def PredictResult():
 # 查詢預測內容的方法
 @app.route('/LookPredParameter/<PredKey>', methods=['GET'])  # 這邊'/startTrain' 是對照HTML中 <form> action=[要轉跳的地方] </form>
 def LookPredParameter(PredKey):
-    # TODO 查詢該Predkey的Predict_Result結果
-    # TODO 繪製混沌矩陣的圖案至 static/images 裡面
+    # 查詢該Predkey的Predict_Result結果
+    Serach_Predict_Result = MDB.Find_Pred_Result_PredKey(PredKey=PredKey)
+    # 轉換成DataFrame
+    Pred_Result_df = pd.DataFrame(Serach_Predict_Result)
+    print("Preedd:",Pred_Result_df)
+    # 這邊可以利用查詢到的內容 整理成 兩個list
+    classes_name_list = []
+    classes_label_list = []
+    classes = (set(Pred_Result_df['classes_name'].tolist()))
+    for cls in classes:
+        cls_label = Pred_Result_df.iloc[Pred_Result_df.index[Pred_Result_df['classes_name'] == cls][0]]['classes_index']
+        classes_name_list.append(cls)
+        classes_label_list.append(cls_label)
+
+    ans = [Pred_Result_df['classes_name'].iloc[i] == Pred_Result_df['predict_name'].iloc[i] for i in range(len(Pred_Result_df))]
+    acc = ans.count(True) / len(ans)
+    # print("acc:", round(acc, 2))
+
+    # label 預測結果
+    x_true = Pred_Result_df['classes_index'].tolist()
+    y_pred = Pred_Result_df['predict_index'].tolist()
+
+    # 繪製混沌矩陣的圖案至 static/images 裡面
+    pred_plt = SerachResult_Predict_Present(x_true,y_pred,classes_name_list)
+    plt_saveIMG(pred_plt, save_name=r'./static/images/cnn_pred_result.png', SAVE_TYPE='.png')
 
     # TODO 將查詢到的結果與參數和圖片秀在 PredLook.html 上
-    return render_template("PredLook.html", PredKey=PredKey)
+    # 轉換成能夠輸入的list
+    Pred_Result_list = Pred_Result_df.values.tolist()
+
+    return render_template("PredLook.html",ACC = round(acc*100, 2), Pred_check=ans, Data = Pred_Result_list)
 # ====================================================  轉址的功能 ====================================================
 
 if __name__ == "__main__":  # 如果以主程式運行
@@ -629,7 +655,7 @@ if __name__ == "__main__":  # 如果以主程式運行
     uri = "mongodb+srv://e01646166:Ee0961006178@spawnboo.dzmdzto.mongodb.net/?retryWrites=true&w=majority&appName=spawnboo"
     MDB = MDB.MongoDB_Training(uri)
 
-    app.run(debug=True)  # 啟動伺服器
+    app.run(debug=True,host='0.0.0.0',port=80)  # 啟動伺服器
 
 
 

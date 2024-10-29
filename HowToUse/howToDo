@@ -1,3 +1,13 @@
+# 如何產生 requirements.txt 的內容
+1. pip freeze > requirements.txt
+
+# 如何建立DockFile
+    # 建立該目錄下的image
+    1. docker image build -t spawnboo_flask .
+
+    # 生成container,
+    2. docker run -d -p 80:5000 --name docker0109 dockerfile_test
+
 # 如何docker push 到 google Container Registry
 1. "gcloud auth configure-docker" 下指令 將docker 與 google Container Registry 連結
 2. 如下指令 PUSH　就會直接推送到google Container Registry 上  當然如果出現權限不足的訊息! 記得登入!!

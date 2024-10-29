@@ -1,5 +1,5 @@
 import FlaskWeb as FW
-from MongoDB.MongoDB_Client import MDB
+import MongoDB.DL_Savefunction as MDB
 import base_Model.Spawn_model as spm
 import numpy as np
 import matplotlib.pyplot as plt
@@ -8,6 +8,7 @@ import itertools
 import threading
 from DataFunction.DataProcess import Data_Dataframe_process, scalar
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
+import pandas as pd
 
 import time
 
@@ -34,31 +35,30 @@ if __name__ == "__main__":  # 如果以主程式運行
     # 以上202408月新增  需要給訓練系統初始化全域函數
 
 
-    train_PATH = r'D:\DL\chest_xray\test'
-
-    # 從資料夾抓取資料變成DataFrame的方法
-    train_df = Data_Dataframe_process(train_PATH)
-    # [這邊需要改寫] 產生餵入資料的flow 後面需要變成class 然後 把各種前處理的選項加進去 給flask介面選擇
-    train_Datagen = ImageDataGenerator(preprocessing_function=scalar)
-    train_gen = train_Datagen.flow_from_dataframe(train_df,
-                                                  x_col='filepaths',
-                                                  y_col='label',
-                                                  target_size=(224,224),
-                                                  class_mode='categorical',
-                                                  color_mode='rgb',
-                                                  shuffle=False,
-                                                  batch_size=32)
-    # [全都要改寫] 產生要訓練的Model, 從flask選擇方法與各種參數後 變成一個model return
-    # [改寫] 需要有callback的選項可以選, 何時停 紀錄甚麼參數?
-    # ====================== 前置參數 ========================
-    classes = len(list(train_gen.class_indices.keys()))
-    # =======================================================
-
-    # 載入模型  試算classes 數量
-
-    train_model = spm.spawnboo_model(classes=classes)
-    train_model.EfficientNet_parameter_test()
-    train_model.EfficientNetB3_keras()
+    # train_PATH = r'D:\DL\chest_xray\test'
+    # # # 從資料夾抓取資料變成DataFrame的方法
+    # train_df = Data_Dataframe_process(train_PATH)
+    # # [這邊需要改寫] 產生餵入資料的flow 後面需要變成class 然後 把各種前處理的選項加進去 給flask介面選擇
+    # train_Datagen = ImageDataGenerator(preprocessing_function=scalar)
+    # train_gen = train_Datagen.flow_from_dataframe(train_df,
+    #                                               x_col='filepaths',
+    #                                               y_col='label',
+    #                                               target_size=(224,224),
+    #                                               class_mode='categorical',
+    #                                               color_mode='rgb',
+    #                                               shuffle=False,
+    #                                               batch_size=32)
+    # # [全都要改寫] 產生要訓練的Model, 從flask選擇方法與各種參數後 變成一個model return
+    # # [改寫] 需要有callback的選項可以選, 何時停 紀錄甚麼參數?
+    # # ====================== 前置參數 ========================
+    # classes = len(list(train_gen.class_indices.keys()))
+    # # =======================================================
+    #
+    # # 載入模型  試算classes 數量
+    #
+    # train_model = spm.spawnboo_model(classes=classes)
+    # train_model.EfficientNet_parameter_test()
+    # train_model.EfficientNetB3_keras()
 
 
     # ###############################################################################################################
@@ -143,43 +143,51 @@ if __name__ == "__main__":  # 如果以主程式運行
 
 
 
-    # ===================預測的方法===================
-    train_df_list = train_df['label'].tolist()
-    print("train_df:", train_df)
 
-    classes_list = list(train_gen.class_indices.keys())
-    #print("list(train_gen.class_indices.keys()):",classes_list)
-    # 將列表中的文字轉換成 classes 中的次序
-    print("*********************************")
+    # ===================預測的方法 by 查詢sql===================
+    # 先查詢SQL
+    uri = "mongodb+srv://e01646166:Ee0961006178@spawnboo.dzmdzto.mongodb.net/?retryWrites=true&w=majority&appName=spawnboo"
+    MDB = MDB.MongoDB_Training(uri)
+    predResult = MDB.Find_Pred_Result_PredKey(PredKey=3)
 
-    # predict
-    predict_Result = train_model.start_predict(train_gen)
-    print("train_model.predictResult:", train_model.predictResult)
-    y_pred = (np.argmax(train_model.predictResult, axis=1))
-    # print(y_pred)
+    df = pd.DataFrame(predResult)
+    pd.set_option('display.max_columns', None)  # 這是能看到全部內容得方法
+    print(df)
+    print(df.columns)
+    print("df list:", df.values.tolist())
 
-    x_pred = [classes_list.index(data) for data in train_df_list]
-    ans = [x_pred[i] == y_pred[i] for i in range(len(y_pred))]
+    # 這邊可以利用查詢到的內容 整理成 兩個list
+    classes_name_list = []
+    classes_label_list = []
+    classes = (set(df['classes_name'].tolist()))
+    for cls in classes:
+        cls_label = df.iloc[df.index[df['classes_name'] == cls][0]]['classes_index']
+        classes_name_list.append(cls)
+        classes_label_list.append(cls_label)
+
+
+    True_label = df['classes_name']
+    Predict_label = df['predict_name']
+
+    ans = [df['classes_name'].iloc[i] == df['predict_name'].iloc[i] for i in range(len(df))]
     acc = ans.count(True) / len(ans)
-    print(ans)
-    print(acc)
-    print(round(acc, 2))
+    print("Predict ACC:",round(acc, 2))
 
-    # 匯出 混沌矩陣方法
-    g_dict = train_gen.class_indices
-    classes = list(g_dict.keys())
+    # label 預測結果
+    x_true = df['classes_index'].tolist()
+    y_pred = df['predict_index'].tolist()
 
     # Confusion matrix
-    cm = confusion_matrix(train_gen.classes, y_pred)
+    cm = confusion_matrix(x_true, y_pred)
 
     plt.figure(figsize=(10, 10))
     plt.imshow(cm, interpolation='nearest', cmap=plt.cm.Blues)
     plt.title('Confusion Matrix')
     plt.colorbar()
 
-    tick_marks = np.arange(len(classes))
-    plt.xticks(tick_marks, classes, rotation=45)
-    plt.yticks(tick_marks, classes)
+    tick_marks = np.arange(len(classes_name_list))
+    plt.xticks(tick_marks, classes_name_list, rotation=45)
+    plt.yticks(tick_marks, classes_name_list)
 
     thresh = cm.max() / 2.
     for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
@@ -197,6 +205,113 @@ if __name__ == "__main__":  # 如果以主程式運行
 
 
 
+ # ===================預測的方法===================
+    # train_df_list = train_df['label'].tolist()
+    # print("train_df:", train_df)
+    #
+    # classes_list = list(train_gen.class_indices.keys())
+    # #print("list(train_gen.class_indices.keys()):",classes_list)
+    # # 將列表中的文字轉換成 classes 中的次序
+    # print("*********************************")
+    #
+    # # predict
+    # predict_Result = train_model.start_predict(train_gen)
+    # print("train_model.predictResult:", train_model.predictResult)
+    # y_pred = (np.argmax(train_model.predictResult, axis=1))
+    # # print(y_pred)
+    #
+    # x_pred = [classes_list.index(data) for data in train_df_list]
+    # ans = [x_pred[i] == y_pred[i] for i in range(len(y_pred))]
+    # acc = ans.count(True) / len(ans)
+    # print(ans)
+    # print(acc)
+    # print(round(acc, 2))
+    #
+    # # 匯出 混沌矩陣方法
+    # g_dict = train_gen.class_indices
+    # classes = list(g_dict.keys())
+    #
+    # # Confusion matrix
+    # cm = confusion_matrix(train_gen.classes, y_pred)
+    #
+    # plt.figure(figsize=(10, 10))
+    # plt.imshow(cm, interpolation='nearest', cmap=plt.cm.Blues)
+    # plt.title('Confusion Matrix')
+    # plt.colorbar()
+    #
+    # tick_marks = np.arange(len(classes))
+    # plt.xticks(tick_marks, classes, rotation=45)
+    # plt.yticks(tick_marks, classes)
+    #
+    # thresh = cm.max() / 2.
+    # for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
+    #     plt.text(j, i, cm[i, j], horizontalalignment='center', color='white' if cm[i, j] > thresh else 'black')
+    #
+    # plt.tight_layout()
+    # plt.ylabel('True Label')
+    # plt.xlabel('Predicted Label')
+    #
+    # # 將混沌矩陣儲存
+    # save_img = r'./static/images/cnn_pred_result.png'
+    # plt.savefig(save_img)
+    #
+    # plt.show()
+
+
+# ===============================================
+#     train_df_list = train_df['label'].tolist()
+#     print("train_df:", train_df)
+#
+#     classes_list = list(train_gen.class_indices.keys())
+#     #print("list(train_gen.class_indices.keys()):",classes_list)
+#     # 將列表中的文字轉換成 classes 中的次序
+#     print("*********************************")
+#
+#     # predict
+#     predict_Result = train_model.start_predict(train_gen)
+#     print("train_model.predictResult:", train_model.predictResult)
+#     y_pred = (np.argmax(train_model.predictResult, axis=1))
+#     # print(y_pred)
+#
+#     x_pred = [classes_list.index(data) for data in train_df_list]
+#     ans = [x_pred[i] == y_pred[i] for i in range(len(y_pred))]
+#     acc = ans.count(True) / len(ans)
+#     print(ans)
+#     print(acc)
+#     print(round(acc, 2))
+
+    # # 匯出 混沌矩陣方法
+    # g_dict = train_gen.class_indices
+    # classes = list(g_dict.keys())
+    #
+    # print("train_gen:", train_gen)
+    # print("classes:",classes)
+    #
+    # # Confusion matrix
+    # cm = confusion_matrix(train_gen.classes, y_pred)
+    #
+    # plt.figure(figsize=(10, 10))
+    # plt.imshow(cm, interpolation='nearest', cmap=plt.cm.Blues)
+    # plt.title('Confusion Matrix')
+    # plt.colorbar()
+    #
+    # tick_marks = np.arange(len(classes))
+    # plt.xticks(tick_marks, classes, rotation=45)
+    # plt.yticks(tick_marks, classes)
+    #
+    # thresh = cm.max() / 2.
+    # for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
+    #     plt.text(j, i, cm[i, j], horizontalalignment='center', color='white' if cm[i, j] > thresh else 'black')
+    #
+    # plt.tight_layout()
+    # plt.ylabel('True Label')
+    # plt.xlabel('Predicted Label')
+    #
+    # # 將混沌矩陣儲存
+    # save_img = r'./static/images/cnn_pred_result.png'
+    # plt.savefig(save_img)
+    #
+    # plt.show()
 
 
 

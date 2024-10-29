@@ -1,0 +1,20 @@
+# coding=utf-8
+
+find_txt = {"$and": [
+    {"Finish": {"$eq": False}},
+    {"Stop": {"$eq": False}}]}
+
+a = {"$and": []}
+b = {"Finish": {"$eq": False}}
+c = {"Stop": {"$eq": False}}
+
+# a["$and"] = [b,c]
+
+l = []
+l.append(b)
+l.append(c)
+a["$and"] = l
+
+print(a)
+
+print(find_txt == a)
